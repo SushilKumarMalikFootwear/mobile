@@ -48,9 +48,14 @@ class ProductRepository {
           "collection": "footwears",
           "database": "test",
           "dataSource": "SushilKumarMalikFootwear",
-          "sort":{
-            "createdAt":-1
-          }
+          "sort": {"createdAt": -1}
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Request-Headers': '*',
+          'api-key':
+              'qNt2VxYXcnCBIL2txrJq1aTPoXlzCKG4kFCOBCdOvODzQxV0W106vBQNlf5trY3i',
+          'Accept': 'application/json'
         });
     return response;
   }

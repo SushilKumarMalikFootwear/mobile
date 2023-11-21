@@ -23,11 +23,16 @@ abstract class ApiClient {
   }
 
   static post(String url, dynamic data,
-      {ResponseType responseType = ResponseType.json}) async {
+      {ResponseType responseType = ResponseType.json,
+      Map<String, dynamic>? headers}) async {
     try {
-      _dio.options.headers = Constants.isBackendStarted
-          ? Constants.basicHeaders
-          : Constants.mongoDbApiHeaders;
+      if (headers != null) {
+        _dio.options.headers = headers;
+      } else {
+        _dio.options.headers = Constants.isBackendStarted
+            ? Constants.basicHeaders
+            : Constants.mongoDbApiHeaders;
+      }
       Response response = await _dio.post(url,
           data: jsonEncode(data),
           options: Options(
