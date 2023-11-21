@@ -35,7 +35,7 @@ class _ViewProductState extends State<ViewProduct> {
     setConfigList();
     // TODO: implement initState
     super.initState();
-    getProducts = productRepo.getProducts(filterMap);
+    getProducts = productRepo.getAllProducts();
   }
 
   @override
@@ -57,7 +57,7 @@ class _ViewProductState extends State<ViewProduct> {
           } else {
             return RefreshIndicator(
               onRefresh: () {
-                getProducts = productRepo.getProducts(filterMap);
+                getProducts = productRepo.filterProducts(filterMap);
                 setState(() {});
                 return Future(() => null);
               },
@@ -139,7 +139,7 @@ class _ViewProductState extends State<ViewProduct> {
                                                 'color': colorCtrl.text,
                                               };
                                               getProducts = productRepo
-                                                  .getProducts(filterMap);
+                                                  .filterProducts(filterMap);
                                               Navigator.pop(context);
                                               setState(() {});
                                             },
@@ -177,7 +177,7 @@ class _ViewProductState extends State<ViewProduct> {
                       ),
                       IconButton(
                           onPressed: () {
-                            getProducts = productRepo.getProducts(filterMap);
+                            getProducts = productRepo.filterProducts(filterMap);
                             setState(() {});
                           },
                           icon: const Icon(Icons.refresh))
@@ -188,7 +188,7 @@ class _ViewProductState extends State<ViewProduct> {
                     child: ListView.builder(
                       itemBuilder: (BuildContext ctx, int index) {
                         product =
-                            Product.fromJSON(snapshot.data['footwears'][index]);
+                            Product.fromJSON(snapshot.data['documents'][index]);
                         String sizeAtShop = '';
                         String sizeAtHome = '';
                         for (Map<String, dynamic> element
@@ -216,7 +216,7 @@ class _ViewProductState extends State<ViewProduct> {
                               builder: (context) {
                                 return ProductPreview(
                                   product: Product.fromJSON(
-                                      snapshot.data['footwears'][index]),
+                                      snapshot.data['documents'][index]),
                                   sizeAtHome: sizeAtHome,
                                   sizeAtShope: sizeAtShop,
                                 );
@@ -283,7 +283,7 @@ class _ViewProductState extends State<ViewProduct> {
                           ),
                         );
                       },
-                      itemCount: snapshot.data['footwears'].length,
+                      itemCount: snapshot.data['documents'].length,
                     ),
                   ),
                 ],

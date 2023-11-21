@@ -173,7 +173,7 @@ import '/modules/Services/drawer_options_list.dart';
 import '/modules/models/drawer_option.dart';
 import '/modules/widgets/drawer.dart';
 import '../Services//services.dart';
-import '../models/orders.dart';
+import '../models/orders.dart' as Order;
 import '../repository/orders_repo.dart';
 
 class Orders extends StatefulWidget {
@@ -285,7 +285,7 @@ class _OrdersState extends State<Orders> {
             } else if (snapshot.hasError) {
               return Text("Some error has occured");
             } else {
-              List<Order> list = services.convertOrders(snapshot.data);
+              List<Order.Order> list = services.convertOrders(snapshot.data);
               //_getList();
 
               return Expanded(

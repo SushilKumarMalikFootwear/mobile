@@ -41,7 +41,21 @@ class ProductRepository {
     return response;
   }
 
-  getProducts(Map<String, dynamic> filterMap) async {
+  getAllProducts() async {
+    var response = await ApiClient.post(
+        "https://ap-south-1.aws.data.mongodb-api.com/app/data-rtgjs/endpoint/data/v1/action/find",
+        {
+          "collection": "footwears",
+          "database": "test",
+          "dataSource": "SushilKumarMalikFootwear",
+          "sort":{
+            "createdAt":-1
+          }
+        });
+    return response;
+  }
+
+  filterProducts(Map<String, dynamic> filterMap) async {
     var response = await ApiClient.post(ApiUrls.FILTER_FOOTWEARS, filterMap);
     return response;
   }
