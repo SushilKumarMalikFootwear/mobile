@@ -18,7 +18,7 @@ class _ViewProductState extends State<ViewProduct> {
   List<String> categoryList = [];
   List<String> sizeRangeList = [];
   Map<String, List<String>> configList = {};
-  Map<String, dynamic> filterMap = {};
+  Map<String, String> filterMap = {};
 
   late Product product;
 

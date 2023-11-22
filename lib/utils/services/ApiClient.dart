@@ -34,7 +34,7 @@ abstract class ApiClient {
             : Constants.mongoDbApiHeaders;
       }
       Response response = await _dio.post(url,
-          data: jsonEncode(data),
+          data: json.encode(data),
           options: Options(
               responseType: responseType,
               validateStatus: (status) {
