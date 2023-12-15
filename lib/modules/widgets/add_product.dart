@@ -134,7 +134,6 @@ class _AddPrductState extends State<AddPrduct> {
       photoNumber == 1
           ? URL1 = await obj.ref.getDownloadURL()
           : URL2 = await obj.ref.getDownloadURL();
-      print("Download URL ${photoNumber == 1 ? URL1 : URL2}");
     }).catchError((err) {});
     setState(() {});
   }

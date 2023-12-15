@@ -70,6 +70,7 @@ class ProductRepository {
     String article = filterMap['article']!;
     String size_range = filterMap['size_range']!;
     String color = filterMap['color']!;
+    String vendor = filterMap['vendor']!;
     var headers = {
       'Content-Type': 'application/json',
       'Access-Control-Request-Headers': '*',
@@ -112,6 +113,12 @@ class ProductRepository {
               "color": {"\$regex": color, "\$options": "i"}
             }
           },
+        if (vendor.isNotEmpty)
+          {
+            "\$match": {
+              "vendor": {"\$regex": vendor, "\$options": "i"}
+            }
+          },
         {
           "\$sort": {"createdAt": -1}
         }
@@ -128,7 +135,6 @@ class ProductRepository {
     );
 
     if (response.statusCode == 200) {
-      print(json.encode(response.data));
     } else {
       print(response.statusMessage);
     }
@@ -221,7 +227,6 @@ class ProductRepository {
       String product_id) {
     Future<DocumentSnapshot<Map<String, dynamic>>> querysnapshot =
         db.collection(Collections.PRODUCTS).doc(product_id).get();
-    print(querysnapshot);
     // querysnapshot.then((value) => print(value.data()));
     return querysnapshot;
   }

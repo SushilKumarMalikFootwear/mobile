@@ -6,7 +6,6 @@ class UploadDownload {
   late UploadTask uploadTask;
   UploadTask uploadImage(String fileName) {
     String cloudFileName = fileName.split("/").last;
-    print(cloudFileName);
     ref = ref.child("/" + cloudFileName);
     uploadTask = ref.putFile(File(fileName));
     return uploadTask;

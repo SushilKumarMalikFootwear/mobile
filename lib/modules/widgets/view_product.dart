@@ -19,6 +19,7 @@ class _ViewProductState extends State<ViewProduct> {
   List<String> sizeRangeList = [];
   Map<String, List<String>> configList = {};
   Map<String, String> filterMap = {};
+  List<String> vendorList = [];
 
   late Product product;
 
@@ -27,6 +28,7 @@ class _ViewProductState extends State<ViewProduct> {
     configList = await productRepo.getConfigLists();
     categoryList = configList['categoryList']!;
     sizeRangeList = configList['sizeRangeList']!;
+    vendorList = configList['vendorList']!;
     setState(() {});
   }
 
@@ -83,6 +85,7 @@ class _ViewProductState extends State<ViewProduct> {
                                 TextEditingController();
                             String selectedSizeRange = '';
                             String SelectedCategory = '';
+                            String selectedVendor = '';
                             customBottomSheet(
                                 context,
                                 Scaffold(
@@ -106,6 +109,18 @@ class _ViewProductState extends State<ViewProduct> {
                                               SelectedCategory = value;
                                             },
                                             items: categoryList),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        CustomDropDown(
+                                            value: selectedVendor.isEmpty
+                                                ? null
+                                                : selectedVendor,
+                                            hint: 'Select a Vendor',
+                                            onChange: (value) {
+                                              selectedVendor = value;
+                                            },
+                                            items: vendorList),
                                         TextField(
                                           controller: articleCtrl,
                                           decoration: const InputDecoration(
@@ -137,6 +152,7 @@ class _ViewProductState extends State<ViewProduct> {
                                                 'article': articleCtrl.text,
                                                 'size_range': selectedSizeRange,
                                                 'color': colorCtrl.text,
+                                                'vendor':selectedVendor
                                               };
                                               getProducts = productRepo
                                                   .filterProducts(filterMap);
