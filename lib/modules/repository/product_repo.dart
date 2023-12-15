@@ -24,9 +24,12 @@ class ProductRepository {
     List<String> sizeRangeList = list.map((e) => e.toString()).toList();
     list = temp['categoryList'];
     List<String> categoryList = list.map((e) => e.toString()).toList();
+    list = temp['vendorList'];
+    List<String> vendorList = list.map((e) => e.toString()).toList();
     Map<String, List<String>> configLists = {
       'sizeRangeList': sizeRangeList,
-      'categoryList': categoryList
+      'categoryList': categoryList,
+      'vendorList': vendorList
     };
     return configLists;
   }
@@ -103,12 +106,12 @@ class ProductRepository {
               "size_range": {"\$regex": size_range, "\$options": "i"}
             }
           },
-        if(color.isNotEmpty)
-        {
-          "\$match": {
-            "color": {"\$regex": color, "\$options": "i"}
-          }
-        },
+        if (color.isNotEmpty)
+          {
+            "\$match": {
+              "color": {"\$regex": color, "\$options": "i"}
+            }
+          },
         {
           "\$sort": {"createdAt": -1}
         }

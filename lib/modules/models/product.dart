@@ -12,9 +12,11 @@ class Product {
   String? URL2;
   late String sizeRange;
   late String description;
+  late String vendor;
   List pairs_in_stock = [];
   Product();
   Product.fromJSON(Map product) {
+    vendor = product['vendor']??'';
     footwear_id = product['footwear_id'];
     brandName = product['brand'];
     subBrandName = product['sub_brand'];
@@ -33,6 +35,7 @@ class Product {
 
   Map<String, dynamic> toJSON() {
     return {
+      "vendor":vendor,
       "brand": brandName,
       "sub_brand": subBrandName,
       "article": article,

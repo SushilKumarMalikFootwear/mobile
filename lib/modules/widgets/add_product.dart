@@ -29,6 +29,8 @@ class _AddPrductState extends State<AddPrduct> {
   TextEditingController mrp = TextEditingController();
   TextEditingController sellingPrice = TextEditingController();
   TextEditingController costPrice = TextEditingController();
+  String? vendor;
+  List<String> vendorList = [];
   String? category;
   List<String> categoryList = [];
   TextEditingController color = TextEditingController();
@@ -46,6 +48,7 @@ class _AddPrductState extends State<AddPrduct> {
     configList = await productRepo.getConfigLists();
     categoryList = configList['categoryList']!;
     sizeRangeList = configList['sizeRangeList']!;
+    vendorList = configList['vendorList']!;
     setState(() {});
   }
 
@@ -55,6 +58,7 @@ class _AddPrductState extends State<AddPrduct> {
     super.initState();
     product = widget.product;
     if (widget.todo == Constants.EDIT) {
+      vendor = product.vendor;
       brandName.text = product.brandName;
       subBrandName.text = product.subBrandName;
       category = product.category;
@@ -85,6 +89,7 @@ class _AddPrductState extends State<AddPrduct> {
       product.subBrandName = subBrandName.text;
       product.sizeRange = sizeRange!;
       product.description = descCtrl.text;
+      product.vendor = vendor.toString();
       var response = widget.todo == Constants.CREATE
           ? await productRepo.add(product.toJSON())
           : await productRepo.update(product.toJSON());
@@ -99,7 +104,13 @@ class _AddPrductState extends State<AddPrduct> {
         costPrice.clear();
         fileName1 = null;
         fileName2 = null;
-        widget.switchChild();
+        if (widget.todo == Constants.CREATE) {
+          widget.switchChild();
+        } else {
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
         color.clear();
         category = '';
         sizeRange = '';
@@ -194,6 +205,16 @@ class _AddPrductState extends State<AddPrduct> {
               label: 'Sub Brand Name',
               tc: subBrandName,
               prefixIcon: Icons.text_snippet),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: CustomDropDown(
+                value: vendor,
+                hint: 'Select a Vendor',
+                onChange: (value) {
+                  vendor = value;
+                },
+                items: vendorList),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: CustomDropDown(
