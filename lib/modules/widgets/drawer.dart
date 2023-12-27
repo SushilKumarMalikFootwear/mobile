@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '/config/constants/AppConstants.dart';
 
 import '../models/drawer_option.dart';
 
@@ -13,7 +12,6 @@ class myDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size deviceSize = MediaQuery.of(context).size;
     return Container(
       color: Colors.blue,
       child: Column(

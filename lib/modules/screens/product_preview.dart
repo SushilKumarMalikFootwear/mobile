@@ -8,8 +8,10 @@ class ProductPreview extends StatefulWidget {
   Product product;
   String sizeAtHome;
   String sizeAtShope;
+  Function refreshParent;
   ProductPreview(
       {super.key,
+      required this.refreshParent,
       required this.product,
       required this.sizeAtHome,
       required this.sizeAtShope});
@@ -74,6 +76,8 @@ class _ProductPreviewState extends State<ProductPreview> {
                           body: AddPrduct(() {
                             Navigator.pop(context);
                             Navigator.pop(context);
+                            Navigator.pop(context);
+                            widget.refreshParent();
                           }, () {}, Constants.EDIT, widget.product),
                         );
                       },

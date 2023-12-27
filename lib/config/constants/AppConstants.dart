@@ -34,12 +34,7 @@ abstract class ApiUrls {
 }
 
 abstract class RouteConstants {
-  static String LOGIN = '/';
-  static String REGISTER = '/register';
-  static String DASHBOARD = '/dashboard';
   static String MANAGE_PRODUCTS = '/manage_products';
-  static String ORDERS = '/orders';
-  static String REGISTER_DELIVERY_BOY = '/register_delivery_boy';
 }
 
 abstract class AppBarTitle {

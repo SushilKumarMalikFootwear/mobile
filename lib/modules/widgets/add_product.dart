@@ -107,9 +107,7 @@ class _AddPrductState extends State<AddPrduct> {
         if (widget.todo == Constants.CREATE) {
           widget.switchChild();
         } else {
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.pop(context);
+          widget.refreshChild();
         }
         color.clear();
         category = '';

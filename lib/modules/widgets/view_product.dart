@@ -20,6 +20,12 @@ class _ViewProductState extends State<ViewProduct> {
   Map<String, List<String>> configList = {};
   Map<String, String> filterMap = {};
   List<String> vendorList = [];
+  TextEditingController brandNameCtrl = TextEditingController();
+  TextEditingController articleCtrl = TextEditingController();
+  TextEditingController colorCtrl = TextEditingController();
+  String selectedSizeRange = '';
+  String SelectedCategory = '';
+  String selectedVendor = '';
 
   late Product product;
 
@@ -38,6 +44,19 @@ class _ViewProductState extends State<ViewProduct> {
     // TODO: implement initState
     super.initState();
     getProducts = productRepo.getAllProducts();
+  }
+
+  refreshParent() {
+    filterMap = {
+      'brand': brandNameCtrl.text,
+      'category': SelectedCategory,
+      'article': articleCtrl.text,
+      'size_range': selectedSizeRange,
+      'color': colorCtrl.text,
+      'vendor': selectedVendor
+    };
+    getProducts = productRepo.filterProducts(filterMap);
+    setState(() {});
   }
 
   @override
@@ -77,15 +96,6 @@ class _ViewProductState extends State<ViewProduct> {
                           label: 'Images'),
                       IconButton(
                           onPressed: () {
-                            TextEditingController brandNameCtrl =
-                                TextEditingController();
-                            TextEditingController articleCtrl =
-                                TextEditingController();
-                            TextEditingController colorCtrl =
-                                TextEditingController();
-                            String selectedSizeRange = '';
-                            String SelectedCategory = '';
-                            String selectedVendor = '';
                             customBottomSheet(
                                 context,
                                 Scaffold(
@@ -152,7 +162,7 @@ class _ViewProductState extends State<ViewProduct> {
                                                 'article': articleCtrl.text,
                                                 'size_range': selectedSizeRange,
                                                 'color': colorCtrl.text,
-                                                'vendor':selectedVendor
+                                                'vendor': selectedVendor
                                               };
                                               getProducts = productRepo
                                                   .filterProducts(filterMap);
@@ -231,6 +241,7 @@ class _ViewProductState extends State<ViewProduct> {
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ProductPreview(
+                                  refreshParent: refreshParent,
                                   product: Product.fromJSON(
                                       snapshot.data['documents'][index]),
                                   sizeAtHome: sizeAtHome,

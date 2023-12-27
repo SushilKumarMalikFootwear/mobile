@@ -9,20 +9,20 @@ import '../widgets/add_product.dart';
 import '../widgets/view_product.dart';
 
 class manageProducts extends StatefulWidget {
-  const manageProducts({ Key? key }) : super(key: key);
+  const manageProducts({Key? key}) : super(key: key);
 
   @override
   State<manageProducts> createState() => _manageProductsState();
 }
 
 class _manageProductsState extends State<manageProducts> {
-  
   DrawerOptionList list = DrawerOptionList();
   int flag = 0;
   List<Map<String, dynamic>> _loadAllPages() {
     return [
       {
-        'page': AddPrduct(refreshChild, switchChild,Constants.CREATE,Product()),
+        'page':
+            AddPrduct(refreshChild, switchChild, Constants.CREATE, Product()),
         'title': 'Add Product',
         'icon': Icons.add
       },
@@ -40,7 +40,7 @@ class _manageProductsState extends State<manageProducts> {
     setState(() {});
   }
 
-  int currentPage = 0;
+  int currentPage = 1;
   final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
   late List<Map<String, dynamic>> _allPages;
   @override
@@ -71,7 +71,7 @@ class _manageProductsState extends State<manageProducts> {
 
   @override
   Widget build(BuildContext context) {
-        List<DrawerOption> drawer_options_list = list.drawer_options;
+    List<DrawerOption> drawer_options_list = list.drawer_options;
     drawer_options_list = drawer_options_list.map((drawerOption) {
       if (drawerOption.name == AppBarTitle.MANAGE_PRODUCTS) {
         drawerOption.isActive = true;
@@ -84,29 +84,34 @@ class _manageProductsState extends State<manageProducts> {
     // String userid = arguments['userid'];
     // String arguments = ModalRoute.of(context)!.settings.arguments as String; // we can also use any other data type but map is standard form of sending data becuas ewe just have to call the key we don't have to remember the index of data member
     // String userid = arguments;
-    return Scaffold(
-      key: scaffoldkey,
-      appBar: AppBar(title: Text(AppBarTitle.MANAGE_PRODUCTS),actions: [],),
-      drawer: Drawer(
-          child: myDrawer('Sushil',drawer_options_list)
-          ),
-      body: SafeArea(
-          child: Container(
-              padding: EdgeInsets.only(top: 10),
-              child: _loadAllPages()[currentPage]['page'])),
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: currentPage,
-          onTap: (int currentPageIndex) {
-            currentPage = currentPageIndex;
-            setState(() {});
-          },
-          items: _allPages
-              .map((element) => BottomNavigationBarItem(
-                  icon: Icon(element['icon']),
-                  label: element['title']))
-              .toList()
-          // ]
-          ),
+    return WillPopScope(
+      onWillPop: () {
+        return Future.value(false);
+      },
+      child: Scaffold(
+        key: scaffoldkey,
+        appBar: AppBar(
+          title: Text(AppBarTitle.MANAGE_PRODUCTS),
+          actions: [],
+        ),
+        drawer: Drawer(child: myDrawer('Sushil', drawer_options_list)),
+        body: SafeArea(
+            child: Container(
+                padding: EdgeInsets.only(top: 10),
+                child: _loadAllPages()[currentPage]['page'])),
+        bottomNavigationBar: BottomNavigationBar(
+            currentIndex: currentPage,
+            onTap: (int currentPageIndex) {
+              currentPage = currentPageIndex;
+              setState(() {});
+            },
+            items: _allPages
+                .map((element) => BottomNavigationBarItem(
+                    icon: Icon(element['icon']), label: element['title']))
+                .toList()
+            // ]
+            ),
+      ),
     );
   }
 }
