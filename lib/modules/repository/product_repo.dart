@@ -45,13 +45,14 @@ class ProductRepository {
     return response;
   }
 
-  getAllProducts() async {
+  getAllProducts(bool outOfStock) async {
     var response = await ApiClient.post(
         "https://ap-south-1.aws.data.mongodb-api.com/app/data-rtgjs/endpoint/data/v1/action/find",
         {
           "collection": "footwears",
           "database": "test",
           "dataSource": "SushilKumarMalikFootwear",
+          "filter":{"out_of_stock":outOfStock},
           "sort": {"createdAt": -1}
         },
         headers: {
@@ -64,7 +65,7 @@ class ProductRepository {
     return response;
   }
 
-  filterProducts(Map<String, String> filterMap) async {
+  filterProducts(Map<String, String> filterMap, bool outOfStock) async {
     String brand = filterMap['brand']!;
     String category = filterMap['category']!;
     String article = filterMap['article']!;
@@ -83,6 +84,10 @@ class ProductRepository {
       "database": "test",
       "dataSource": "SushilKumarMalikFootwear",
       "pipeline": [
+        if (outOfStock)
+          {
+            "\$match": {"out_of_stock": true}
+          },
         if (brand.isNotEmpty)
           {
             "\$match": {
@@ -118,6 +123,10 @@ class ProductRepository {
             "\$match": {
               "vendor": {"\$regex": vendor, "\$options": "i"}
             }
+          },
+        if (!outOfStock)
+          {
+            "\$match": {"out_of_stock": false}
           },
         {
           "\$sort": {"createdAt": -1}

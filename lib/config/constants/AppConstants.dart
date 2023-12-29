@@ -35,12 +35,15 @@ abstract class ApiUrls {
 
 abstract class RouteConstants {
   static String MANAGE_PRODUCTS = '/manage_products';
+  static String OUT_OF_STOCK = '/out_of_stock';
+
 }
 
 abstract class AppBarTitle {
   static String DASHBOARD = "Dashboard";
   static String ORDERS = "Orders";
   static String MANAGE_PRODUCTS = "Manage Products";
+  static String OUT_OF_STOCK = "Out of Sock";
   static String REGISTER_DELIVERY_BOY = "Register Delivery Boy";
 }
 

@@ -7,5 +7,9 @@ class DrawerOptionList{
         name: AppBarTitle.MANAGE_PRODUCTS,
         isActive: false,
         route: RouteConstants.MANAGE_PRODUCTS),
+        DrawerOption(
+        name: AppBarTitle.OUT_OF_STOCK,
+        isActive: false,
+        route: RouteConstants.OUT_OF_STOCK),
   ];
 }

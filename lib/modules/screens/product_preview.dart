@@ -5,11 +5,11 @@ import '../../config/constants/AppConstants.dart';
 import '../models/product.dart';
 
 class ProductPreview extends StatefulWidget {
-  Product product;
-  String sizeAtHome;
-  String sizeAtShope;
-  Function refreshParent;
-  ProductPreview(
+  final Product product;
+  final String sizeAtHome;
+  final String sizeAtShope;
+  final Function refreshParent;
+  const ProductPreview(
       {super.key,
       required this.refreshParent,
       required this.product,
@@ -35,8 +35,8 @@ class _ProductPreviewState extends State<ProductPreview> {
                   items: [
                     PopupMenuItem<String>(
                         value: Constants.EDIT,
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          children: [
                             Icon(
                               Icons.edit,
                               color: Colors.blue,
@@ -49,8 +49,8 @@ class _ProductPreviewState extends State<ProductPreview> {
                         )),
                     PopupMenuItem<String>(
                         value: Constants.DELETE,
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          children: [
                             Icon(
                               Icons.delete,
                               color: Colors.blue,
@@ -71,7 +71,7 @@ class _ProductPreviewState extends State<ProductPreview> {
                       builder: (context) {
                         return Scaffold(
                           appBar: AppBar(
-                            title: Text('Manage Product'),
+                            title: const Text('Manage Product'),
                           ),
                           body: AddPrduct(() {
                             Navigator.pop(context);

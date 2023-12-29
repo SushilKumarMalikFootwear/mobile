@@ -8,6 +8,9 @@ import '/modules/repository/product_repo.dart';
 import '../models/product.dart';
 
 class ViewProduct extends StatefulWidget {
+  final bool outOfStock;
+
+  const ViewProduct({super.key, required this.outOfStock});
   @override
   State<ViewProduct> createState() => _ViewProductState();
 }
@@ -24,7 +27,7 @@ class _ViewProductState extends State<ViewProduct> {
   TextEditingController articleCtrl = TextEditingController();
   TextEditingController colorCtrl = TextEditingController();
   String selectedSizeRange = '';
-  String SelectedCategory = '';
+  String selectedCategory = '';
   String selectedVendor = '';
 
   late Product product;
@@ -43,19 +46,19 @@ class _ViewProductState extends State<ViewProduct> {
     setConfigList();
     // TODO: implement initState
     super.initState();
-    getProducts = productRepo.getAllProducts();
+    getProducts = productRepo.getAllProducts(widget.outOfStock);
   }
 
   refreshParent() {
     filterMap = {
       'brand': brandNameCtrl.text,
-      'category': SelectedCategory,
+      'category': selectedCategory,
       'article': articleCtrl.text,
       'size_range': selectedSizeRange,
       'color': colorCtrl.text,
       'vendor': selectedVendor
     };
-    getProducts = productRepo.filterProducts(filterMap);
+    getProducts = productRepo.filterProducts(filterMap, widget.outOfStock);
     setState(() {});
   }
 
@@ -78,7 +81,7 @@ class _ViewProductState extends State<ViewProduct> {
           } else {
             return RefreshIndicator(
               onRefresh: () {
-                getProducts = productRepo.filterProducts(filterMap);
+                getProducts = productRepo.filterProducts(filterMap, widget.outOfStock);
                 setState(() {});
                 return Future(() => null);
               },
@@ -96,6 +99,12 @@ class _ViewProductState extends State<ViewProduct> {
                           label: 'Images'),
                       IconButton(
                           onPressed: () {
+                            brandNameCtrl.clear();
+                            articleCtrl.clear();
+                            colorCtrl.clear();
+                            selectedSizeRange = '';
+                            selectedCategory = '';
+                            selectedVendor = '';
                             customBottomSheet(
                                 context,
                                 Scaffold(
@@ -111,12 +120,12 @@ class _ViewProductState extends State<ViewProduct> {
                                               labelText: 'Brand Name'),
                                         ),
                                         CustomDropDown(
-                                            value: SelectedCategory.isEmpty
+                                            value: selectedCategory.isEmpty
                                                 ? null
-                                                : SelectedCategory,
+                                                : selectedCategory,
                                             hint: 'Select a Categoy',
                                             onChange: (value) {
-                                              SelectedCategory = value;
+                                              selectedCategory = value;
                                             },
                                             items: categoryList),
                                         const SizedBox(
@@ -158,14 +167,15 @@ class _ViewProductState extends State<ViewProduct> {
                                             onPressed: () {
                                               filterMap = {
                                                 'brand': brandNameCtrl.text,
-                                                'category': SelectedCategory,
+                                                'category': selectedCategory,
                                                 'article': articleCtrl.text,
                                                 'size_range': selectedSizeRange,
                                                 'color': colorCtrl.text,
                                                 'vendor': selectedVendor
                                               };
-                                              getProducts = productRepo
-                                                  .filterProducts(filterMap);
+                                              getProducts =
+                                                  productRepo.filterProducts(
+                                                      filterMap, widget.outOfStock);
                                               Navigator.pop(context);
                                               setState(() {});
                                             },
@@ -203,14 +213,15 @@ class _ViewProductState extends State<ViewProduct> {
                       ),
                       IconButton(
                           onPressed: () {
-                            getProducts = productRepo.filterProducts(filterMap);
+                            getProducts =
+                                productRepo.filterProducts(filterMap, widget.outOfStock);
                             setState(() {});
                           },
                           icon: const Icon(Icons.refresh))
                     ],
                   ),
                   SizedBox(
-                    height: deviceSize.height - 210,
+                    height: deviceSize.height - (widget.outOfStock?145: 210),
                     child: ListView.builder(
                       itemBuilder: (BuildContext ctx, int index) {
                         product =

@@ -26,7 +26,7 @@ class _manageProductsState extends State<manageProducts> {
         'title': 'Add Product',
         'icon': Icons.add
       },
-      {'page': ViewProduct(), 'title': 'View Product', 'icon': Icons.list}
+      {'page': const ViewProduct(outOfStock: false,), 'title': 'View Product', 'icon': Icons.list}
     ];
   }
 

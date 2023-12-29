@@ -34,8 +34,8 @@ class _AddPrductState extends State<AddPrduct> {
   String? category;
   List<String> categoryList = [];
   TextEditingController color = TextEditingController();
-  late String URL1;
-  String? URL2;
+  late String url1;
+  String? url2;
   String? sizeRange;
   List<String> sizeRangeList = [];
   String? fileName1;
@@ -69,58 +69,56 @@ class _AddPrductState extends State<AddPrduct> {
       sellingPrice.text = product.sellingPrice;
       costPrice.text = product.costPrice;
       color.text = product.color;
-      URL1 = product.URL1 ?? '';
-      URL2 = product.URL2;
+      url1 = product.URL1 ?? '';
+      url2 = product.URL2;
       setState(() {});
     }
   }
 
   _addProduct() async {
-    try {
-      product.URL1 = URL1;
-      product.URL2 = URL2;
-      product.article = article.text;
-      product.brandName = brandName.text;
-      product.category = category!;
-      product.color = color.text;
-      product.costPrice = costPrice.text;
-      product.sellingPrice = sellingPrice.text;
-      product.mrp = mrp.text;
-      product.subBrandName = subBrandName.text;
-      product.sizeRange = sizeRange!;
-      product.description = descCtrl.text;
-      product.vendor = vendor.toString();
-      var response = widget.todo == Constants.CREATE
-          ? await productRepo.add(product.toJSON())
-          : await productRepo.update(product.toJSON());
+    product.URL1 = url1;
+    product.URL2 = url2;
+    product.article = article.text;
+    product.brandName = brandName.text;
+    product.category = category!;
+    product.color = color.text;
+    product.costPrice = costPrice.text;
+    product.sellingPrice = sellingPrice.text;
+    product.mrp = mrp.text;
+    product.subBrandName = subBrandName.text;
+    product.sizeRange = sizeRange!;
+    product.description = descCtrl.text;
+    product.vendor = vendor.toString();
+    widget.todo == Constants.CREATE
+        ? await productRepo.add(product.toJSON())
+        : await productRepo.update(product.toJSON());
+    if (context.mounted) {
       createToast('Product Successfully Added', ctx);
-      Future.delayed(const Duration(seconds: 1), () {
-        brandName.clear();
-        descCtrl.clear();
-        subBrandName.clear();
-        article.clear();
-        mrp.clear();
-        sellingPrice.clear();
-        costPrice.clear();
-        fileName1 = null;
-        fileName2 = null;
-        if (widget.todo == Constants.CREATE) {
-          widget.switchChild();
-        } else {
-          widget.refreshChild();
-        }
-        color.clear();
-        category = '';
-        sizeRange = '';
-        fileName1 = '';
-        fileName2 = '';
-        URL1 = '';
-        URL2 = '';
-        product.pairs_in_stock = [];
-      });
-    } catch (err) {
-      print(err);
     }
+    Future.delayed(const Duration(seconds: 1), () {
+      brandName.clear();
+      descCtrl.clear();
+      subBrandName.clear();
+      article.clear();
+      mrp.clear();
+      sellingPrice.clear();
+      costPrice.clear();
+      fileName1 = null;
+      fileName2 = null;
+      if (widget.todo == Constants.CREATE) {
+        widget.switchChild();
+      } else {
+        widget.refreshChild();
+      }
+      color.clear();
+      category = '';
+      sizeRange = '';
+      fileName1 = '';
+      fileName2 = '';
+      url1 = '';
+      url2 = '';
+      product.pairs_in_stock = [];
+    });
   }
 
   final ImagePicker _picker = ImagePicker();
@@ -130,8 +128,8 @@ class _AddPrductState extends State<AddPrduct> {
     UploadTask upload = obj.uploadImage(fileName!);
     upload.then((TaskSnapshot shot) async {
       photoNumber == 1
-          ? URL1 = await obj.ref.getDownloadURL()
-          : URL2 = await obj.ref.getDownloadURL();
+          ? url1 = await obj.ref.getDownloadURL()
+          : url2 = await obj.ref.getDownloadURL();
     }).catchError((err) {});
     setState(() {});
   }
@@ -164,9 +162,9 @@ class _AddPrductState extends State<AddPrduct> {
                   icon: const Icon(Icons.folder)),
             ],
           ),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [Text("Camera   "), Text("Gallery ")],
+            children: [Text("Camera   "), Text("Gallery ")],
           )
         ],
       ),
@@ -193,7 +191,7 @@ class _AddPrductState extends State<AddPrduct> {
       child: Column(
         children: [
           Text(widget.todo == Constants.CREATE ? 'ADD PRODUCT' : 'EDIT PRODUCT',
-              style: TextStyle(fontSize: 40)),
+              style: const TextStyle(fontSize: 40)),
           CustomText(
               label: 'Brand Name',
               tc: brandName,
@@ -273,8 +271,8 @@ class _AddPrductState extends State<AddPrduct> {
           const SizedBox(
             height: 10,
           ),
-          Row(
-            children: const [
+          const Row(
+            children: [
               SizedBox(
                 width: 45,
               ),
@@ -363,8 +361,8 @@ class _AddPrductState extends State<AddPrduct> {
           const SizedBox(
             height: 10,
           ),
-          if (widget.todo == Constants.EDIT && URL1.isNotEmpty)
-            Image.network(URL1),
+          if (widget.todo == Constants.EDIT && url1.isNotEmpty)
+            Image.network(url1),
           _showCameraOrGallery(deviceSize, 1),
           const SizedBox(height: 15),
           fileName1 == null
@@ -372,10 +370,10 @@ class _AddPrductState extends State<AddPrduct> {
               : SizedBox(
                   width: 150, child: Image.file(File(fileName1.toString()))),
           const SizedBox(height: 15),
-          if (widget.todo == Constants.EDIT && URL2 != null
-              ? (URL2!.isNotEmpty)
+          if (widget.todo == Constants.EDIT && url2 != null
+              ? (url2!.isNotEmpty)
               : false)
-            Image.network(URL2!),
+            Image.network(url2!),
           _showCameraOrGallery(deviceSize, 2),
           const SizedBox(height: 15),
           fileName2 == null
