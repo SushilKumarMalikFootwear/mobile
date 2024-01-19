@@ -5,6 +5,7 @@ import 'package:footwear/config/constants/AppConstants.dart';
 import 'package:footwear/modules/models/product.dart';
 import 'package:footwear/modules/repository/product_repo.dart';
 import 'package:footwear/utils/widgets/CustomDropdown.dart';
+import 'package:footwear/utils/widgets/custom_checkbox.dart';
 import 'package:image_picker/image_picker.dart';
 import '/utils/services/upload.dart';
 import '/utils/widgets/custom_text.dart';
@@ -380,6 +381,14 @@ class _AddPrductState extends State<AddPrduct> {
               ? const Text("Choose Second Image To Upload")
               : SizedBox(
                   width: 150, child: Image.file(File(fileName2.toString()))),
+          const SizedBox(height: 15),
+          CustomCheckBox(
+              isSelected: product.outOfStock,
+              onClicked: (bool value) {
+                product.outOfStock = value;
+                setState(() {});
+              },
+              label: 'Out of Stock'),
           const SizedBox(height: 15),
           ElevatedButton(
               onPressed: () {

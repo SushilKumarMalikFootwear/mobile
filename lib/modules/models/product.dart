@@ -14,9 +14,10 @@ class Product {
   late String description;
   late String vendor;
   List pairs_in_stock = [];
+  late bool outOfStock;
   Product();
   Product.fromJSON(Map product) {
-    vendor = product['vendor']??'';
+    vendor = product['vendor'] ?? '';
     footwear_id = product['footwear_id'];
     brandName = product['brand'];
     subBrandName = product['sub_brand'];
@@ -31,11 +32,12 @@ class Product {
     sizeRange = product['size_range'];
     pairs_in_stock = product['pairs_in_stock'];
     description = product['description'];
+    outOfStock = product['out_of_stock'];
   }
 
   Map<String, dynamic> toJSON() {
     return {
-      "vendor":vendor,
+      "vendor": vendor,
       "brand": brandName,
       "sub_brand": subBrandName,
       "article": article,
@@ -48,7 +50,8 @@ class Product {
       "size_range": sizeRange,
       "description": description,
       "images": [URL1, URL2],
-      'footwear_id': footwear_id
+      'footwear_id': footwear_id,
+      'out_of_stock':outOfStock
     };
   }
 }
