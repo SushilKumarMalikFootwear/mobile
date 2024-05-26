@@ -30,6 +30,7 @@ class _AddPrductState extends State<AddPrduct> {
   TextEditingController mrp = TextEditingController();
   TextEditingController sellingPrice = TextEditingController();
   TextEditingController costPrice = TextEditingController();
+  TextEditingController sizeRange = TextEditingController();
   String? vendor;
   List<String> vendorList = [];
   String? category;
@@ -37,8 +38,6 @@ class _AddPrductState extends State<AddPrduct> {
   TextEditingController color = TextEditingController();
   late String url1;
   String? url2;
-  String? sizeRange;
-  List<String> sizeRangeList = [];
   String? fileName1;
   String? fileName2;
   TextEditingController descCtrl = TextEditingController();
@@ -48,7 +47,6 @@ class _AddPrductState extends State<AddPrduct> {
   setConfigList() async {
     configList = await productRepo.getConfigLists();
     categoryList = configList['categoryList']!;
-    sizeRangeList = configList['sizeRangeList']!;
     vendorList = configList['vendorList']!;
     setState(() {});
   }
@@ -64,7 +62,7 @@ class _AddPrductState extends State<AddPrduct> {
       subBrandName.text = product.subBrandName;
       category = product.category;
       article.text = product.article;
-      sizeRange = product.sizeRange;
+      sizeRange.text = product.sizeRange;
       descCtrl.text = product.description;
       mrp.text = product.mrp;
       sellingPrice.text = product.sellingPrice;
@@ -87,7 +85,7 @@ class _AddPrductState extends State<AddPrduct> {
     product.sellingPrice = sellingPrice.text;
     product.mrp = mrp.text;
     product.subBrandName = subBrandName.text;
-    product.sizeRange = sizeRange!;
+    product.sizeRange = sizeRange.text.toUpperCase();
     product.description = descCtrl.text;
     product.vendor = vendor.toString();
     widget.todo == Constants.CREATE
@@ -113,13 +111,45 @@ class _AddPrductState extends State<AddPrduct> {
       }
       color.clear();
       category = '';
-      sizeRange = '';
+      sizeRange.clear();
       fileName1 = '';
       fileName2 = '';
       url1 = '';
       url2 = '';
       product.pairs_in_stock = [];
     });
+  }
+
+  _onChangeSizeRange(String sizeRange) {
+    //EXAMPLE : 6X13-1X10
+    // 6 to 13 & 1 to 10
+    if (RegExp(r'^(\d+[Xx]\d+)(-\d+[Xx]\d+)*$').hasMatch(sizeRange)) {
+      sizeRange = sizeRange.toUpperCase();
+      product.pairs_in_stock.clear();
+      for (String sizeSet in sizeRange.split('-')) {
+        int startSize = int.parse(sizeSet.split('X')[0]);
+        int endSize = int.parse(sizeSet.split('X')[1]);
+        for (int i = startSize; i <= endSize; i++) {
+          product.pairs_in_stock.add({
+            'size': i,
+            'available_at': "HOME",
+            'quantity': 0,
+          });
+        }
+      }
+      for (String sizeSet in sizeRange.split('-')) {
+        int startSize = int.parse(sizeSet.split('X')[0]);
+        int endSize = int.parse(sizeSet.split('X')[1]);
+        for (int i = startSize; i <= endSize; i++) {
+          product.pairs_in_stock.add({
+            'size': i,
+            'available_at': "SHOP",
+            'quantity': 0,
+          });
+        }
+      }
+      setState(() {});
+    }
   }
 
   final ImagePicker _picker = ImagePicker();
@@ -223,36 +253,11 @@ class _AddPrductState extends State<AddPrduct> {
           ),
           CustomText(
               label: 'Article', tc: article, prefixIcon: Icons.text_snippet),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: CustomDropDown(
-                value: sizeRange,
-                hint: 'Select Size Range',
-                onChange: (value) {
-                  sizeRange = value;
-                  product.pairs_in_stock.clear();
-                  int startSize =
-                      int.parse(sizeRange!.split(' ')[0].split('X')[0]);
-                  int endSize =
-                      int.parse(sizeRange!.split(' ')[0].split('X')[1]);
-                  for (int i = startSize; i <= endSize; i++) {
-                    product.pairs_in_stock.add({
-                      'size': i,
-                      'available_at': "HOME",
-                      'quantity': 0,
-                    });
-                  }
-                  for (int i = startSize; i <= endSize; i++) {
-                    product.pairs_in_stock.add({
-                      'size': i,
-                      'available_at': "SHOP",
-                      'quantity': 0,
-                    });
-                  }
-                  setState(() {});
-                },
-                items: sizeRangeList),
-          ),
+          CustomText(
+              label: 'Size Range',
+              tc: sizeRange,
+              onChange: _onChangeSizeRange,
+              prefixIcon: Icons.text_snippet),
           CustomText(
             label: 'Type Description Here',
             tc: descCtrl,

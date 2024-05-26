@@ -14,7 +14,7 @@ class Product {
   late String description;
   late String vendor;
   List pairs_in_stock = [];
-  late bool outOfStock;
+  late bool outOfStock = false;
   Product();
   Product.fromJSON(Map product) {
     vendor = product['vendor'] ?? '';
