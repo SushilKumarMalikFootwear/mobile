@@ -1,32 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:footwear/modules/models/product.dart';
 import '/modules/widgets/drawer.dart';
-
-import '../../config/constants/AppConstants.dart';
-import '../Services/drawer_options_list.dart';
+import '../../config/constants/app_constants.dart';
+import '../../config/constants/drawer_options_list.dart';
 import '../models/drawer_option.dart';
 import '../widgets/add_product.dart';
 import '../widgets/view_product.dart';
 
-class manageProducts extends StatefulWidget {
-  const manageProducts({Key? key}) : super(key: key);
+class ManageProducts extends StatefulWidget {
+  const ManageProducts({Key? key}) : super(key: key);
 
   @override
-  State<manageProducts> createState() => _manageProductsState();
+  State<ManageProducts> createState() => _ManageProductsState();
 }
 
-class _manageProductsState extends State<manageProducts> {
+class _ManageProductsState extends State<ManageProducts> {
   DrawerOptionList list = DrawerOptionList();
   int flag = 0;
   List<Map<String, dynamic>> _loadAllPages() {
     return [
       {
         'page':
-            AddPrduct(refreshChild, switchChild, Constants.CREATE, Product()),
+            AddProduct(refreshChild, switchChild, Constants.create, Product()),
         'title': 'Add Product',
         'icon': Icons.add
       },
-      {'page': const ViewProduct(outOfStock: false,), 'title': 'View Product', 'icon': Icons.list}
+      {'page': const ViewProduct(), 'title': 'View Product', 'icon': Icons.list}
     ];
   }
 
@@ -45,7 +44,6 @@ class _manageProductsState extends State<manageProducts> {
   late List<Map<String, dynamic>> _allPages;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _allPages = _loadAllPages();
   }
@@ -55,7 +53,7 @@ class _manageProductsState extends State<manageProducts> {
       return Container(
         height: 200,
         color: Colors.lightBlueAccent,
-        child: Column(children: [
+        child: const Column(children: [
           ListTile(
             leading: Icon(Icons.phone),
             title: Text('Phone Calls'),
@@ -71,9 +69,9 @@ class _manageProductsState extends State<manageProducts> {
 
   @override
   Widget build(BuildContext context) {
-    List<DrawerOption> drawer_options_list = list.drawer_options;
-    drawer_options_list = drawer_options_list.map((drawerOption) {
-      if (drawerOption.name == AppBarTitle.MANAGE_PRODUCTS) {
+    List<DrawerOption> drawerOptionList = list.drawerOptions;
+    drawerOptionList = drawerOptionList.map((drawerOption) {
+      if (drawerOption.name == AppBarTitle.manageProducts) {
         drawerOption.isActive = true;
         return drawerOption;
       } else {
@@ -91,13 +89,13 @@ class _manageProductsState extends State<manageProducts> {
       child: Scaffold(
         key: scaffoldkey,
         appBar: AppBar(
-          title: Text(AppBarTitle.MANAGE_PRODUCTS),
+          title: Text(AppBarTitle.manageProducts),
           actions: [],
         ),
-        drawer: Drawer(child: myDrawer('Sushil', drawer_options_list)),
+        drawer: Drawer(child: MyDrawer('Sushil', drawerOptionList)),
         body: SafeArea(
             child: Container(
-                padding: EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 10),
                 child: _loadAllPages()[currentPage]['page'])),
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: currentPage,

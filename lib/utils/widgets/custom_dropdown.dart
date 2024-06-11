@@ -2,17 +2,17 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropDown extends StatefulWidget {
-  CustomDropDown(
-      {required this.value,
+  const CustomDropDown(
+      {super.key, required this.value,
       required this.hint,
       required this.onChange,
       required this.items,
       this.enabled = true});
-  String hint;
-  String? value;
-  Function onChange;
-  List<String> items;
-  bool enabled;
+  final String hint;
+  final String? value;
+  final Function onChange;
+  final List<String> items;
+  final bool enabled;
 
   @override
   State<CustomDropDown> createState() => _CustomDropDownState();

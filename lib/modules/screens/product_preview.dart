@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footwear/modules/widgets/add_product.dart';
 
-import '../../config/constants/AppConstants.dart';
+import '../../config/constants/app_constants.dart';
 import '../models/product.dart';
 
 class ProductPreview extends StatefulWidget {
@@ -34,7 +34,7 @@ class _ProductPreviewState extends State<ProductPreview> {
                   position: const RelativeRect.fromLTRB(25.0, 25.0, 0.0, 0.0),
                   items: [
                     PopupMenuItem<String>(
-                        value: Constants.EDIT,
+                        value: Constants.edit,
                         child: const Row(
                           children: [
                             Icon(
@@ -48,7 +48,7 @@ class _ProductPreviewState extends State<ProductPreview> {
                           ],
                         )),
                     PopupMenuItem<String>(
-                        value: Constants.DELETE,
+                        value: Constants.delete,
                         child: const Row(
                           children: [
                             Icon(
@@ -66,19 +66,19 @@ class _ProductPreviewState extends State<ProductPreview> {
                 ).then<void>((String? itemSelected) async {
                   if (itemSelected == null) {
                     return;
-                  } else if (itemSelected == Constants.EDIT) {
+                  } else if (itemSelected == Constants.edit) {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
                         return Scaffold(
                           appBar: AppBar(
                             title: const Text('Manage Product'),
                           ),
-                          body: AddPrduct(() {
+                          body: AddProduct(() {
                             Navigator.pop(context);
                             Navigator.pop(context);
                             Navigator.pop(context);
                             widget.refreshParent();
-                          }, () {}, Constants.EDIT, widget.product),
+                          }, () {}, Constants.edit, widget.product),
                         );
                       },
                     ));

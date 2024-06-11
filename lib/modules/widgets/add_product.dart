@@ -1,29 +1,28 @@
-import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:footwear/config/constants/AppConstants.dart';
-import 'package:footwear/modules/models/product.dart';
-import 'package:footwear/modules/repository/product_repo.dart';
-import 'package:footwear/utils/widgets/CustomDropdown.dart';
-import 'package:footwear/utils/widgets/custom_checkbox.dart';
 import 'package:image_picker/image_picker.dart';
-import '/utils/services/upload.dart';
-import '/utils/widgets/custom_text.dart';
-import '/utils/widgets/toast.dart';
+import '../../config/constants/app_constants.dart';
+import '../../utils/services/upload.dart';
+import '../../utils/widgets/custom_checkbox.dart';
+import '../../utils/widgets/custom_dropdown.dart';
+import '../../utils/widgets/custom_text.dart';
+import '../../utils/widgets/toast.dart';
+import '../models/product.dart';
+import '../repository/product_repo.dart';
 
-class AddPrduct extends StatefulWidget {
-  Product product;
-  String todo;
-  Function refreshChild;
-  Function switchChild;
-  AddPrduct(this.refreshChild, this.switchChild, this.todo, this.product,
+class AddProduct extends StatefulWidget {
+  final Product product;
+  final String todo;
+  final Function refreshChild;
+  final Function switchChild;
+  const AddProduct(this.refreshChild, this.switchChild, this.todo, this.product,
       {super.key});
 
   @override
-  State<AddPrduct> createState() => _AddPrductState();
+  State<AddProduct> createState() => _AddProductState();
 }
 
-class _AddPrductState extends State<AddPrduct> {
+class _AddProductState extends State<AddProduct> {
   TextEditingController brandName = TextEditingController();
   TextEditingController subBrandName = TextEditingController();
   TextEditingController article = TextEditingController();
@@ -31,32 +30,28 @@ class _AddPrductState extends State<AddPrduct> {
   TextEditingController sellingPrice = TextEditingController();
   TextEditingController costPrice = TextEditingController();
   TextEditingController sizeRange = TextEditingController();
+  TextEditingController firstPhotoUrl = TextEditingController();
+  TextEditingController secondPhotoUrl = TextEditingController();
   String? vendor;
   List<String> vendorList = [];
   String? category;
   List<String> categoryList = [];
   TextEditingController color = TextEditingController();
-  late String url1;
-  String? url2;
-  String? fileName1;
-  String? fileName2;
   TextEditingController descCtrl = TextEditingController();
   ProductRepository productRepo = ProductRepository();
   Map<String, List<String>> configList = {};
   late Product product;
-  setConfigList() async {
-    configList = await productRepo.getConfigLists();
-    categoryList = configList['categoryList']!;
-    vendorList = configList['vendorList']!;
-    setState(() {});
-  }
-
+  final ImagePicker _picker = ImagePicker();
+  late BuildContext ctx;
+  XFile? image;
+  bool uploadingFirstImage = false;
+  bool uploadingSecondImage = false;
   @override
   initState() {
     setConfigList();
     super.initState();
     product = widget.product;
-    if (widget.todo == Constants.EDIT) {
+    if (widget.todo == Constants.edit) {
       vendor = product.vendor;
       brandName.text = product.brandName;
       subBrandName.text = product.subBrandName;
@@ -68,15 +63,26 @@ class _AddPrductState extends State<AddPrduct> {
       sellingPrice.text = product.sellingPrice;
       costPrice.text = product.costPrice;
       color.text = product.color;
-      url1 = product.URL1 ?? '';
-      url2 = product.URL2;
+      firstPhotoUrl.text = product.URL1 ?? '';
+      secondPhotoUrl.text = product.URL2 ?? '';
       setState(() {});
     }
   }
 
+  setConfigList() async {
+    configList = await productRepo.getConfigLists();
+    categoryList = configList['categoryList']!;
+    vendorList = configList['vendorList']!;
+    setState(() {});
+  }
+
   _addProduct() async {
-    product.URL1 = url1;
-    product.URL2 = url2;
+    product.URL1 = firstPhotoUrl.text;
+    if (firstPhotoUrl.text.isEmpty) {
+      createToast('Image is not Uploaded yet!!', ctx);
+      return;
+    }
+    product.URL2 = secondPhotoUrl.text.isEmpty ? null : secondPhotoUrl.text;
     product.article = article.text;
     product.brandName = brandName.text;
     product.category = category!;
@@ -88,13 +94,17 @@ class _AddPrductState extends State<AddPrduct> {
     product.sizeRange = sizeRange.text.toUpperCase();
     product.description = descCtrl.text;
     product.vendor = vendor.toString();
-    widget.todo == Constants.CREATE
+    widget.todo == Constants.create
         ? await productRepo.add(product.toJSON())
         : await productRepo.update(product.toJSON());
-    if (context.mounted) {
+    if (widget.todo == Constants.create && context.mounted) {
       createToast('Product Successfully Added', ctx);
+    } else {
+      createToast('Product Updated Added', ctx);
     }
     Future.delayed(const Duration(seconds: 1), () {
+      firstPhotoUrl.clear();
+      secondPhotoUrl.clear();
       brandName.clear();
       descCtrl.clear();
       subBrandName.clear();
@@ -102,9 +112,7 @@ class _AddPrductState extends State<AddPrduct> {
       mrp.clear();
       sellingPrice.clear();
       costPrice.clear();
-      fileName1 = null;
-      fileName2 = null;
-      if (widget.todo == Constants.CREATE) {
+      if (widget.todo == Constants.create) {
         widget.switchChild();
       } else {
         widget.refreshChild();
@@ -112,10 +120,8 @@ class _AddPrductState extends State<AddPrduct> {
       color.clear();
       category = '';
       sizeRange.clear();
-      fileName1 = '';
-      fileName2 = '';
-      url1 = '';
-      url2 = '';
+      // firstPhotoUrl.text = '';
+      // secondPhotoUrl.text = '';
       product.pairs_in_stock = [];
     });
   }
@@ -132,7 +138,7 @@ class _AddPrductState extends State<AddPrduct> {
         for (int i = startSize; i <= endSize; i++) {
           product.pairs_in_stock.add({
             'size': i,
-            'available_at': "HOME",
+            'available_at': "home",
             'quantity': 0,
           });
         }
@@ -143,7 +149,7 @@ class _AddPrductState extends State<AddPrduct> {
         for (int i = startSize; i <= endSize; i++) {
           product.pairs_in_stock.add({
             'size': i,
-            'available_at': "SHOP",
+            'available_at': "shop",
             'quantity': 0,
           });
         }
@@ -152,17 +158,32 @@ class _AddPrductState extends State<AddPrduct> {
     }
   }
 
-  final ImagePicker _picker = ImagePicker();
-
-  _uploadIt(String? fileName, int photoNumber) {
-    UploadDownload obj = UploadDownload();
-    UploadTask upload = obj.uploadImage(fileName!);
-    upload.then((TaskSnapshot shot) async {
+  _uploadIt(int photoNumber) async {
+    if (!(uploadingFirstImage || uploadingSecondImage)) {
       photoNumber == 1
-          ? url1 = await obj.ref.getDownloadURL()
-          : url2 = await obj.ref.getDownloadURL();
-    }).catchError((err) {});
-    setState(() {});
+          ? uploadingFirstImage = true
+          : uploadingSecondImage = true;
+      setState(() {});
+      image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        UploadDownload obj = UploadDownload();
+        UploadTask upload = obj.uploadImage(image!.path);
+        upload.then((TaskSnapshot shot) async {
+          photoNumber == 1
+              ? firstPhotoUrl.text = await obj.ref.getDownloadURL()
+              : secondPhotoUrl.text = await obj.ref.getDownloadURL();
+          photoNumber == 1
+              ? uploadingFirstImage = false
+              : uploadingSecondImage = false;
+          setState(() {});
+        }).catchError((err) {});
+      } else {
+        photoNumber == 1
+            ? uploadingFirstImage = false
+            : uploadingSecondImage = false;
+        setState(() {});
+      }
+    }
   }
 
   _showCameraOrGallery(Size deviceSize, int photoNumber) {
@@ -175,44 +196,24 @@ class _AddPrductState extends State<AddPrduct> {
             children: [
               IconButton(
                   iconSize: 50,
-                  onPressed: () async {
-                    await _showCamera(photoNumber);
-                    // refreshChild();
-                    _uploadIt(
-                        photoNumber == 1 ? fileName1 : fileName2, photoNumber);
-                  },
-                  icon: const Icon(Icons.camera)),
-              IconButton(
-                  iconSize: 50,
-                  onPressed: () async {
-                    await _showGallery(photoNumber);
-                    // refreshChild();
-                    _uploadIt(
-                        photoNumber == 1 ? fileName1 : fileName2, photoNumber);
+                  onPressed: () {
+                    _uploadIt(photoNumber);
                   },
                   icon: const Icon(Icons.folder)),
             ],
           ),
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [Text("Camera   "), Text("Gallery ")],
+            children: [Text("Gallery ")],
           )
         ],
       ),
     );
   }
 
-  _showCamera(int photoNumber) async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-    photoNumber == 1 ? fileName1 = photo?.path : fileName2 = photo?.path;
+  _onChangePhotoURLs() {
+    setState(() {});
   }
-
-  _showGallery(int photoNumber) async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    photoNumber == 1 ? fileName1 = image?.path : fileName2 = image?.path;
-  }
-
-  late BuildContext ctx;
 
   @override
   Widget build(BuildContext context) {
@@ -221,16 +222,10 @@ class _AddPrductState extends State<AddPrduct> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Text(widget.todo == Constants.CREATE ? 'ADD PRODUCT' : 'EDIT PRODUCT',
+          Text(widget.todo == Constants.create ? 'ADD PRODUCT' : 'edit PRODUCT',
               style: const TextStyle(fontSize: 40)),
-          CustomText(
-              label: 'Brand Name',
-              tc: brandName,
-              prefixIcon: Icons.text_snippet),
-          CustomText(
-              label: 'Sub Brand Name',
-              tc: subBrandName,
-              prefixIcon: Icons.text_snippet),
+          CustomText(label: 'Brand Name', tc: brandName),
+          CustomText(label: 'Sub Brand Name', tc: subBrandName),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: CustomDropDown(
@@ -251,44 +246,34 @@ class _AddPrductState extends State<AddPrduct> {
                 },
                 items: categoryList),
           ),
+          CustomText(label: 'Article', tc: article),
           CustomText(
-              label: 'Article', tc: article, prefixIcon: Icons.text_snippet),
-          CustomText(
-              label: 'Size Range',
-              tc: sizeRange,
-              onChange: _onChangeSizeRange,
-              prefixIcon: Icons.text_snippet),
+              label: 'Size Range', tc: sizeRange, onChange: _onChangeSizeRange),
           CustomText(
             label: 'Type Description Here',
             tc: descCtrl,
             isMultiLine: true,
-            prefixIcon: Icons.text_snippet,
           ),
-          CustomText(label: 'MRP', tc: mrp, prefixIcon: Icons.text_snippet),
-          CustomText(
-              label: 'Selling Price',
-              tc: sellingPrice,
-              prefixIcon: Icons.text_snippet),
-          CustomText(
-              label: 'Cost Price',
-              tc: costPrice,
-              prefixIcon: Icons.text_snippet),
-          CustomText(label: 'Color', tc: color, prefixIcon: Icons.text_snippet),
+          CustomText(label: 'MRP', tc: mrp),
+          CustomText(label: 'Selling Price', tc: sellingPrice),
+          CustomText(label: 'Cost Price', tc: costPrice),
+          CustomText(label: 'Color', tc: color),
           const SizedBox(
             height: 10,
           ),
-          const Row(
-            children: [
-              SizedBox(
-                width: 45,
-              ),
-              Text('Available At', style: TextStyle(fontSize: 16)),
-              SizedBox(
-                width: 45,
-              ),
-              Text('Size(Quantity)', style: TextStyle(fontSize: 16))
-            ],
-          ),
+          if (product.pairs_in_stock.isNotEmpty)
+            const Row(
+              children: [
+                SizedBox(
+                  width: 45,
+                ),
+                Text('Available At', style: TextStyle(fontSize: 16)),
+                SizedBox(
+                  width: 45,
+                ),
+                Text('Size(Quantity)', style: TextStyle(fontSize: 16))
+              ],
+            ),
           SizedBox(
             height: product.pairs_in_stock.length * 56,
             child: Padding(
@@ -308,7 +293,7 @@ class _AddPrductState extends State<AddPrduct> {
                               fontSize: 16,
                               color: product.pairs_in_stock[index]
                                           ['available_at'] ==
-                                      'HOME'
+                                      'home'
                                   ? Colors.blue
                                   : Colors.purple),
                         ),
@@ -367,25 +352,32 @@ class _AddPrductState extends State<AddPrduct> {
           const SizedBox(
             height: 10,
           ),
-          if (widget.todo == Constants.EDIT && url1.isNotEmpty)
-            Image.network(url1),
+          if (uploadingFirstImage) const CircularProgressIndicator(),
+          if (firstPhotoUrl.text.isNotEmpty) Image.network(firstPhotoUrl.text),
           _showCameraOrGallery(deviceSize, 1),
           const SizedBox(height: 15),
-          fileName1 == null
-              ? const Text("Choose First Image To Upload")
-              : SizedBox(
-                  width: 150, child: Image.file(File(fileName1.toString()))),
+          if (firstPhotoUrl.text.isEmpty)
+            const Text("Choose First Image To Upload"),
           const SizedBox(height: 15),
-          if (widget.todo == Constants.EDIT && url2 != null
-              ? (url2!.isNotEmpty)
-              : false)
-            Image.network(url2!),
+          CustomText(
+              onChange: (String value) {
+                _onChangePhotoURLs();
+              },
+              label: 'First Photo URL',
+              tc: firstPhotoUrl),
+          if (uploadingSecondImage) const CircularProgressIndicator(),
+          if (secondPhotoUrl.text.isNotEmpty)
+            Image.network(secondPhotoUrl.text),
           _showCameraOrGallery(deviceSize, 2),
           const SizedBox(height: 15),
-          fileName2 == null
-              ? const Text("Choose Second Image To Upload")
-              : SizedBox(
-                  width: 150, child: Image.file(File(fileName2.toString()))),
+          CustomText(
+              onChange: (String value) {
+                _onChangePhotoURLs();
+              },
+              label: 'Second Photo URL',
+              tc: secondPhotoUrl),
+          if (secondPhotoUrl.text.isEmpty)
+            const Text("Choose Second Image To Upload"),
           const SizedBox(height: 15),
           CustomCheckBox(
               isSelected: product.outOfStock,

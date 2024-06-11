@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:footwear/config/constants/AppConstants.dart';
+import 'package:footwear/config/constants/app_constants.dart';
 import 'package:footwear/modules/screens/product_preview.dart';
 import 'package:footwear/utils/widgets/custom_bottom_sheet.dart';
 import 'package:footwear/utils/widgets/custom_checkbox.dart';
-import '../../utils/widgets/CustomDropdown.dart';
+import '../../utils/widgets/custom_dropdown.dart';
 import '/modules/repository/product_repo.dart';
 import '../models/product.dart';
 
 class ViewProduct extends StatefulWidget {
-  final bool outOfStock;
 
-  const ViewProduct({super.key, required this.outOfStock});
+  const ViewProduct({super.key});
   @override
   State<ViewProduct> createState() => _ViewProductState();
 }
@@ -29,6 +28,7 @@ class _ViewProductState extends State<ViewProduct> {
   String selectedSizeRange = '';
   String selectedCategory = '';
   String selectedVendor = '';
+  bool outOfStock = false;
 
   late Product product;
 
@@ -44,9 +44,8 @@ class _ViewProductState extends State<ViewProduct> {
   @override
   void initState() {
     setConfigList();
-    // TODO: implement initState
     super.initState();
-    getProducts = productRepo.getAllProducts(widget.outOfStock);
+    getProducts = productRepo.getAllProducts();
   }
 
   refreshParent() {
@@ -56,9 +55,10 @@ class _ViewProductState extends State<ViewProduct> {
       'article': articleCtrl.text,
       'size_range': selectedSizeRange,
       'color': colorCtrl.text,
-      'vendor': selectedVendor
+      'vendor': selectedVendor,
+      'out_of_stock': outOfStock.toString()
     };
-    getProducts = productRepo.filterProducts(filterMap, widget.outOfStock);
+    getProducts = productRepo.filterProducts(filterMap);
     setState(() {});
   }
 
@@ -81,7 +81,8 @@ class _ViewProductState extends State<ViewProduct> {
           } else {
             return RefreshIndicator(
               onRefresh: () {
-                getProducts = productRepo.filterProducts(filterMap, widget.outOfStock);
+                getProducts =
+                    productRepo.filterProducts(filterMap);
                 setState(() {});
                 return Future(() => null);
               },
@@ -105,6 +106,7 @@ class _ViewProductState extends State<ViewProduct> {
                             selectedSizeRange = '';
                             selectedCategory = '';
                             selectedVendor = '';
+                            outOfStock = false;
                             customBottomSheet(
                                 context,
                                 Scaffold(
@@ -163,6 +165,12 @@ class _ViewProductState extends State<ViewProduct> {
                                           decoration: const InputDecoration(
                                               labelText: 'Color'),
                                         ),
+                                        CustomCheckBox(
+                                            isSelected: outOfStock,
+                                            onClicked: (value) {
+                                              outOfStock = value;
+                                            },
+                                            label: "Out of Stock"),
                                         ElevatedButton(
                                             onPressed: () {
                                               filterMap = {
@@ -171,11 +179,12 @@ class _ViewProductState extends State<ViewProduct> {
                                                 'article': articleCtrl.text,
                                                 'size_range': selectedSizeRange,
                                                 'color': colorCtrl.text,
-                                                'vendor': selectedVendor
+                                                'vendor': selectedVendor,
+                                                'out_of_stock': outOfStock.toString()
                                               };
                                               getProducts =
                                                   productRepo.filterProducts(
-                                                      filterMap, widget.outOfStock);
+                                                      filterMap);
                                               Navigator.pop(context);
                                               setState(() {});
                                             },
@@ -213,15 +222,15 @@ class _ViewProductState extends State<ViewProduct> {
                       ),
                       IconButton(
                           onPressed: () {
-                            getProducts =
-                                productRepo.filterProducts(filterMap, widget.outOfStock);
+                            getProducts = productRepo.filterProducts(
+                                filterMap);
                             setState(() {});
                           },
                           icon: const Icon(Icons.refresh))
                     ],
                   ),
                   SizedBox(
-                    height: deviceSize.height - (widget.outOfStock?145: 210),
+                    height: deviceSize.height - 210,
                     child: ListView.builder(
                       itemBuilder: (BuildContext ctx, int index) {
                         product =
@@ -230,11 +239,11 @@ class _ViewProductState extends State<ViewProduct> {
                         String sizeAtHome = '';
                         for (Map<String, dynamic> element
                             in product.pairs_in_stock) {
-                          if (element['available_at'] == Constants.HOME &&
+                          if (element['available_at'] == Constants.home &&
                               element['quantity'] > 0) {
                             sizeAtHome = '${sizeAtHome + element['size']},';
                           }
-                          if (element['available_at'] == Constants.SHOP &&
+                          if (element['available_at'] == Constants.shop &&
                               element['quantity'] > 0) {
                             sizeAtShop = '$sizeAtShop${element['size']},';
                           }

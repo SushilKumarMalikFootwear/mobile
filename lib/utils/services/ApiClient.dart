@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:footwear/config/constants/AppConstants.dart';
+import 'package:footwear/config/constants/app_constants.dart';
 
 abstract class ApiClient {
   static Dio _dio = Dio();
@@ -42,7 +42,9 @@ abstract class ApiClient {
               }));
 
       return response.data;
-    } on DioError catch (err) {}
+    } on DioError catch (err) {
+      err;
+    }
   }
 
   put(String url) async {
@@ -55,7 +57,9 @@ abstract class ApiClient {
         return true;
       }));
       return jsonDecode(response.toString());
-    } on DioError catch (err) {}
+    } on DioError catch (err) {
+      err;
+    }
   }
 
   delete(String url) async {
@@ -68,6 +72,8 @@ abstract class ApiClient {
         return true;
       }));
       return jsonDecode(response.toString());
-    } on DioError catch (err) {}
+    } on DioError catch (err) {
+      err;
+    }
   }
 }

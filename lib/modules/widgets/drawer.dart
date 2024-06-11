@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/drawer_option.dart';
 
-class myDrawer extends StatelessWidget {
+class MyDrawer extends StatelessWidget {
   final String userid;
-  const myDrawer(this.userid,this.drawerOptions, {super.key});
+  const MyDrawer(this.userid, this.drawerOptions, {super.key});
   final List<DrawerOption> drawerOptions;
   _navigateTo(BuildContext context, String route) {
     Navigator.pushNamed(context, route, arguments: {'userid': userid});
@@ -25,7 +25,8 @@ class myDrawer extends StatelessWidget {
                   ),
                   accountName: Text(userid.split("@")[0],
                       style: const TextStyle(fontSize: 20)),
-                  accountEmail: Text(userid, style: const TextStyle(fontSize: 15)))),
+                  accountEmail:
+                      Text(userid, style: const TextStyle(fontSize: 15)))),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 5),
             height: 1.5,

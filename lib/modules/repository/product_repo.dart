@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:footwear/utils/services/ApiClient.dart';
-import '/config/constants/AppConstants.dart';
-
+import '../../config/constants/app_constants.dart';
 
 class ProductRepository {
   Future<Map<String, List<String>>> getConfigLists() async {
     Map<String, dynamic> temp = {};
     if (Constants.isBackendStarted) {
-      temp = await ApiClient.get(ApiUrls.GET_CONFIG_LISTS);
+      temp = await ApiClient.get(ApiUrls.getConfigList);
     } else {
       temp = await ApiClient.post(ApiUrls.mongoDbApiUrl, {
         "collection": "config_lists",
@@ -34,23 +33,23 @@ class ProductRepository {
 
   FirebaseFirestore db = FirebaseFirestore.instance;
   add(Map<String, dynamic> product) async {
-    var response = await ApiClient.post(ApiUrls.ADD_FOOTWEAR, product);
+    var response = await ApiClient.post(ApiUrls.addFootwear, product);
     return response;
   }
 
   update(Map<String, dynamic> product) async {
-    var response = await ApiClient.post(ApiUrls.UPDATE_FOOTWEAR, product);
+    var response = await ApiClient.post(ApiUrls.updateFootwear, product);
     return response;
   }
 
-  getAllProducts(bool outOfStock) async {
+  getAllProducts() async {
     var response = await ApiClient.post(
         "https://ap-south-1.aws.data.mongodb-api.com/app/data-rtgjs/endpoint/data/v1/action/find",
         {
           "collection": "footwears",
           "database": "test",
           "dataSource": "SushilKumarMalikFootwear",
-          "filter":{"out_of_stock":outOfStock},
+          "filter": {"out_of_stock": false},
           "sort": {"createdAt": -1}
         },
         headers: {
@@ -63,13 +62,16 @@ class ProductRepository {
     return response;
   }
 
-  filterProducts(Map<String, String> filterMap, bool outOfStock) async {
-    String brand = filterMap['brand']!;
-    String category = filterMap['category']!;
-    String article = filterMap['article']!;
-    String size_range = filterMap['size_range']!;
-    String color = filterMap['color']!;
-    String vendor = filterMap['vendor']!;
+  filterProducts(Map<String, String> filterMap) async {
+    String brand = filterMap['brand'] ?? '';
+    String category = filterMap['category'] ?? '';
+    String article = filterMap['article'] ?? '';
+    String sizeRange = filterMap['size_range'] ?? '';
+    String color = filterMap['color'] ?? '';
+    String vendor = filterMap['vendor'] ?? '';
+    bool outOfStock = filterMap['out_of_stock'] != null
+        ? filterMap['out_of_stock'] == 'true'
+        : false;
     var headers = {
       'Content-Type': 'application/json',
       'Access-Control-Request-Headers': '*',
@@ -104,10 +106,10 @@ class ProductRepository {
               "article": {"\$regex": article, "\$options": "i"}
             }
           },
-        if (size_range.isNotEmpty)
+        if (sizeRange.isNotEmpty)
           {
             "\$match": {
-              "size_range": {"\$regex": size_range, "\$options": "i"}
+              "size_range": {"\$regex": sizeRange, "\$options": "i"}
             }
           },
         if (color.isNotEmpty)
@@ -122,10 +124,9 @@ class ProductRepository {
               "vendor": {"\$regex": vendor, "\$options": "i"}
             }
           },
-        if (!outOfStock)
-          {
-            "\$match": {"out_of_stock": false}
-          },
+        {
+          "\$match": {"out_of_stock": outOfStock}
+        },
         {
           "\$sort": {"createdAt": -1}
         }
@@ -140,11 +141,6 @@ class ProductRepository {
       ),
       data: data,
     );
-
-    if (response.statusCode == 200) {
-    } else {
-      print(response.statusMessage);
-    }
     return response.data;
   }
 }
