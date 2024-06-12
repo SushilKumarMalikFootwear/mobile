@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:footwear/config/constants/app_constants.dart';
 
 abstract class ApiClient {
-  static Dio _dio = Dio();
+  static final Dio _dio = Dio();
   static get(
     String url, {
     ResponseType responseType = ResponseType.json,
@@ -11,7 +11,7 @@ abstract class ApiClient {
     try {
       _dio.options.headers = Constants.isBackendStarted
           ? Constants.basicHeaders
-          : Constants.mongoDbApiHeaders;
+          : Constants.mongoDbHeaders;
       Response response = await _dio.get(url,
           options: Options(
               validateStatus: (status) {
@@ -31,7 +31,7 @@ abstract class ApiClient {
       } else {
         _dio.options.headers = Constants.isBackendStarted
             ? Constants.basicHeaders
-            : Constants.mongoDbApiHeaders;
+            : Constants.mongoDbHeaders;
       }
       Response response = await _dio.post(url,
           data: json.encode(data),
@@ -51,7 +51,7 @@ abstract class ApiClient {
     try {
       _dio.options.headers = Constants.isBackendStarted
           ? Constants.basicHeaders
-          : Constants.mongoDbApiHeaders;
+          : Constants.mongoDbHeaders;
       Response response =
           await _dio.put(url, options: Options(validateStatus: (status) {
         return true;
@@ -66,7 +66,7 @@ abstract class ApiClient {
     try {
       _dio.options.headers = Constants.isBackendStarted
           ? Constants.basicHeaders
-          : Constants.mongoDbApiHeaders;
+          : Constants.mongoDbHeaders;
       Response response =
           await _dio.delete(url, options: Options(validateStatus: (status) {
         return true;

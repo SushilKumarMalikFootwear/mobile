@@ -8,7 +8,6 @@ import '/modules/repository/product_repo.dart';
 import '../models/product.dart';
 
 class ViewProduct extends StatefulWidget {
-
   const ViewProduct({super.key});
   @override
   State<ViewProduct> createState() => _ViewProductState();
@@ -38,6 +37,7 @@ class _ViewProductState extends State<ViewProduct> {
     categoryList = configList['categoryList']!;
     sizeRangeList = configList['sizeRangeList']!;
     vendorList = configList['vendorList']!;
+    Constants.articleList = await productRepo.getAllArticles();
     setState(() {});
   }
 
@@ -81,8 +81,7 @@ class _ViewProductState extends State<ViewProduct> {
           } else {
             return RefreshIndicator(
               onRefresh: () {
-                getProducts =
-                    productRepo.filterProducts(filterMap);
+                getProducts = productRepo.filterProducts(filterMap);
                 setState(() {});
                 return Future(() => null);
               },
@@ -180,11 +179,11 @@ class _ViewProductState extends State<ViewProduct> {
                                                 'size_range': selectedSizeRange,
                                                 'color': colorCtrl.text,
                                                 'vendor': selectedVendor,
-                                                'out_of_stock': outOfStock.toString()
+                                                'out_of_stock':
+                                                    outOfStock.toString()
                                               };
-                                              getProducts =
-                                                  productRepo.filterProducts(
-                                                      filterMap);
+                                              getProducts = productRepo
+                                                  .filterProducts(filterMap);
                                               Navigator.pop(context);
                                               setState(() {});
                                             },
@@ -222,8 +221,7 @@ class _ViewProductState extends State<ViewProduct> {
                       ),
                       IconButton(
                           onPressed: () {
-                            getProducts = productRepo.filterProducts(
-                                filterMap);
+                            getProducts = productRepo.filterProducts(filterMap);
                             setState(() {});
                           },
                           icon: const Icon(Icons.refresh))

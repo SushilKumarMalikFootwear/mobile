@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:footwear/utils/services/ApiClient.dart';
+import 'package:footwear/utils/services/api_client.dart';
 import '../../config/constants/app_constants.dart';
 
 class ProductRepository {
@@ -10,7 +10,7 @@ class ProductRepository {
     if (Constants.isBackendStarted) {
       temp = await ApiClient.get(ApiUrls.getConfigList);
     } else {
-      temp = await ApiClient.post(ApiUrls.mongoDbApiUrl, {
+      temp = await ApiClient.post("${ApiUrls.mongoDbApiUrl}/find", {
         "collection": "config_lists",
         "database": "test",
         "dataSource": "SushilKumarMalikFootwear"
@@ -44,7 +44,7 @@ class ProductRepository {
 
   getAllProducts() async {
     var response = await ApiClient.post(
-        "https://ap-south-1.aws.data.mongodb-api.com/app/data-rtgjs/endpoint/data/v1/action/find",
+        "${ApiUrls.mongoDbApiUrl}/find",
         {
           "collection": "footwears",
           "database": "test",
@@ -52,13 +52,7 @@ class ProductRepository {
           "filter": {"out_of_stock": false},
           "sort": {"createdAt": -1}
         },
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Request-Headers': '*',
-          'api-key':
-              'qNt2VxYXcnCBIL2txrJq1aTPoXlzCKG4kFCOBCdOvODzQxV0W106vBQNlf5trY3i',
-          'Accept': 'application/json'
-        });
+        headers: Constants.mongoDbHeaders);
     return response;
   }
 
@@ -72,13 +66,6 @@ class ProductRepository {
     bool outOfStock = filterMap['out_of_stock'] != null
         ? filterMap['out_of_stock'] == 'true'
         : false;
-    var headers = {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key':
-          'qNt2VxYXcnCBIL2txrJq1aTPoXlzCKG4kFCOBCdOvODzQxV0W106vBQNlf5trY3i',
-      'Accept': 'application/json'
-    };
     var data = json.encode({
       "collection": "footwears",
       "database": "test",
@@ -134,13 +121,45 @@ class ProductRepository {
     });
     var dio = Dio();
     var response = await dio.request(
-      'https://ap-south-1.aws.data.mongodb-api.com/app/data-rtgjs/endpoint/data/v1/action/aggregate',
+      "${ApiUrls.mongoDbApiUrl}/aggregate",
       options: Options(
         method: 'POST',
-        headers: headers,
+        headers: Constants.mongoDbHeaders,
       ),
       data: data,
     );
     return response.data;
+  }
+
+  getAllArticles() async {
+    var data = json.encode({
+      "collection": "footwears",
+      "database": "test",
+      "dataSource": "SushilKumarMalikFootwear",
+      "pipeline": [
+        {
+          "\$group": {
+            "_id": null,
+            "uniqueArticles": {"\$addToSet": "\$article"}
+          }
+        },
+        {
+          "\$project": {"_id": 0, "uniqueArticles": 1}
+        }
+      ]
+    });
+
+    var dio = Dio();
+    var response = await dio.request(
+      "${ApiUrls.mongoDbApiUrl}/aggregate",
+      options: Options(
+        method: 'POST',
+        headers: Constants.mongoDbHeaders,
+      ),
+      data: data,
+    );
+    List temp = response.data['documents'][0]['uniqueArticles'];
+    List<String> articleList = temp.map((e) => e.toString()).toList();
+    return articleList;
   }
 }
