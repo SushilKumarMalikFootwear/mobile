@@ -138,7 +138,7 @@ class _AddProductState extends State<AddProduct> {
         for (int i = startSize; i <= endSize; i++) {
           product.pairs_in_stock.add({
             'size': i,
-            'available_at': "home",
+            'available_at': Constants.home,
             'quantity': 0,
           });
         }
@@ -149,7 +149,7 @@ class _AddProductState extends State<AddProduct> {
         for (int i = startSize; i <= endSize; i++) {
           product.pairs_in_stock.add({
             'size': i,
-            'available_at': "shop",
+            'available_at': Constants.shop,
             'quantity': 0,
           });
         }
@@ -293,7 +293,7 @@ class _AddProductState extends State<AddProduct> {
                               fontSize: 16,
                               color: product.pairs_in_stock[index]
                                           ['available_at'] ==
-                                      'home'
+                                      Constants.home
                                   ? Colors.blue
                                   : Colors.purple),
                         ),

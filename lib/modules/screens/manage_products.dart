@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footwear/modules/models/product.dart';
+import '../repository/product_repo.dart';
 import '/modules/widgets/drawer.dart';
 import '../../config/constants/app_constants.dart';
 import '../../config/constants/drawer_options_list.dart';
@@ -15,8 +16,10 @@ class ManageProducts extends StatefulWidget {
 }
 
 class _ManageProductsState extends State<ManageProducts> {
+  ProductRepository productRepo = ProductRepository();
   DrawerOptionList list = DrawerOptionList();
   int flag = 0;
+  Map<String, List<String>> configList = {};
   List<Map<String, dynamic>> _loadAllPages() {
     return [
       {
@@ -38,6 +41,13 @@ class _ManageProductsState extends State<ManageProducts> {
     flag++;
     setState(() {});
   }
+    setConfigList() async {
+    configList = await productRepo.getConfigLists();
+    Constants.categoryList = configList['categoryList']!;
+    Constants.vendorList = configList['vendorList']!;
+    Constants.articleList = await productRepo.getAllArticles();
+    setState(() {});
+  }
 
   int currentPage = 1;
   final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
@@ -46,6 +56,7 @@ class _ManageProductsState extends State<ManageProducts> {
   void initState() {
     super.initState();
     _allPages = _loadAllPages();
+    setConfigList();
   }
 
   openBottomDialog() {

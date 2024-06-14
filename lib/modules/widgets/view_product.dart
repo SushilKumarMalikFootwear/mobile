@@ -3,7 +3,7 @@ import 'package:footwear/config/constants/app_constants.dart';
 import 'package:footwear/modules/screens/product_preview.dart';
 import 'package:footwear/utils/widgets/custom_bottom_sheet.dart';
 import 'package:footwear/utils/widgets/custom_checkbox.dart';
-import '../../utils/widgets/custom_dropdown.dart';
+import '../../utils/widgets/products_filter.dart';
 import '/modules/repository/product_repo.dart';
 import '../models/product.dart';
 
@@ -16,49 +16,24 @@ class ViewProduct extends StatefulWidget {
 class _ViewProductState extends State<ViewProduct> {
   ProductRepository productRepo = ProductRepository();
   bool showImages = false;
-  List<String> categoryList = [];
-  List<String> sizeRangeList = [];
-  Map<String, List<String>> configList = {};
   Map<String, String> filterMap = {};
-  List<String> vendorList = [];
-  TextEditingController brandNameCtrl = TextEditingController();
-  TextEditingController articleCtrl = TextEditingController();
-  TextEditingController colorCtrl = TextEditingController();
-  String selectedSizeRange = '';
-  String selectedCategory = '';
-  String selectedVendor = '';
-  bool outOfStock = false;
 
   late Product product;
 
   late Future getProducts;
-  setConfigList() async {
-    configList = await productRepo.getConfigLists();
-    categoryList = configList['categoryList']!;
-    sizeRangeList = configList['sizeRangeList']!;
-    vendorList = configList['vendorList']!;
-    Constants.articleList = await productRepo.getAllArticles();
-    setState(() {});
-  }
+
 
   @override
   void initState() {
-    setConfigList();
     super.initState();
     getProducts = productRepo.getAllProducts();
   }
 
-  refreshParent() {
-    filterMap = {
-      'brand': brandNameCtrl.text,
-      'category': selectedCategory,
-      'article': articleCtrl.text,
-      'size_range': selectedSizeRange,
-      'color': colorCtrl.text,
-      'vendor': selectedVendor,
-      'out_of_stock': outOfStock.toString()
-    };
-    getProducts = productRepo.filterProducts(filterMap);
+  applyFilter(Map<String, String>? filterMap) {
+    if (filterMap != null) {
+      this.filterMap = filterMap;
+    }
+    getProducts = productRepo.filterProducts(this.filterMap);
     setState(() {});
   }
 
@@ -97,128 +72,17 @@ class _ViewProductState extends State<ViewProduct> {
                             setState(() {});
                           },
                           label: 'Images'),
+                      const SizedBox(width: 15),
                       IconButton(
                           onPressed: () {
-                            brandNameCtrl.clear();
-                            articleCtrl.clear();
-                            colorCtrl.clear();
-                            selectedSizeRange = '';
-                            selectedCategory = '';
-                            selectedVendor = '';
-                            outOfStock = false;
-                            customBottomSheet(
-                                context,
-                                Scaffold(
-                                  body: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    child: Column(
-                                      children: [
-                                        const Text('Filters'),
-                                        TextField(
-                                          controller: brandNameCtrl,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Brand Name'),
-                                        ),
-                                        CustomDropDown(
-                                            value: selectedCategory.isEmpty
-                                                ? null
-                                                : selectedCategory,
-                                            hint: 'Select a Categoy',
-                                            onChange: (value) {
-                                              selectedCategory = value;
-                                            },
-                                            items: categoryList),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        CustomDropDown(
-                                            value: selectedVendor.isEmpty
-                                                ? null
-                                                : selectedVendor,
-                                            hint: 'Select a Vendor',
-                                            onChange: (value) {
-                                              selectedVendor = value;
-                                            },
-                                            items: vendorList),
-                                        TextField(
-                                          controller: articleCtrl,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Article'),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 10),
-                                          child: CustomDropDown(
-                                              value: selectedSizeRange.isEmpty
-                                                  ? null
-                                                  : selectedSizeRange,
-                                              hint: 'Select Size Range',
-                                              onChange: (value) {
-                                                selectedSizeRange = value;
-                                              },
-                                              items: sizeRangeList),
-                                        ),
-                                        TextField(
-                                          controller: colorCtrl,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Color'),
-                                        ),
-                                        CustomCheckBox(
-                                            isSelected: outOfStock,
-                                            onClicked: (value) {
-                                              outOfStock = value;
-                                            },
-                                            label: "Out of Stock"),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              filterMap = {
-                                                'brand': brandNameCtrl.text,
-                                                'category': selectedCategory,
-                                                'article': articleCtrl.text,
-                                                'size_range': selectedSizeRange,
-                                                'color': colorCtrl.text,
-                                                'vendor': selectedVendor,
-                                                'out_of_stock':
-                                                    outOfStock.toString()
-                                              };
-                                              getProducts = productRepo
-                                                  .filterProducts(filterMap);
-                                              Navigator.pop(context);
-                                              setState(() {});
-                                            },
-                                            child: const Text('Apply')),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              filterMap.clear();
-                                            },
-                                            child: const Text("Reset"))
-                                      ],
-                                    ),
-                                  ),
-                                ));
+                            customBottomSheet(context,
+                                ProductsFilter(applyFilter: applyFilter));
                           },
                           icon: const Icon(
                             Icons.filter_alt,
                             size: 30,
                           )),
-                      SizedBox(
-                        width: 150,
-                        child: Row(
-                          children: [
-                            IconButton(
-                                onPressed: () {},
-                                icon: const Icon(Icons.arrow_back_ios)),
-                            const Text(
-                              '1 - 10',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            IconButton(
-                                onPressed: () {},
-                                icon: const Icon(Icons.arrow_forward_ios)),
-                          ],
-                        ),
-                      ),
+                      const Spacer(),
                       IconButton(
                           onPressed: () {
                             getProducts = productRepo.filterProducts(filterMap);
@@ -259,7 +123,7 @@ class _ViewProductState extends State<ViewProduct> {
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ProductPreview(
-                                  refreshParent: refreshParent,
+                                  refreshParent: applyFilter,
                                   product: Product.fromJSON(
                                       snapshot.data['documents'][index]),
                                   sizeAtHome: sizeAtHome,

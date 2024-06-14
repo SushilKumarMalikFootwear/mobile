@@ -14,6 +14,8 @@ abstract class Constants {
     'Accept': 'application/json'
   };
   static List<String> articleList = [];
+  static List<String> vendorList = [];
+  static List<String> categoryList = [];
 }
 
 abstract class ApiUrls {
