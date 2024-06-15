@@ -22,7 +22,6 @@ class _ViewProductState extends State<ViewProduct> {
 
   late Future getProducts;
 
-
   @override
   void initState() {
     super.initState();
@@ -123,7 +122,9 @@ class _ViewProductState extends State<ViewProduct> {
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ProductPreview(
-                                  refreshParent: applyFilter,
+                                  refreshParent: () {
+                                    applyFilter(filterMap);
+                                  },
                                   product: Product.fromJSON(
                                       snapshot.data['documents'][index]),
                                   sizeAtHome: sizeAtHome,
