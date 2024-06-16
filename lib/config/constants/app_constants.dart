@@ -30,10 +30,10 @@ abstract class ApiUrls {
 
 abstract class RouteConstants {
   static String manageProducts = '/manage_products';
-  static String outOfProducts = '/out_of_stock';
+  static String invoices = '/invoices';
 }
 
 abstract class AppBarTitle {
   static String manageProducts = "Manage Products";
-  static String outOfProducts = "Out of Sock";
+  static String invoices = "Invoices";
 }

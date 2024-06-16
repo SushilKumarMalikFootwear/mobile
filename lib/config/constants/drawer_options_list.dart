@@ -7,5 +7,9 @@ class DrawerOptionList {
         name: AppBarTitle.manageProducts,
         isActive: false,
         route: RouteConstants.manageProducts),
+    DrawerOption(
+        name: AppBarTitle.invoices,
+        isActive: false,
+        route: RouteConstants.invoices),
   ];
 }

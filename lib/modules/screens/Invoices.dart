@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:footwear/modules/models/product.dart';
-import '../repository/product_repo.dart';
-import '/modules/widgets/drawer.dart';
+import 'package:footwear/modules/widgets/view_invoices.dart';
+
 import '../../config/constants/app_constants.dart';
 import '../../config/constants/drawer_options_list.dart';
+import '../models/Invoice.dart';
 import '../models/drawer_option.dart';
-import '../widgets/add_product.dart';
-import '../widgets/view_product.dart';
+import '../widgets/create_invoice.dart';
+import '../widgets/drawer.dart';
 
-class ManageProducts extends StatefulWidget {
-  const ManageProducts({Key? key}) : super(key: key);
+class Invoices extends StatefulWidget {
+  const Invoices({super.key});
 
   @override
-  State<ManageProducts> createState() => _ManageProductsState();
+  State<Invoices> createState() => _InvoicesState();
 }
 
-class _ManageProductsState extends State<ManageProducts> {
-  ProductRepository productRepo = ProductRepository();
+class _InvoicesState extends State<Invoices> {
   DrawerOptionList list = DrawerOptionList();
   int flag = 0;
   Map<String, List<String>> configList = {};
   List<Map<String, dynamic>> _loadAllPages() {
     return [
       {
-        'page':
-            AddProduct(refreshChild, switchChild, Constants.create, Product()),
-        'title': 'Add Product',
+        'page': CreateInvoice(
+            invoice: Invoice(),
+            refreshChild: refreshChild,
+            switchChild: switchChild,
+            todo: Constants.create),
+        'title': 'Create Invoice',
         'icon': Icons.add
       },
-      {'page': const ViewProduct(), 'title': 'View Product', 'icon': Icons.list}
+      {
+        'page': const ViewInvoices(),
+        'title': 'View Invoices',
+        'icon': Icons.list
+      }
     ];
   }
 
@@ -42,14 +48,6 @@ class _ManageProductsState extends State<ManageProducts> {
     setState(() {});
   }
 
-  setConfigList() async {
-    configList = await productRepo.getConfigLists();
-    Constants.categoryList = configList['categoryList']!;
-    Constants.vendorList = configList['vendorList']!;
-    Constants.articleList = await productRepo.getAllArticles();
-    setState(() {});
-  }
-
   int currentPage = 1;
   final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
   late List<Map<String, dynamic>> _allPages;
@@ -57,14 +55,13 @@ class _ManageProductsState extends State<ManageProducts> {
   void initState() {
     super.initState();
     _allPages = _loadAllPages();
-    setConfigList();
   }
 
   @override
   Widget build(BuildContext context) {
     List<DrawerOption> drawerOptionList = list.drawerOptions;
     drawerOptionList = drawerOptionList.map((drawerOption) {
-      if (drawerOption.name == AppBarTitle.manageProducts) {
+      if (drawerOption.name == AppBarTitle.invoices) {
         drawerOption.isActive = true;
         return drawerOption;
       } else {
