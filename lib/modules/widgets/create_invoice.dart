@@ -34,6 +34,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   TextEditingController descriptionCtrl = TextEditingController();
   TextEditingController sizeCtrl = TextEditingController();
   TextEditingController articleCtrl = TextEditingController();
+  TextEditingController mrpCtrl = TextEditingController();
   bool isOldInvoice = false;
   bool showTradersList = false;
 
@@ -58,6 +59,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
     invoice.costPrice = double.parse(costPriceCtrl.text);
     invoice.sellingPrice = double.parse(sellingPriceCtrl.text);
     invoice.profit = double.parse(profitCtrl.text);
+    invoice.mrp = double.parse(mrpCtrl.text);
     invoice.description = descriptionCtrl.text;
     if (widget.todo == Constants.create) {
       await invoiceRepo.saveInvoice(invoice, isOldInvoice);
@@ -156,6 +158,8 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                 invoice.size = val;
               },
               items: availableSizes),
+          const SizedBox(height: 5),
+          CustomText(label: 'MRP', tc: mrpCtrl),
           const SizedBox(height: 5),
           CustomText(label: 'Selling Price', tc: sellingPriceCtrl),
           const SizedBox(height: 5),
