@@ -49,7 +49,7 @@ class ProductRepository {
           "collection": "footwears",
           "database": "test",
           "dataSource": "SushilKumarMalikFootwear",
-          "sort": {"createdAt": -1}
+          "sort": {"article": 1}
         },
         headers: Constants.mongoDbHeaders);
     return response;
@@ -143,6 +143,9 @@ class ProductRepository {
           }
         },
         {
+          "\$sort": {"article": 1}
+        },
+        {
           "\$project": {"_id": 0, "uniqueArticles": 1}
         }
       ]
@@ -161,5 +164,4 @@ class ProductRepository {
     List<String> articleList = temp.map((e) => e.toString()).toList();
     return articleList;
   }
-
 }

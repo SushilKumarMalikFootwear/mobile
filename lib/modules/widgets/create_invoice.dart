@@ -113,6 +113,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                     profitCtrl.text = (double.parse(product.sellingPrice) -
                             double.parse(product.costPrice))
                         .toString();
+                        mrpCtrl.text = product.mrp;
                     invoice.productId = product.footwear_id;
                     availableSizes.clear();
                     for (var e in product.pairs_in_stock) {
@@ -128,7 +129,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                 controller: articleCtrl,
                 onChange: (String val) {
                   List<String> articleList = [];
-                  for (int i = 0; i < Constants.articleList.length; i++) {
+                  for (int i = 0; i < Constants.articleWithColorList.length; i++) {
                     if (Constants.articleWithColorList[i]
                         .toUpperCase()
                         .contains(val.toUpperCase())) {
