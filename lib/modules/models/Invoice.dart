@@ -14,6 +14,7 @@ class Invoice {
   late String invoiceStatus;
   late String article;
   late String vendor;
+  late double mrp;
 
   Invoice(
       {this.article = '',
@@ -30,9 +31,11 @@ class Invoice {
       this.size = '',
       this.soldAt = '',
       this.vendor = '',
+      this.mrp = 0,
       DateTime? invoiceDate})
       : this.invoiceDate = invoiceDate ?? DateTime.now();
   Invoice.fromJson(Map invoice) {
+    mrp = double.parse(invoice['mrp'].toString());
     vendor = invoice['vendor'] ?? '';
     color = invoice['color'];
     costPrice = double.parse(invoice['cost_price'].toString());
@@ -66,7 +69,8 @@ class Invoice {
       "payment_status": paymentStatus,
       "invoice_status": invoiceStatus,
       'article': article,
-      'vendor': vendor
+      'vendor': vendor,
+      'mrp':mrp
     };
   }
 }
