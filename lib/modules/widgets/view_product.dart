@@ -25,7 +25,7 @@ class _ViewProductState extends State<ViewProduct> {
   @override
   void initState() {
     super.initState();
-    getProducts = productRepo.getAllProducts();
+    getProducts = productRepo.filterProducts({});
   }
 
   applyFilter(Map<String, String>? filterMap) {

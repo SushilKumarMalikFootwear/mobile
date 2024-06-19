@@ -47,6 +47,17 @@ class _ManageProductsState extends State<ManageProducts> {
     Constants.categoryList = configList['categoryList']!;
     Constants.vendorList = configList['vendorList']!;
     Constants.articleList = await productRepo.getAllArticles();
+    Future getAllProducts = productRepo.getAllProducts();
+    getAllProducts.then((value) {
+      List temp = value['documents'];
+      temp.map((e) {
+        Product product = Product.fromJSON(e);
+        String articleWithColor = "${product.article} : ${product.color}";
+        Constants.articleWithColorList.add(articleWithColor);
+        Constants.articleWithColorToProduct
+            .putIfAbsent(articleWithColor, () => product);
+      }).toList();
+    });
     setState(() {});
   }
 

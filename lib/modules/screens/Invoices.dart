@@ -48,7 +48,7 @@ class _InvoicesState extends State<Invoices> {
     setState(() {});
   }
 
-  int currentPage = 1;
+  int currentPage = 0;
   final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
   late List<Map<String, dynamic>> _allPages;
   @override

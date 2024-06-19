@@ -49,7 +49,6 @@ class ProductRepository {
           "collection": "footwears",
           "database": "test",
           "dataSource": "SushilKumarMalikFootwear",
-          "filter": {"out_of_stock": false},
           "sort": {"createdAt": -1}
         },
         headers: Constants.mongoDbHeaders);
@@ -162,4 +161,5 @@ class ProductRepository {
     List<String> articleList = temp.map((e) => e.toString()).toList();
     return articleList;
   }
+
 }

@@ -222,12 +222,11 @@ class _AddProductState extends State<AddProduct> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Text(widget.todo == Constants.create ? 'ADD PRODUCT' : 'edit PRODUCT',
-              style: const TextStyle(fontSize: 40)),
+          const SizedBox(height: 10),
           CustomText(label: 'Brand Name', tc: brandName),
           CustomText(label: 'Sub Brand Name', tc: subBrandName),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: CustomDropDown(
                 value: vendor,
                 hint: 'Select a Vendor',
@@ -237,7 +236,7 @@ class _AddProductState extends State<AddProduct> {
                 items: vendorList),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: CustomDropDown(
                 value: category,
                 hint: 'Select a Categoy',
