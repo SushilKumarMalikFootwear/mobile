@@ -82,6 +82,7 @@ abstract class ApiUrls {
   static String addFootwear = '$baseUrl/add_footwear';
   static String updateFootwear = '$baseUrl/update_product';
   static String saveInvoice = '$baseUrl/saveInvoice';
+  static String updateInvoice = '$baseUrl/updateInvoice';
   static String mongoDbApiUrl =
       'https://ap-south-1.aws.data.mongodb-api.com/app/data-rtgjs/endpoint/data/v1/action';
 }

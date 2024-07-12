@@ -15,6 +15,7 @@ class Invoice {
   late String article;
   late String vendor;
   late double mrp;
+  late bool addInTotalCost;
 
   Invoice(
       {this.article = '',
@@ -32,6 +33,7 @@ class Invoice {
       this.soldAt = '',
       this.vendor = '',
       this.mrp = 0,
+      this.addInTotalCost = false,
       DateTime? invoiceDate})
       : this.invoiceDate = invoiceDate ?? DateTime.now();
   Invoice.fromJson(Map invoice) {
@@ -44,13 +46,14 @@ class Invoice {
     productId = invoice['product_id'];
     sellingPrice = double.parse(invoice['selling_price'].toString());
     profit = double.parse(invoice['profit'].toString());
-    description = invoice['dexcription'] ?? '';
+    description = invoice['description'] ?? '';
     size = invoice['size'].toString();
     soldAt = invoice['sold_at'];
     paymentMode = invoice['payment_mode'];
     paymentStatus = invoice['payment_status'];
     invoiceStatus = invoice['invoice_status'];
     article = invoice['article'];
+    addInTotalCost = invoice['add_in_total_cost'];
   }
 
   Map<String, dynamic> toJson() {
@@ -70,7 +73,8 @@ class Invoice {
       "invoice_status": invoiceStatus,
       'article': article,
       'vendor': vendor,
-      'mrp':mrp
+      'mrp': mrp,
+      'add_in_total_cost':addInTotalCost
     };
   }
 }

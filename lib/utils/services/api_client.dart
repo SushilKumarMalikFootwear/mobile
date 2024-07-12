@@ -33,6 +33,7 @@ abstract class ApiClient {
             ? Constants.basicHeaders
             : Constants.mongoDbHeaders;
       }
+      print(json.encode(data));
       Response response = await _dio.post(url,
           data: json.encode(data),
           options: Options(

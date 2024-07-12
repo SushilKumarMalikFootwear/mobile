@@ -36,6 +36,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   TextEditingController articleCtrl = TextEditingController();
   TextEditingController mrpCtrl = TextEditingController();
   bool isOldInvoice = false;
+  bool addInTotalCost = false;
   Product? product;
 
   InvoiceRepository invoiceRepo = InvoiceRepository();
@@ -81,9 +82,12 @@ class _CreateInvoiceState extends State<CreateInvoice> {
     invoice.description = descriptionCtrl.text;
     if (widget.todo == Constants.create) {
       await invoiceRepo.saveInvoice(invoice, isOldInvoice);
+      widget.switchChild();
+    } else {
+      await invoiceRepo.updateInvoice(invoice);
+      Navigator.pop(context);
+      widget.refreshChild();
     }
-
-    widget.switchChild();
   }
 
   calculateProfit(val) {
@@ -97,149 +101,157 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(
-                    invoice.invoiceDate.toString().split(' ')[0],
-                    style: const TextStyle(fontSize: 18),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Text(
+                      invoice.invoiceDate.toString().split(' ')[0],
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   ),
-                ),
-                IconButton(
-                    padding: const EdgeInsets.only(right: 20),
-                    onPressed: () async {
-                      invoice.invoiceDate =
-                          await selectDate(context, invoice.invoiceDate);
-                      setState(() {});
-                    },
-                    icon: const Icon(
-                      Icons.calendar_month_outlined,
-                      color: Colors.blue,
-                      size: 30,
-                    ))
-              ],
+                  IconButton(
+                      padding: const EdgeInsets.only(right: 20),
+                      onPressed: () async {
+                        invoice.invoiceDate =
+                            await selectDate(context, invoice.invoiceDate);
+                        setState(() {});
+                      },
+                      icon: const Icon(
+                        Icons.calendar_month_outlined,
+                        color: Colors.blue,
+                        size: 30,
+                      ))
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: SearchableDropdown(
-                onSelect: (val) {
-                  product = Constants.articleWithColorToProduct[val];
-                  invoice.article = val.toString().split(" : ")[0];
-                  invoice.color = val.toString().split(" : ")[1];
-                  if (product != null) {
-                    invoice.vendor = product!.vendor;
-                    sellingPriceCtrl.text = product!.sellingPrice;
-                    costPriceCtrl.text = product!.costPrice;
-                    profitCtrl.text = (double.parse(product!.sellingPrice) -
-                            double.parse(product!.costPrice))
-                        .toString();
-                    mrpCtrl.text = product!.mrp;
-                    invoice.productId = product!.footwear_id;
-                    availableSizes.clear();
-                    for (var e in product!.pairs_in_stock) {
-                      if (e['available_at'] == Constants.home) {
-                        availableSizes.add(e['size']);
-                      }
-                    }
-                  }
-                  setState(() {});
-                },
-                controller: articleCtrl,
-                onChange: (String val) {
-                  List<String> articleList = [];
-                  for (int i = 0;
-                      i < Constants.articleWithColorList.length;
-                      i++) {
-                    if (Constants.articleWithColorList[i]
-                        .toUpperCase()
-                        .contains(val.toUpperCase())) {
-                      articleList.add(Constants.articleWithColorList[i]);
-                    }
-                  }
-                  if (articleList.isEmpty) {
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: SearchableDropdown(
+                  onSelect: (val) {
+                    product = Constants.articleWithColorToProduct[val];
                     invoice.article = val.toString().split(" : ")[0];
                     invoice.color = val.toString().split(" : ")[1];
-                    availableSizes = [...Constants.allSizeList];
+                    if (product != null) {
+                      invoice.vendor = product!.vendor;
+                      sellingPriceCtrl.text = product!.sellingPrice;
+                      costPriceCtrl.text = product!.costPrice;
+                      profitCtrl.text = (double.parse(product!.sellingPrice) -
+                              double.parse(product!.costPrice))
+                          .toString();
+                      mrpCtrl.text = product!.mrp;
+                      invoice.productId = product!.footwear_id;
+                      availableSizes.clear();
+                      for (var e in product!.pairs_in_stock) {
+                        if (e['available_at'] == Constants.home) {
+                          availableSizes.add(e['size']);
+                        }
+                      }
+                    }
                     setState(() {});
-                  }
-                  return articleList;
+                  },
+                  controller: articleCtrl,
+                  onChange: (String val) {
+                    List<String> articleList = [];
+                    for (int i = 0;
+                        i < Constants.articleWithColorList.length;
+                        i++) {
+                      if (Constants.articleWithColorList[i]
+                          .toUpperCase()
+                          .contains(val.toUpperCase())) {
+                        articleList.add(Constants.articleWithColorList[i]);
+                      }
+                    }
+                    if (articleList.isEmpty) {
+                      invoice.article = val.toString().split(" : ")[0];
+                      invoice.color = val.toString().split(" : ")[1];
+                      availableSizes = [...Constants.allSizeList];
+                      setState(() {});
+                    }
+                    return articleList;
+                  },
+                  hintText: 'Select Product'),
+            ),
+            CustomDropDown(
+                value: invoice.vendor.isEmpty ? null : invoice.vendor,
+                hint: 'Select a Vendor',
+                onChange: (value) {
+                  invoice.vendor = value;
                 },
-                hintText: 'Select Product'),
-          ),
-          CustomDropDown(
-              value: invoice.vendor.isEmpty ? null : invoice.vendor,
-              hint: 'Select a Vendor',
-              onChange: (value) {
-                invoice.vendor = value;
-              },
-              items: Constants.vendorList),
-          const SizedBox(height: 5),
-          CustomDropDown(
-              value: invoice.size.isEmpty ? null : invoice.size,
-              hint: 'Select Size',
-              onChange: (val) {
-                invoice.size = val;
-              },
-              items: availableSizes),
-          const SizedBox(height: 5),
-          CustomText(label: 'MRP', tc: mrpCtrl),
-          const SizedBox(height: 5),
-          CustomText(
-              label: 'Selling Price',
-              onChange: calculateProfit,
-              tc: sellingPriceCtrl),
-          const SizedBox(height: 5),
-          CustomText(
-              label: 'Cost Price',
-              onChange: calculateProfit,
-              tc: costPriceCtrl),
-          const SizedBox(height: 5),
-          CustomText(label: 'Profit', tc: profitCtrl),
-          CustomDropDown(
-              value: invoice.soldAt,
-              hint: 'Sold At',
-              onChange: (val) {
-                invoice.soldAt = val;
-              },
-              items: [Constants.shop, Constants.home]),
-          CustomText(
-              label: 'Description', tc: descriptionCtrl, isMultiLine: true),
-          CustomDropDown(
-              value: invoice.paymentMode,
-              hint: 'Payment Mode',
-              onChange: (val) {
-                invoice.paymentMode = val;
-              },
-              items: [Constants.cash, Constants.upi]),
-          CustomDropDown(
-              value: invoice.paymentStatus,
-              hint: 'Payment Status',
-              onChange: (val) {
-                invoice.paymentStatus = val;
-              },
-              items: [Constants.paid, Constants.pending]),
-          CustomDropDown(
-              value: invoice.invoiceStatus,
-              hint: 'Invoice Status',
-              onChange: (val) {
-                invoice.invoiceStatus = val;
-              },
-              items: [Constants.completed, Constants.returned]),
-          CustomCheckBox(
-              isSelected: isOldInvoice,
-              onClicked: (val) {
-                isOldInvoice = val;
-              },
-              label: 'Old Invoice?'),
-          ElevatedButton(onPressed: saveInvoice, child: const Text('Save'))
-        ]),
+                items: Constants.vendorList),
+            const SizedBox(height: 5),
+            CustomDropDown(
+                value: invoice.size.isEmpty ? null : invoice.size,
+                hint: 'Select Size',
+                onChange: (val) {
+                  invoice.size = val;
+                },
+                items: availableSizes),
+            const SizedBox(height: 5),
+            CustomText(label: 'MRP', tc: mrpCtrl),
+            const SizedBox(height: 5),
+            CustomText(
+                label: 'Selling Price',
+                onChange: calculateProfit,
+                tc: sellingPriceCtrl),
+            const SizedBox(height: 5),
+            CustomText(
+                label: 'Cost Price',
+                onChange: calculateProfit,
+                tc: costPriceCtrl),
+            const SizedBox(height: 5),
+            CustomText(label: 'Profit', tc: profitCtrl),
+            CustomDropDown(
+                value: invoice.soldAt,
+                hint: 'Sold At',
+                onChange: (val) {
+                  invoice.soldAt = val;
+                },
+                items: [Constants.shop, Constants.home]),
+            CustomText(
+                label: 'Description', tc: descriptionCtrl, isMultiLine: true),
+            CustomDropDown(
+                value: invoice.paymentMode,
+                hint: 'Payment Mode',
+                onChange: (val) {
+                  invoice.paymentMode = val;
+                },
+                items: [Constants.cash, Constants.upi]),
+            CustomDropDown(
+                value: invoice.paymentStatus,
+                hint: 'Payment Status',
+                onChange: (val) {
+                  invoice.paymentStatus = val;
+                },
+                items: [Constants.paid, Constants.pending]),
+            CustomDropDown(
+                value: invoice.invoiceStatus,
+                hint: 'Invoice Status',
+                onChange: (val) {
+                  invoice.invoiceStatus = val;
+                },
+                items: [Constants.completed, Constants.returned]),
+            CustomCheckBox(
+                isSelected: isOldInvoice,
+                onClicked: (val) {
+                  isOldInvoice = val;
+                },
+                label: 'Old Invoice?'),
+            CustomCheckBox(
+                isSelected: invoice.addInTotalCost,
+                onClicked: (val) {
+                  invoice.addInTotalCost = val;
+                },
+                label: 'Add in Total Cost'),
+            ElevatedButton(onPressed: saveInvoice, child: const Text('Save'))
+          ]),
+        ),
       ),
     );
   }
