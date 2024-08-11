@@ -11,5 +11,9 @@ class DrawerOptionList {
         name: AppBarTitle.invoices,
         isActive: false,
         route: RouteConstants.invoices),
+    DrawerOption(
+        name: AppBarTitle.traderFinances,
+        isActive: false,
+        route: RouteConstants.traderFinances),
   ];
 }
