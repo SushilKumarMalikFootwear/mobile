@@ -23,6 +23,7 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController brandName = TextEditingController();
   TextEditingController subBrandName = TextEditingController();
   TextEditingController article = TextEditingController();
@@ -46,6 +47,8 @@ class _AddProductState extends State<AddProduct> {
   XFile? image;
   bool uploadingFirstImage = false;
   bool uploadingSecondImage = false;
+  bool showVendorError = false;
+  bool showCategoryError = false;
   @override
   initState() {
     setConfigList();
@@ -220,178 +223,217 @@ class _AddProductState extends State<AddProduct> {
     Size deviceSize = MediaQuery.of(context).size;
     ctx = context;
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          CustomText(label: 'Brand Name', tc: brandName),
-          CustomText(label: 'Sub Brand Name', tc: subBrandName),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: CustomDropDown(
-                value: vendor,
-                hint: 'Select a Vendor',
-                onChange: (value) {
-                  vendor = value;
-                },
-                items: vendorList),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: CustomDropDown(
-                value: category,
-                hint: 'Select a Categoy',
-                onChange: (value) {
-                  category = value;
-                },
-                items: categoryList),
-          ),
-          CustomText(label: 'Article', tc: article),
-          CustomText(
-              label: 'Size Range', tc: sizeRange, onChange: _onChangeSizeRange),
-          CustomText(
-            label: 'Type Description Here',
-            tc: descCtrl,
-            isMultiLine: true,
-          ),
-          CustomText(label: 'MRP', tc: mrp),
-          CustomText(label: 'Selling Price', tc: sellingPrice),
-          CustomText(label: 'Cost Price', tc: costPrice),
-          CustomText(label: 'Color', tc: color),
-          const SizedBox(
-            height: 10,
-          ),
-          if (product.pairs_in_stock.isNotEmpty)
-            const Row(
-              children: [
-                SizedBox(
-                  width: 45,
-                ),
-                Text('Available At', style: TextStyle(fontSize: 16)),
-                SizedBox(
-                  width: 45,
-                ),
-                Text('Size(Quantity)', style: TextStyle(fontSize: 16))
-              ],
+      child: Form(
+        key: _form,
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            CustomText(label: 'Brand Name', tc: brandName, required: true),
+            CustomText(label: 'Sub Brand Name', tc: subBrandName),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              child: CustomDropDown(
+                  value: vendor,
+                  hint: 'Select a Vendor',
+                  onChange: (value) {
+                    vendor = value;
+                    showVendorError = false;
+                    setState(() {});
+                  },
+                  items: vendorList),
             ),
-          SizedBox(
-            height: product.pairs_in_stock.length * 56,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: product.pairs_in_stock.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          product.pairs_in_stock[index]['available_at'],
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: product.pairs_in_stock[index]
-                                          ['available_at'] ==
-                                      Constants.home
-                                  ? Colors.blue
-                                  : Colors.purple),
-                        ),
-                        ClipOval(
-                          child: Material(
-                            color: Colors.blue, // Button color
-                            child: InkWell(
-                              splashColor: Colors.red, // Splash color
-                              onTap: () {
-                                if (product.pairs_in_stock[index]['quantity'] >
-                                    0) {
-                                  product.pairs_in_stock[index]['quantity']--;
+            if (showVendorError)
+              const Row(
+                children: [
+                  Text('     Please Select Vendor',
+                      style: TextStyle(color: Colors.red)),
+                ],
+              ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              child: CustomDropDown(
+                  value: category,
+                  hint: 'Select a Categoy',
+                  onChange: (value) {
+                    category = value;
+                    showCategoryError = false;
+                    setState(() {});
+                  },
+                  items: categoryList),
+            ),
+            if (showCategoryError)
+              const Row(
+                children: [
+                  Text('     Please Select Categroy',
+                      style: TextStyle(color: Colors.red)),
+                ],
+              ),
+            CustomText(label: 'Article', tc: article, required: true),
+            CustomText(
+                label: 'Size Range',
+                tc: sizeRange,
+                onChange: _onChangeSizeRange,
+                required: true),
+            CustomText(
+              label: 'Type Description Here',
+              tc: descCtrl,
+              isMultiLine: true,
+            ),
+            CustomText(label: 'MRP', tc: mrp),
+            CustomText(
+                label: 'Selling Price', tc: sellingPrice, required: true),
+            CustomText(label: 'Cost Price', tc: costPrice, required: true),
+            CustomText(label: 'Color', tc: color, required: true),
+            const SizedBox(
+              height: 10,
+            ),
+            if (product.pairs_in_stock.isNotEmpty)
+              const Row(
+                children: [
+                  SizedBox(
+                    width: 45,
+                  ),
+                  Text('Available At', style: TextStyle(fontSize: 16)),
+                  SizedBox(
+                    width: 45,
+                  ),
+                  Text('Size(Quantity)', style: TextStyle(fontSize: 16))
+                ],
+              ),
+            SizedBox(
+              height: product.pairs_in_stock.length * 56,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: product.pairs_in_stock.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            product.pairs_in_stock[index]['available_at'],
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: product.pairs_in_stock[index]
+                                            ['available_at'] ==
+                                        Constants.home
+                                    ? Colors.blue
+                                    : Colors.purple),
+                          ),
+                          ClipOval(
+                            child: Material(
+                              color: Colors.blue, // Button color
+                              child: InkWell(
+                                splashColor: Colors.red, // Splash color
+                                onTap: () {
+                                  if (product.pairs_in_stock[index]
+                                          ['quantity'] >
+                                      0) {
+                                    product.pairs_in_stock[index]['quantity']--;
+                                    setState(() {});
+                                  }
+                                },
+                                child: const SizedBox(
+                                    width: 40,
+                                    height: 40,
+                                    child: Icon(
+                                      Icons.remove,
+                                      color: Colors.white,
+                                    )),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${product.pairs_in_stock[index]['size']}(${product.pairs_in_stock[index]['quantity']})',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          ClipOval(
+                            child: Material(
+                              color: Colors.blue, // Button color
+                              child: InkWell(
+                                splashColor: Colors.red, // Splash color
+                                onTap: () {
+                                  product.pairs_in_stock[index]['quantity']++;
                                   setState(() {});
-                                }
-                              },
-                              child: const SizedBox(
-                                  width: 40,
-                                  height: 40,
-                                  child: Icon(
-                                    Icons.remove,
-                                    color: Colors.white,
-                                  )),
+                                },
+                                child: const SizedBox(
+                                    width: 40,
+                                    height: 40,
+                                    child: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    )),
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          '${product.pairs_in_stock[index]['size']}(${product.pairs_in_stock[index]['quantity']})',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        ClipOval(
-                          child: Material(
-                            color: Colors.blue, // Button color
-                            child: InkWell(
-                              splashColor: Colors.red, // Splash color
-                              onTap: () {
-                                product.pairs_in_stock[index]['quantity']++;
-                                setState(() {});
-                              },
-                              child: const SizedBox(
-                                  width: 40,
-                                  height: 40,
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                  )),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          if (uploadingFirstImage) const CircularProgressIndicator(),
-          if (firstPhotoUrl.text.isNotEmpty) Image.network(firstPhotoUrl.text),
-          _showCameraOrGallery(deviceSize, 1),
-          const SizedBox(height: 15),
-          if (firstPhotoUrl.text.isEmpty)
-            const Text("Choose First Image To Upload"),
-          const SizedBox(height: 15),
-          CustomText(
-              onChange: (String value) {
-                _onChangePhotoURLs();
-              },
-              label: 'First Photo URL',
-              tc: firstPhotoUrl),
-          if (uploadingSecondImage) const CircularProgressIndicator(),
-          if (secondPhotoUrl.text.isNotEmpty)
-            Image.network(secondPhotoUrl.text),
-          _showCameraOrGallery(deviceSize, 2),
-          const SizedBox(height: 15),
-          CustomText(
-              onChange: (String value) {
-                _onChangePhotoURLs();
-              },
-              label: 'Second Photo URL',
-              tc: secondPhotoUrl),
-          if (secondPhotoUrl.text.isEmpty)
-            const Text("Choose Second Image To Upload"),
-          const SizedBox(height: 15),
-          CustomCheckBox(
-              isSelected: product.outOfStock,
-              onClicked: (bool value) {
-                product.outOfStock = value;
-                setState(() {});
-              },
-              label: 'Out of Stock'),
-          const SizedBox(height: 15),
-          ElevatedButton(
-              onPressed: () {
-                _addProduct();
-              },
-              child: const Text('ADD PRODUCT'))
-        ],
+            const SizedBox(
+              height: 10,
+            ),
+            if (uploadingFirstImage) const CircularProgressIndicator(),
+            if (firstPhotoUrl.text.isNotEmpty)
+              Image.network(firstPhotoUrl.text),
+            _showCameraOrGallery(deviceSize, 1),
+            const SizedBox(height: 15),
+            if (firstPhotoUrl.text.isEmpty)
+              const Text("Choose First Image To Upload"),
+            const SizedBox(height: 15),
+            CustomText(
+                onChange: (String value) {
+                  _onChangePhotoURLs();
+                },
+                label: 'First Photo URL',
+                tc: firstPhotoUrl),
+            if (uploadingSecondImage) const CircularProgressIndicator(),
+            if (secondPhotoUrl.text.isNotEmpty)
+              Image.network(secondPhotoUrl.text),
+            _showCameraOrGallery(deviceSize, 2),
+            const SizedBox(height: 15),
+            CustomText(
+                onChange: (String value) {
+                  _onChangePhotoURLs();
+                },
+                label: 'Second Photo URL',
+                tc: secondPhotoUrl),
+            if (secondPhotoUrl.text.isEmpty)
+              const Text("Choose Second Image To Upload"),
+            const SizedBox(height: 15),
+            CustomCheckBox(
+                isSelected: product.outOfStock,
+                onClicked: (bool value) {
+                  product.outOfStock = value;
+                  setState(() {});
+                },
+                label: 'Out of Stock'),
+            const SizedBox(height: 15),
+            ElevatedButton(
+                onPressed: () {
+                  if (category==null || (category!=null && category!.isEmpty)) {
+                    showCategoryError = true;
+                    setState(() {});
+                    return;
+                  }
+                  if (vendor==null || (vendor!=null && vendor!.isEmpty)) {
+                    showVendorError = true;
+                    setState(() {});
+                    return;
+                  }
+                  if (_form.currentState!.validate()) {
+                    _addProduct();
+                  }
+                },
+                child: const Text('ADD PRODUCT'))
+          ],
+        ),
       ),
     );
   }

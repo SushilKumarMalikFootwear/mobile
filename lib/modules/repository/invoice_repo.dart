@@ -20,47 +20,117 @@ class InvoiceRepository {
     return response;
   }
 
-  Future<Map<String, DailyInvoices>> filterInvoices(Map<String, String> filterMap) async {
-    var data = json.encode({
-      "collection": "invoices",
-      "database": "test",
-      "dataSource": "SushilKumarMalikFootwear",
-      "pipeline": [
-        {
-          '\$sort': {"invoice_date": -1}
+Future<Map<String, DailyInvoices>> filterInvoices(
+    Map<String, String> filterMap) async {
+  String article = filterMap['article'] ?? '';
+  String size = filterMap['size'] ?? '';
+  String color = filterMap['color'] ?? '';
+  String date = filterMap['date'] ?? '';
+  String soldAt = filterMap['soldAt'] ?? '';
+  bool paymentPending = filterMap['paymentPending'] == 'true';
+  bool returnedInvoice = filterMap['returnedInvoice'] == 'true';
+
+  DateTime? parseDate(String dateStr) {
+    try {
+      return DateTime.parse(dateStr);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  DateTime? dateFilter = date.isNotEmpty ? parseDate(date) : null;
+
+  // Start with a minimal pipeline
+  List pipeline = [
+    if (article.isNotEmpty)
+      {
+        "\$match": {
+          "article": {"\$regex": article, "\$options": "i"}
         }
-      ]
-    });
-    var dio = Dio();
-    var response = await dio.request(
-      "${ApiUrls.mongoDbApiUrl}/aggregate",
-      options: Options(
-        method: 'POST',
-        headers: Constants.mongoDbHeaders,
-      ),
-      data: data,
-    );
-    List list = response.data['documents'];
-    Map<String, DailyInvoices> dailyInvoicesMap = {};
-    for (Map invoiceMap in list) {
-      String key =
-          "${invoiceMap['invoice_date'].toString().split("T")[0]}:${invoiceMap['sold_at']}";
-      Invoice invoice = Invoice.fromJson(invoiceMap);
-      if (dailyInvoicesMap.containsKey(key)) {
-        DailyInvoices dailyInvoices = dailyInvoicesMap[key]!;
-        dailyInvoices.invoices.add(invoice);
+      },
+    if (color.isNotEmpty)
+      {
+        "\$match": {
+          "color": {"\$regex": color, "\$options": "i"}
+        }
+      },
+    if (size.isNotEmpty)
+      {
+        "\$match": {"size": int.parse(size)}
+      },
+    if (soldAt.isNotEmpty)
+      {
+        "\$match": {"sold_at": soldAt}
+      },
+    if (paymentPending)
+      {
+        "\$match": {"payment_status": "PENDING"}
+      },
+    if (returnedInvoice)
+      {
+        "\$match": {"invoice_status": "RETURNED"}
+      },
+    if (dateFilter != null)
+      {
+        "\$match": {
+          "invoice_date": {
+            "\$gte": "2024-08-02T00:00:00.000+00:00",
+            "\$lte": "2024-08-03T00:00:00.000+00:00"
+          }
+        }
+      },
+    {
+      '\$sort': {"invoice_date": -1}
+    }
+  ];
+
+
+  var data = json.encode({
+    "collection": "invoices",
+    "database": "test",
+    "dataSource": "SushilKumarMalikFootwear",
+    "pipeline": pipeline
+  });
+
+  var dio = Dio();
+  var response = await dio.request(
+    "${ApiUrls.mongoDbApiUrl}/aggregate",
+    options: Options(
+      method: 'POST',
+      headers: Constants.mongoDbHeaders,
+    ),
+    data: data,
+  );
+
+  List list = response.data['documents'];
+  Map<String, DailyInvoices> dailyInvoicesMap = {};
+  for (Map invoiceMap in list) {
+    String key =
+        "${invoiceMap['invoice_date'].toString().split("T")[0]}:${invoiceMap['sold_at']}";
+    Invoice invoice = Invoice.fromJson(invoiceMap);
+    if (dailyInvoicesMap.containsKey(key)) {
+      DailyInvoices dailyInvoices = dailyInvoicesMap[key]!;
+      dailyInvoices.invoices.add(invoice);
+      if (invoice.invoiceStatus != "RETURNED") {
         dailyInvoices.profit += invoice.profit;
         dailyInvoices.sellingPrice += invoice.sellingPrice;
-      } else {
-        DailyInvoices dailyInvoices = DailyInvoices(
-            profit: invoice.profit,
-            date: invoiceMap['invoice_date'].toString().split("T")[0],
-            invoices: [invoice],
-            sellingPrice: invoice.sellingPrice,
-            soldAt: invoice.soldAt);
-        dailyInvoicesMap[key] = dailyInvoices;
       }
+    } else {
+      DailyInvoices dailyInvoices = DailyInvoices(
+          profit: invoice.invoiceStatus != "RETURNED" ? invoice.profit : 0,
+          date: invoiceMap['invoice_date'].toString().split("T")[0],
+          invoices: [invoice],
+          sellingPrice:
+              invoice.invoiceStatus != "RETURNED" ? invoice.sellingPrice : 0,
+          soldAt: invoice.soldAt);
+      dailyInvoicesMap[key] = dailyInvoices;
     }
-    return dailyInvoicesMap;
   }
+
+  return dailyInvoicesMap;
+}
+
+ 
+
+
 }

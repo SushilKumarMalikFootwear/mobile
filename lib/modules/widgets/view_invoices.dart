@@ -5,6 +5,9 @@ import 'package:footwear/modules/models/daily_invoices.dart';
 import 'package:footwear/modules/repository/invoice_repo.dart';
 import 'package:footwear/modules/widgets/create_invoice.dart';
 
+import '../../utils/widgets/custom_bottom_sheet.dart';
+import 'invoice_filter.dart';
+
 class ViewInvoices extends StatefulWidget {
   const ViewInvoices({super.key});
 
@@ -22,6 +25,24 @@ class _ViewInvoicesState extends State<ViewInvoices> {
   void initState() {
     super.initState();
     getInvoioces = invoiceRepo.filterInvoices(filterMap);
+  }
+
+  applyFilter(Map<String, String>? filterMap) {
+    if (filterMap != null) {
+      this.filterMap = filterMap;
+    }
+    getInvoioces = invoiceRepo.filterInvoices(this.filterMap);
+    setState(() {});
+  }
+
+  double calculateTotalSelling(Map<String, DailyInvoices> dailyInvoicesMap) {
+    double totalSelling = 0;
+    dailyInvoicesMap.forEach((key, dailyInvoices) {
+      dailyInvoices.invoices.forEach((invoice) {
+        totalSelling += invoice.sellingPrice;
+      });
+    });
+    return totalSelling;
   }
 
   @override
@@ -44,6 +65,8 @@ class _ViewInvoicesState extends State<ViewInvoices> {
             Map<String, DailyInvoices> dailyInvoicesMap = snapshot.data;
             List<DailyInvoices> dailyInvoices =
                 dailyInvoicesMap.entries.map((entry) => entry.value).toList();
+            double totalSelling = calculateTotalSelling(dailyInvoicesMap);
+
             return RefreshIndicator(
               onRefresh: () {
                 getInvoioces = invoiceRepo.filterInvoices(filterMap);
@@ -56,11 +79,20 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            customBottomSheet(context,
+                                InvoicesFilter(applyFilter: applyFilter));
+                          },
                           icon: const Icon(
                             Icons.filter_alt,
                             size: 30,
                           )),
+                      if (filterMap['paymentPending'] == 'true')
+                        Text(
+                          'Total Selling: ₹$totalSelling',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                       const Spacer(),
                       IconButton(
                           onPressed: () {
