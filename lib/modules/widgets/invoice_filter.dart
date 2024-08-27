@@ -136,42 +136,47 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
             const SizedBox(
               height: 10,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  filterMap = {
-                    'article': articleCtrl.text,
-                    'color': colorCtrl.text,
-                    'size': sizeCtrl.text,
-                    if (selectedDate != null)
-                      'date': selectedDate.toString().split(' ')[0],
-                    'soldAt': shopChecked
-                        ? 'SHOP'
-                        : homeChecked
-                            ? 'HOME'
-                            : '',
-                    'paymentPending': paymentPending.toString(),
-                    'returnedInvoice': returnedInvoice.toString(),
-                  };
-                  widget.applyFilter(filterMap);
-                  Navigator.pop(context);
-                  setState(() {});
-                },
-                child: const Text('Apply')),
-            ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    articleCtrl.clear();
-                    colorCtrl.clear();
-                    sizeCtrl.clear();
-                    selectedDate = null;
-                    shopChecked = false;
-                    homeChecked = false;
-                    paymentPending = true;
-                    returnedInvoice = true;
-                    filterMap.clear();
-                  });
-                },
-                child: const Text("Reset")),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      filterMap = {
+                        'article': articleCtrl.text,
+                        'color': colorCtrl.text,
+                        'size': sizeCtrl.text,
+                        if (selectedDate != null)
+                          'date': selectedDate.toString().split(' ')[0],
+                        'soldAt': shopChecked
+                            ? 'SHOP'
+                            : homeChecked
+                                ? 'HOME'
+                                : '',
+                        'paymentPending': paymentPending.toString(),
+                        'returnedInvoice': returnedInvoice.toString(),
+                      };
+                      widget.applyFilter(filterMap);
+                      Navigator.pop(context);
+                      setState(() {});
+                    },
+                    child: const Text('Apply',style: TextStyle(color:Colors.blue),)),
+                ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        articleCtrl.clear();
+                        colorCtrl.clear();
+                        sizeCtrl.clear();
+                        selectedDate = null;
+                        shopChecked = false;
+                        homeChecked = false;
+                        paymentPending = true;
+                        returnedInvoice = true;
+                        filterMap.clear();
+                      });
+                    },
+                    child: const Text("Reset",style: TextStyle(color:Colors.blue))),
+              ],
+            ),
           ],
         ),
       ),

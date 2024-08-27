@@ -3,7 +3,7 @@ import 'package:footwear/config/constants/app_constants.dart';
 import 'package:footwear/modules/screens/product_preview.dart';
 import 'package:footwear/utils/widgets/custom_bottom_sheet.dart';
 import 'package:footwear/utils/widgets/custom_checkbox.dart';
-import '../../utils/widgets/products_filter.dart';
+import 'products_filter.dart';
 import '/modules/repository/product_repo.dart';
 import '../models/product.dart';
 

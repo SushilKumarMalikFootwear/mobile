@@ -76,7 +76,7 @@ class _InvoicesState extends State<Invoices> {
       child: Scaffold(
         key: scaffoldkey,
         appBar: AppBar(
-          title: Text(AppBarTitle.manageProducts),
+          title: Text(AppBarTitle.invoices),
           actions: [],
         ),
         drawer: Drawer(child: MyDrawer('Sushil', drawerOptionList)),

@@ -1,125 +1,123 @@
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:d_chart/d_chart.dart';
 import 'package:footwear/modules/repository/trader_finances.dart';
-
+import 'package:footwear/modules/widgets/drawer.dart';
+import '../../config/constants/app_constants.dart';
+import '../../config/constants/drawer_options_list.dart';
+import '../models/drawer_option.dart';
 import '../models/trader_finances.dart';
 
-class TraderFinanceScreen extends StatefulWidget {
-  @override
-  _TraderFinanceScreenState createState() => _TraderFinanceScreenState();
-}
+class TraderFinanceScreen extends StatelessWidget {
+  DrawerOptionList list = DrawerOptionList();
+  final TraderFinancesRepository traderFinancesRepository =
+      TraderFinancesRepository();
 
-class _TraderFinanceScreenState extends State<TraderFinanceScreen> {
-  late Future<List<TraderFinance>> futureTraders;
-  TraderFinancesRepository traderFinancesRepo = TraderFinancesRepository();
-
-  @override
-  void initState() {
-    super.initState();
-    futureTraders = traderFinancesRepo.getData();
-  }
+  TraderFinanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    List<DrawerOption> drawerOptionList = list.drawerOptions;
+    drawerOptionList = drawerOptionList.map((drawerOption) {
+      if (drawerOption.name == AppBarTitle.traderFinances) {
+        drawerOption.isActive = true;
+        return drawerOption;
+      } else {
+        drawerOption.isActive = false;
+        return drawerOption;
+      }
+    }).toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trader Finances'),
       ),
+      drawer: Drawer(child: MyDrawer('Sushil', drawerOptionList)),
       body: FutureBuilder<List<TraderFinance>>(
-        future: futureTraders,
-        builder: (context, snapshot) {
+        future: traderFinancesRepository.getData(),
+        builder: (BuildContext context,
+            AsyncSnapshot<List<TraderFinance>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final traders = snapshot.data!;
-            return ListView.builder(
-              itemCount: traders.length,
-              itemBuilder: (context, index) {
-                final trader = traders[index];
-                return Card(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          trader.traderName,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 200,
-                          child: charts.BarChart(
-                            _createSeries(trader),
-                            animate: true,
-                            vertical: false,
-                            barGroupingType: charts.BarGroupingType.stacked,
-                            barRendererDecorator: charts.BarLabelDecorator<String>(
-                              insideLabelStyleSpec: charts.TextStyleSpec(fontSize: 14, color: charts.MaterialPalette.white),
-                              outsideLabelStyleSpec: charts.TextStyleSpec(fontSize: 14, color: charts.MaterialPalette.black),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
           }
+          if (snapshot.hasError) {
+            return const Center(
+                child: Text('Some error in retrieving trader finances'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No trader finances available'));
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (BuildContext context, int index) {
+              final TraderFinance traderFinance = snapshot.data![index];
+              return TraderFinanceCard(traderFinance: traderFinance);
+            },
+          );
         },
       ),
     );
   }
-
-List<charts.Series<ChartData, String>> _createSeries(TraderFinance trader) {
-  return [
-    charts.Series<ChartData, String>(
-      id: 'Cost',
-      data: [
-        ChartData('Bought', trader.totalCostPriceBought),
-        ChartData('Sold', trader.totalCostPriceSold),
-      ],
-      domainFn: (ChartData data, _) => data.label,
-      measureFn: (ChartData data, _) => data.value,
-      colorFn: (_, __) {
-        return charts.MaterialPalette.blue.shadeDefault;
-      },
-      labelAccessorFn: (ChartData data, _) => data.label == 'Sold' ? '' : 'Bought: ${data.value.toStringAsFixed(2)}',
-    ),
-    charts.Series<ChartData, String>(
-      id: 'Profit',
-      data: [
-        ChartData('Profit', trader.profit),
-      ],
-      domainFn: (ChartData data, _) => 'Sold',
-      measureFn: (ChartData data, _) => data.value,
-      colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
-      labelAccessorFn: (ChartData data, _) => data.value > 0 ? 'Profit: ${data.value.toStringAsFixed(2)}' : '',
-    ),
-    charts.Series<ChartData, String>(
-      id: 'SoldTotal',
-      data: [
-        ChartData('SoldTotal', trader.totalCostPriceSold + trader.profit),
-      ],
-      domainFn: (ChartData data, _) => 'Sold',
-      measureFn: (ChartData data, _) => data.value,
-      colorFn: (_, __) => charts.MaterialPalette.transparent,
-      labelAccessorFn: (ChartData data, _) => 'Sold: ${data.value.toStringAsFixed(2)}',
-    )
-  ];
-  }
 }
 
-class ChartData {
-  final String label;
-  final double value;
+class TraderFinanceCard extends StatelessWidget {
+  final TraderFinance traderFinance;
 
-  ChartData(this.label, this.value);
+  TraderFinanceCard({required this.traderFinance});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              traderFinance.traderName,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4.0),
+            Text(
+              'Profit: ₹${traderFinance.profit.toStringAsFixed(2)}',
+              style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16.0),
+            SizedBox(
+              height: 200,
+              child: DChartBarCustom(
+                spaceDomainLabeltoChart: 10,
+                spaceBetweenItem: 5,
+                showDomainLabel: true,
+                listData: [
+                  DChartBarDataCustom(
+                      valueStyle: TextStyle(color: Colors.white),
+                      color: Colors.teal[300],
+                      value: traderFinance.totalSellingPrice,
+                      label: 'S.P.',
+                      showValue: true),
+                  DChartBarDataCustom(
+                      valueStyle: TextStyle(color: Colors.white),
+                      color: Color(0xFFFF7F50),
+                      value: traderFinance.totalCostPriceSold,
+                      label: 'C.P.',
+                      showValue: true),
+                  DChartBarDataCustom(
+                      valueStyle: TextStyle(color: Colors.white),
+                      color: Colors.purple[200],
+                      value: traderFinance.totalCostPriceBought,
+                      label: 'Total C.P.',
+                      showValue: true),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
 }

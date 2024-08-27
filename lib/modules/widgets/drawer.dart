@@ -18,6 +18,7 @@ class MyDrawer extends StatelessWidget {
           SizedBox(
               height: 200,
               child: UserAccountsDrawerHeader(
+                decoration: BoxDecoration(),
                   margin: EdgeInsets.zero,
                   currentAccountPicture: const CircleAvatar(
                     backgroundImage: NetworkImage(

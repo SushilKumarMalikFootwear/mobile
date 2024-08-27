@@ -192,15 +192,19 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                         style: TextStyle(color: Colors.red)),
                   ],
                 ),
-              CustomDropDown(
-                  value: invoice.vendor.isEmpty ? null : invoice.vendor,
-                  hint: 'Select a Vendor',
-                  onChange: (value) {
-                    invoice.vendor = value;
-                    showVendorError = false;
-                    setState(() {});
-                  },
-                  items: Constants.vendorList),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: CustomDropDown(
+                    value: invoice.vendor.isEmpty ? null : invoice.vendor,
+                    hint: 'Select a Vendor',
+                    onChange: (value) {
+                      invoice.vendor = value;
+                      showVendorError = false;
+                      setState(() {});
+                    },
+                    items: Constants.vendorList),
+              ),
               if (showVendorError)
                 const Row(
                   children: [
@@ -209,15 +213,19 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                   ],
                 ),
               const SizedBox(height: 5),
-              CustomDropDown(
-                  value: invoice.size.isEmpty ? null : invoice.size,
-                  hint: 'Select Size',
-                  onChange: (val) {
-                    invoice.size = val;
-                    showSizeError = false;
-                    setState(() {});
-                  },
-                  items: availableSizes),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: CustomDropDown(
+                    value: invoice.size.isEmpty ? null : invoice.size,
+                    hint: 'Select Size',
+                    onChange: (val) {
+                      invoice.size = val;
+                      showSizeError = false;
+                      setState(() {});
+                    },
+                    items: availableSizes),
+              ),
               if (showSizeError)
                 const Row(
                   children: [
@@ -241,36 +249,52 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                   required: true),
               const SizedBox(height: 5),
               CustomText(label: 'Profit', tc: profitCtrl, required: true),
-              CustomDropDown(
-                  value: invoice.soldAt,
-                  hint: 'Sold At',
-                  onChange: (val) {
-                    invoice.soldAt = val;
-                  },
-                  items: [Constants.shop, Constants.home]),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: CustomDropDown(
+                    value: invoice.soldAt,
+                    hint: 'Sold At',
+                    onChange: (val) {
+                      invoice.soldAt = val;
+                    },
+                    items: [Constants.shop, Constants.home]),
+              ),
               CustomText(
                   label: 'Description', tc: descriptionCtrl, isMultiLine: true),
-              CustomDropDown(
-                  value: invoice.paymentMode,
-                  hint: 'Payment Mode',
-                  onChange: (val) {
-                    invoice.paymentMode = val;
-                  },
-                  items: [Constants.cash, Constants.upi]),
-              CustomDropDown(
-                  value: invoice.paymentStatus,
-                  hint: 'Payment Status',
-                  onChange: (val) {
-                    invoice.paymentStatus = val;
-                  },
-                  items: [Constants.paid, Constants.pending]),
-              CustomDropDown(
-                  value: invoice.invoiceStatus,
-                  hint: 'Invoice Status',
-                  onChange: (val) {
-                    invoice.invoiceStatus = val;
-                  },
-                  items: [Constants.completed, Constants.returned]),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: CustomDropDown(
+                    value: invoice.paymentMode,
+                    hint: 'Payment Mode',
+                    onChange: (val) {
+                      invoice.paymentMode = val;
+                    },
+                    items: [Constants.cash, Constants.upi]),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: CustomDropDown(
+                    value: invoice.paymentStatus,
+                    hint: 'Payment Status',
+                    onChange: (val) {
+                      invoice.paymentStatus = val;
+                    },
+                    items: [Constants.paid, Constants.pending]),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: CustomDropDown(
+                    value: invoice.invoiceStatus,
+                    hint: 'Invoice Status',
+                    onChange: (val) {
+                      invoice.invoiceStatus = val;
+                    },
+                    items: [Constants.completed, Constants.returned]),
+              ),
               CustomCheckBox(
                   isSelected: isOldInvoice,
                   onClicked: (val) {
@@ -304,7 +328,10 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       saveInvoice();
                     }
                   },
-                  child: const Text('Save'))
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.blue),
+                  ))
             ]),
           ),
         ),

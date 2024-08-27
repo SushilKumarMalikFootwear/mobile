@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:footwear/utils/widgets/searchable_dropdown.dart';
 import '../../config/constants/app_constants.dart';
-import 'custom_checkbox.dart';
-import 'custom_dropdown.dart';
+import '../../utils/widgets/custom_checkbox.dart';
+import '../../utils/widgets/custom_dropdown.dart';
 
 class ProductsFilter extends StatefulWidget {
   final Function applyFilter;
@@ -84,27 +84,32 @@ class _ProductsFilterState extends State<ProductsFilter> {
             const SizedBox(
               height: 10,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  filterMap = {
-                    'brand': brandNameCtrl.text,
-                    'category': selectedCategory,
-                    'article': articleCtrl.text,
-                    'size_range': selectedSizeRange,
-                    'color': colorCtrl.text,
-                    'vendor': selectedVendor,
-                    'out_of_stock': outOfStock.toString()
-                  };
-                  widget.applyFilter(filterMap);
-                  Navigator.pop(context);
-                  setState(() {});
-                },
-                child: const Text('Apply')),
-            ElevatedButton(
-                onPressed: () {
-                  filterMap.clear();
-                },
-                child: const Text("Reset"))
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      filterMap = {
+                        'brand': brandNameCtrl.text,
+                        'category': selectedCategory,
+                        'article': articleCtrl.text,
+                        'size_range': selectedSizeRange,
+                        'color': colorCtrl.text,
+                        'vendor': selectedVendor,
+                        'out_of_stock': outOfStock.toString()
+                      };
+                      widget.applyFilter(filterMap);
+                      Navigator.pop(context);
+                      setState(() {});
+                    },
+                    child: const Text('Apply',style: TextStyle(color: Colors.blue))),
+                ElevatedButton(
+                    onPressed: () {
+                      filterMap.clear();
+                    },
+                    child: const Text("Reset",style: TextStyle(color: Colors.blue))),
+              ],
+            )
           ],
         ),
       ),

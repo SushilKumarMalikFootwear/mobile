@@ -20,6 +20,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
   Map<String, String> filterMap = {};
   late Future getInvoioces;
   bool colorSwitch = true;
+  bool isReversed = false;
 
   @override
   void initState() {
@@ -66,7 +67,9 @@ class _ViewInvoicesState extends State<ViewInvoices> {
             List<DailyInvoices> dailyInvoices =
                 dailyInvoicesMap.entries.map((entry) => entry.value).toList();
             double totalSelling = calculateTotalSelling(dailyInvoicesMap);
-
+            if (isReversed) {
+              dailyInvoices = dailyInvoices.reversed.toList();
+            }
             return RefreshIndicator(
               onRefresh: () {
                 getInvoioces = invoiceRepo.filterInvoices(filterMap);
@@ -94,6 +97,15 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       const Spacer(),
+                      IconButton(
+                          onPressed: () {
+                            isReversed = !isReversed;
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            Icons.swap_vert,
+                            color: isReversed ? Colors.blue : Colors.black,
+                          )),
                       IconButton(
                           onPressed: () {
                             getInvoioces =
@@ -170,7 +182,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: (88 * dailyInvoice.invoices.length)
+                                  height: (101 * dailyInvoice.invoices.length)
                                       .toDouble(),
                                   child: ListView.builder(
                                     physics:

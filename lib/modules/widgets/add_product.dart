@@ -231,7 +231,7 @@ class _AddProductState extends State<AddProduct> {
             CustomText(label: 'Brand Name', tc: brandName, required: true),
             CustomText(label: 'Sub Brand Name', tc: subBrandName),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: CustomDropDown(
                   value: vendor,
                   hint: 'Select a Vendor',
@@ -250,7 +250,7 @@ class _AddProductState extends State<AddProduct> {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: CustomDropDown(
                   value: category,
                   hint: 'Select a Categoy',
@@ -431,7 +431,7 @@ class _AddProductState extends State<AddProduct> {
                     _addProduct();
                   }
                 },
-                child: const Text('ADD PRODUCT'))
+                child: const Text('ADD PRODUCT',style: TextStyle(color: Colors.blue)))
           ],
         ),
       ),
