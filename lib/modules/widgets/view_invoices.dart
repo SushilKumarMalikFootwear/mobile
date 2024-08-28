@@ -17,7 +17,7 @@ class ViewInvoices extends StatefulWidget {
 
 class _ViewInvoicesState extends State<ViewInvoices> {
   InvoiceRepository invoiceRepo = InvoiceRepository();
-  Map<String, String> filterMap = {};
+  Map<String, dynamic> filterMap = {};
   late Future getInvoioces;
   bool colorSwitch = true;
   bool isReversed = false;
@@ -28,7 +28,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
     getInvoioces = invoiceRepo.filterInvoices(filterMap);
   }
 
-  applyFilter(Map<String, String>? filterMap) {
+  applyFilter(Map<String, dynamic>? filterMap) {
     if (filterMap != null) {
       this.filterMap = filterMap;
     }

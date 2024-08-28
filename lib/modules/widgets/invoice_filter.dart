@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:footwear/utils/widgets/custom_dropdown.dart';
 import 'package:footwear/utils/widgets/searchable_dropdown.dart';
 import '../../config/constants/app_constants.dart';
 import '../../utils/widgets/custom_checkbox.dart';
@@ -12,7 +13,7 @@ class InvoicesFilter extends StatefulWidget {
 }
 
 class _InvoicesFilterState extends State<InvoicesFilter> {
-  Map<String, String> filterMap = {};
+  Map<String, dynamic> filterMap = {};
   TextEditingController articleCtrl = TextEditingController();
   TextEditingController colorCtrl = TextEditingController();
   TextEditingController sizeCtrl = TextEditingController();
@@ -21,6 +22,18 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
   bool homeChecked = false;
   bool paymentPending = false;
   bool returnedInvoice = false;
+  List<String> dateRangeList = [
+    'Last 30 Days',
+    'Last Month',
+    'Last 6 Months',
+    '2024',
+    '2023',
+    'All'
+  ];
+  String selectedDateRangeOption = 'Last 30 Days';
+  DateTime selectedDateRangeStartDate =
+      DateTime.now().subtract(Duration(days: 30));
+  DateTime selectedDateRangeEndDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -30,34 +43,31 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
         child: Column(
           children: [
             const Text('Filters'),
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      selectedDate != null
-                          ? selectedDate.toString().split(' ')[0]
-                          : 'Invoice Date',
-                      style: const TextStyle(fontSize: 18),
-                    ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text(
+                    selectedDate != null
+                        ? selectedDate.toString().split(' ')[0]
+                        : 'Invoice Date',
+                    style: const TextStyle(fontSize: 18),
                   ),
-                  IconButton(
-                      padding: const EdgeInsets.only(right: 20),
-                      onPressed: () async {
-                        selectedDate = await selectDate(
-                            context, selectedDate ?? DateTime.now());
-                        setState(() {});
-                      },
-                      icon: const Icon(
-                        Icons.calendar_month_outlined,
-                        color: Colors.blue,
-                        size: 30,
-                      )),
-                ],
-              ),
+                ),
+                IconButton(
+                    padding: const EdgeInsets.only(right: 10),
+                    onPressed: () async {
+                      selectedDate = await selectDate(
+                          context, selectedDate ?? DateTime.now());
+                      setState(() {});
+                    },
+                    icon: const Icon(
+                      Icons.calendar_month_outlined,
+                      color: Colors.blue,
+                      size: 30,
+                    )),
+              ],
             ),
             SearchableDropdown(
                 onSelect: (String val) {},
@@ -136,6 +146,40 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
             const SizedBox(
               height: 10,
             ),
+            CustomDropDown(
+                value: selectedDateRangeOption,
+                hint: 'Select Date Range',
+                onChange: (val) {
+                  DateTime now = DateTime.now();
+                  if (val == dateRangeList[0]) {
+                    selectedDateRangeStartDate =
+                        now.subtract(Duration(days: 30));
+                    selectedDateRangeEndDate = now;
+                  } else if (val == dateRangeList[1]) {
+                    selectedDateRangeStartDate =
+                        DateTime(now.year, now.month - 1, 1);
+                    selectedDateRangeEndDate = DateTime(now.year, now.month, 0);
+                  } else if (val == dateRangeList[2]) {
+                    selectedDateRangeStartDate =
+                        DateTime(now.year, now.month - 6, 1);
+                    selectedDateRangeEndDate = DateTime(now.year, now.month, 0);
+                  } else if (val == dateRangeList[3]) {
+                    selectedDateRangeStartDate = DateTime(2024, 1, 1);
+                    selectedDateRangeEndDate =
+                        DateTime(2024, 12, 31, 23, 59, 59, 999);
+                  } else if (val == dateRangeList[4]) {
+                    selectedDateRangeStartDate = DateTime(2023, 1, 1);
+                    selectedDateRangeEndDate =
+                        DateTime(2023, 12, 31, 23, 59, 59, 999);
+                  } else if (val == dateRangeList[5]) {
+                    selectedDateRangeStartDate = DateTime(2023, 1, 1);
+                    selectedDateRangeEndDate = now;
+                  }
+                },
+                items: dateRangeList),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -154,12 +198,18 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                                 : '',
                         'paymentPending': paymentPending.toString(),
                         'returnedInvoice': returnedInvoice.toString(),
+                        'selectedDateRangeStartDate':
+                            selectedDateRangeStartDate,
+                        'selectedDateRangeEndDate': selectedDateRangeEndDate
                       };
                       widget.applyFilter(filterMap);
                       Navigator.pop(context);
                       setState(() {});
                     },
-                    child: const Text('Apply',style: TextStyle(color:Colors.blue),)),
+                    child: const Text(
+                      'Apply',
+                      style: TextStyle(color: Colors.blue),
+                    )),
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -174,7 +224,8 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                         filterMap.clear();
                       });
                     },
-                    child: const Text("Reset",style: TextStyle(color:Colors.blue))),
+                    child: const Text("Reset",
+                        style: TextStyle(color: Colors.blue))),
               ],
             ),
           ],
