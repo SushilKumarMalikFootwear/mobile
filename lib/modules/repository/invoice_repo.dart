@@ -54,9 +54,21 @@ class InvoiceRepository {
       return isoString;
     }
 
-    // Start with a minimal pipeline
     List pipeline = [
-      {
+            if (dateFilter != null)
+        {
+          "\$match": {
+            "invoice_date": {
+              "\$gte": {"\$date": formatToIso8601WithTimezone(dateFilter)},
+              "\$lt": {
+                "\$date": formatToIso8601WithTimezone(
+                    dateFilter.add(Duration(days: 1)))
+              }
+            }
+          }
+        },
+      if(dateFilter==null)
+            {
         "\$match": {
           "invoice_date": {
             "\$gte": {
@@ -95,18 +107,6 @@ class InvoiceRepository {
       if (returnedInvoice)
         {
           "\$match": {"invoice_status": "RETURNED"}
-        },
-      if (dateFilter != null)
-        {
-          "\$match": {
-            "invoice_date": {
-              "\$gte": {"\$date": formatToIso8601WithTimezone(dateFilter)},
-              "\$lt": {
-                "\$date": formatToIso8601WithTimezone(
-                    dateFilter.add(Duration(days: 1)))
-              }
-            }
-          }
         },
       {
         '\$sort': {"invoice_date": -1}
