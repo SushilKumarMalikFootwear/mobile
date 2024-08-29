@@ -150,7 +150,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                 value: selectedDateRangeOption,
                 hint: 'Select Date Range',
                 onChange: (val) {
-                  DateTime now = DateTime.now();
+                  DateTime now = DateTime.now().add(Duration(days:1));
                   if (val == dateRangeList[0]) {
                     selectedDateRangeStartDate =
                         now.subtract(Duration(days: 30));
@@ -162,7 +162,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                   } else if (val == dateRangeList[2]) {
                     selectedDateRangeStartDate =
                         DateTime(now.year, now.month - 6, 1);
-                    selectedDateRangeEndDate = DateTime(now.year, now.month, 0);
+                    selectedDateRangeEndDate = DateTime(now.year, now.month, now.day);
                   } else if (val == dateRangeList[3]) {
                     selectedDateRangeStartDate = DateTime(2024, 1, 1);
                     selectedDateRangeEndDate =
