@@ -33,7 +33,7 @@ class InvoiceRepository {
         filterMap['selectedDateRangeStartDate'] ??
             DateTime.now().subtract(Duration(days: 30));
     DateTime selectedDateRangeEndDate =
-        filterMap['selectedDateRangeEndDate'] ?? DateTime.now();
+        filterMap['selectedDateRangeEndDate'] ?? DateTime.now().add(Duration(days:1));
 
     DateTime? parseDate(String dateStr) {
       try {
