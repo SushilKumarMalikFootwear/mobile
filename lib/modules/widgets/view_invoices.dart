@@ -21,6 +21,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
   late Future getInvoioces;
   bool colorSwitch = true;
   bool isReversed = false;
+  bool hideProfitAndCp = false;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
   applyFilter(Map<String, dynamic>? filterMap) {
     if (filterMap != null) {
       this.filterMap = filterMap;
+      hideProfitAndCp = filterMap['hideProfitAndCp'];
     }
     getInvoioces = invoiceRepo.filterInvoices(this.filterMap);
     setState(() {});
@@ -168,13 +170,15 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                            Text(
-                                              "Profit : ₹ ${dailyInvoice.profit}",
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
+                                            if (!hideProfitAndCp)
+                                              Text(
+                                                "Profit : ₹ ${dailyInvoice.profit}",
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
                                           ],
                                         ),
                                       ],
@@ -266,13 +270,15 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                                                     const SizedBox(
                                                       height: 3,
                                                     ),
-                                                    Text(
-                                                        'Cost : ₹ ${invoice.costPrice}'),
+                                                    if (!hideProfitAndCp)
+                                                      Text(
+                                                          'Cost : ₹ ${invoice.costPrice}'),
                                                     const SizedBox(
                                                       height: 3,
                                                     ),
-                                                    Text(
-                                                        'Profit : ₹ ${invoice.profit}'),
+                                                    if (!hideProfitAndCp)
+                                                      Text(
+                                                          'Profit : ₹ ${invoice.profit}'),
                                                     const SizedBox(
                                                       height: 3,
                                                     ),

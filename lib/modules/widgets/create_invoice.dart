@@ -52,11 +52,12 @@ class _CreateInvoiceState extends State<CreateInvoice> {
     super.initState();
     if (widget.todo == Constants.create) {
       invoice = Invoice();
-      invoice.invoiceDate = DateTime.now();
+      invoice.invoiceDate = Constants.invoiceDate;
       invoice.invoiceStatus = Constants.completed;
       invoice.paymentMode = Constants.cash;
       invoice.paymentStatus = Constants.paid;
-      invoice.soldAt = Constants.home;
+      invoice.soldAt = Constants.soldAt;
+      isOldInvoice = Constants.isOldInvoice;
     } else {
       invoice = widget.invoice;
       articleCtrl.text = "${invoice.article} :${invoice.color}";
@@ -325,6 +326,9 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       return;
                     }
                     if (_form.currentState!.validate()) {
+                      Constants.isOldInvoice = isOldInvoice;
+                      Constants.soldAt = invoice.soldAt;
+                      Constants.invoiceDate = invoice.invoiceDate;
                       saveInvoice();
                     }
                   },

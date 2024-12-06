@@ -22,6 +22,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
   bool homeChecked = false;
   bool paymentPending = false;
   bool returnedInvoice = false;
+  bool hideProfitAndCp = false;
   List<String> dateRangeList = [
     'Last 30 Days',
     'Last Month',
@@ -120,6 +121,17 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
             const SizedBox(
               height: 10,
             ),
+            CustomCheckBox(
+                isSelected: hideProfitAndCp,
+                onClicked: (value) {
+                  setState(() {
+                    hideProfitAndCp = value;
+                  });
+                },
+                label: "Hide Profit & Cost Price"),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -150,7 +162,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                 value: selectedDateRangeOption,
                 hint: 'Select Date Range',
                 onChange: (val) {
-                  DateTime now = DateTime.now().add(Duration(days:1));
+                  DateTime now = DateTime.now().add(Duration(days: 1));
                   if (val == dateRangeList[0]) {
                     selectedDateRangeStartDate =
                         now.subtract(Duration(days: 30));
@@ -162,7 +174,8 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                   } else if (val == dateRangeList[2]) {
                     selectedDateRangeStartDate =
                         DateTime(now.year, now.month - 6, 1);
-                    selectedDateRangeEndDate = DateTime(now.year, now.month, now.day);
+                    selectedDateRangeEndDate =
+                        DateTime(now.year, now.month, now.day);
                   } else if (val == dateRangeList[3]) {
                     selectedDateRangeStartDate = DateTime(2024, 1, 1);
                     selectedDateRangeEndDate =
@@ -186,6 +199,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                 ElevatedButton(
                     onPressed: () {
                       filterMap = {
+                        'hideProfitAndCp':hideProfitAndCp,
                         'article': articleCtrl.text,
                         'color': colorCtrl.text,
                         'size': sizeCtrl.text,
