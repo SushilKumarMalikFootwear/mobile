@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,6 +11,10 @@ import '../../utils/widgets/custom_text.dart';
 import '../../utils/widgets/toast.dart';
 import '../models/product.dart';
 import '../repository/product_repo.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class AddProduct extends StatefulWidget {
   final Product product;
@@ -49,10 +55,17 @@ class _AddProductState extends State<AddProduct> {
   bool uploadingSecondImage = false;
   bool showVendorError = false;
   bool showCategoryError = false;
+
+  File? _pickedImage;
+  AuthClient? _authClient;
+
+
   @override
   initState() {
     setConfigList();
     super.initState();
+    _authenticate();
+
     product = widget.product;
     if (widget.todo == Constants.edit) {
       vendor = product.vendor;
@@ -69,6 +82,72 @@ class _AddProductState extends State<AddProduct> {
       firstPhotoUrl.text = product.URL1 ?? '';
       secondPhotoUrl.text = product.URL2 ?? '';
       setState(() {});
+    }
+  }
+
+Future<void> _authenticate() async {
+  const clientId = "144581414744-rmm0m006kldv7a6md95d2sk5g4ovhsf2.apps.googleusercontent.com";
+  const scopes = [drive.DriveApi.driveFileScope];
+
+  try {
+    final client = await clientViaUserConsent(
+      ClientId(clientId, null),
+      scopes,
+      (url) async {
+        // Launch the URL for user consent
+        if (await canLaunchUrl(Uri.parse(url))) {
+          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+        } else {
+          throw "Could not launch $url";
+        }
+      },
+    );
+
+    print("Authenticated successfully!");
+    // Now you can use `client` for API calls
+  } catch (e) {
+    print("Error during authentication: $e");
+  }
+}
+
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _pickedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _uploadToGoogleDrive() async {
+    if (_authClient == null) {
+      print('Authentication is not complete.');
+      return;
+    }
+
+    if (_pickedImage == null) {
+      print('No file selected.');
+      return;
+    }
+
+    try {
+      final driveApi = drive.DriveApi(_authClient!);
+
+      final fileToUpload = drive.File();
+      fileToUpload.name = _pickedImage!.uri.pathSegments.last;
+
+      final media = drive.Media(
+        _pickedImage!.openRead(),
+        _pickedImage!.lengthSync(),
+      );
+
+      final uploadedFile =
+          await driveApi.files.create(fileToUpload, uploadMedia: media);
+
+      print('File uploaded successfully: ${uploadedFile.name}');
+    } catch (e) {
+      print('Error uploading file: $e');
     }
   }
 
@@ -384,6 +463,11 @@ class _AddProductState extends State<AddProduct> {
               Image.network(firstPhotoUrl.text),
             _showCameraOrGallery(deviceSize, 1),
             const SizedBox(height: 15),
+            ElevatedButton(
+                onPressed: () {
+                  _uploadToGoogleDrive();
+                },
+                child: Text('Try Upload')),
             if (firstPhotoUrl.text.isEmpty)
               const Text("Choose First Image To Upload"),
             const SizedBox(height: 15),
@@ -417,12 +501,13 @@ class _AddProductState extends State<AddProduct> {
             const SizedBox(height: 15),
             ElevatedButton(
                 onPressed: () {
-                  if (category==null || (category!=null && category!.isEmpty)) {
+                  if (category == null ||
+                      (category != null && category!.isEmpty)) {
                     showCategoryError = true;
                     setState(() {});
                     return;
                   }
-                  if (vendor==null || (vendor!=null && vendor!.isEmpty)) {
+                  if (vendor == null || (vendor != null && vendor!.isEmpty)) {
                     showVendorError = true;
                     setState(() {});
                     return;
@@ -431,7 +516,8 @@ class _AddProductState extends State<AddProduct> {
                     _addProduct();
                   }
                 },
-                child: const Text('ADD PRODUCT',style: TextStyle(color: Colors.blue)))
+                child: const Text('ADD PRODUCT',
+                    style: TextStyle(color: Colors.blue)))
           ],
         ),
       ),

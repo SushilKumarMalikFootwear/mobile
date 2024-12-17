@@ -326,9 +326,19 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       return;
                     }
                     if (_form.currentState!.validate()) {
-                      Constants.isOldInvoice = isOldInvoice;
-                      Constants.soldAt = invoice.soldAt;
-                      Constants.invoiceDate = invoice.invoiceDate;
+                      if (widget.todo == Constants.create) {
+                        Constants.isOldInvoice = isOldInvoice;
+                        Constants.soldAt = invoice.soldAt;
+                        DateTime invoiceDate = DateTime(
+                            invoice.invoiceDate.year,
+                            invoice.invoiceDate.month,
+                            invoice.invoiceDate.day,
+                            DateTime.now().hour,
+                            DateTime.now().minute,
+                            DateTime.now().second);
+
+                        Constants.invoiceDate = invoiceDate;
+                      }
                       saveInvoice();
                     }
                   },
