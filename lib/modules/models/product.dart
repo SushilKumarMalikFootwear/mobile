@@ -13,6 +13,7 @@ class Product {
   late String sizeRange;
   late String description;
   late String vendor;
+  late String label;
   List pairs_in_stock = [];
   late bool outOfStock = false;
   Product();
@@ -33,6 +34,7 @@ class Product {
     pairs_in_stock = product['pairs_in_stock'];
     description = product['description'];
     outOfStock = product['out_of_stock'];
+    label = product['label'];
   }
 
   Map<String, dynamic> toJSON() {
@@ -50,8 +52,9 @@ class Product {
       "size_range": sizeRange,
       "description": description,
       "images": [URL1, URL2],
-      'footwear_id': footwear_id,
-      'out_of_stock':outOfStock
+      'footwear_id':  footwear_id,
+      'out_of_stock': outOfStock,
+      'label':label
     };
   }
 }

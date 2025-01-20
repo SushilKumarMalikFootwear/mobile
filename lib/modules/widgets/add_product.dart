@@ -11,10 +11,6 @@ import '../../utils/widgets/custom_text.dart';
 import '../../utils/widgets/toast.dart';
 import '../models/product.dart';
 import '../repository/product_repo.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 
 class AddProduct extends StatefulWidget {
   final Product product;
@@ -33,6 +29,7 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController brandName = TextEditingController();
   TextEditingController subBrandName = TextEditingController();
   TextEditingController article = TextEditingController();
+  TextEditingController label = TextEditingController();
   TextEditingController mrp = TextEditingController();
   TextEditingController sellingPrice = TextEditingController();
   TextEditingController costPrice = TextEditingController();
@@ -57,14 +54,11 @@ class _AddProductState extends State<AddProduct> {
   bool showCategoryError = false;
 
   File? _pickedImage;
-  AuthClient? _authClient;
-
 
   @override
   initState() {
     setConfigList();
     super.initState();
-    _authenticate();
 
     product = widget.product;
     if (widget.todo == Constants.edit) {
@@ -81,35 +75,10 @@ class _AddProductState extends State<AddProduct> {
       color.text = product.color;
       firstPhotoUrl.text = product.URL1 ?? '';
       secondPhotoUrl.text = product.URL2 ?? '';
+      label.text = product.label;
       setState(() {});
     }
   }
-
-Future<void> _authenticate() async {
-  const clientId = "144581414744-rmm0m006kldv7a6md95d2sk5g4ovhsf2.apps.googleusercontent.com";
-  const scopes = [drive.DriveApi.driveFileScope];
-
-  try {
-    final client = await clientViaUserConsent(
-      ClientId(clientId, null),
-      scopes,
-      (url) async {
-        // Launch the URL for user consent
-        if (await canLaunchUrl(Uri.parse(url))) {
-          await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-        } else {
-          throw "Could not launch $url";
-        }
-      },
-    );
-
-    print("Authenticated successfully!");
-    // Now you can use `client` for API calls
-  } catch (e) {
-    print("Error during authentication: $e");
-  }
-}
-
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -117,37 +86,6 @@ Future<void> _authenticate() async {
       setState(() {
         _pickedImage = File(pickedFile.path);
       });
-    }
-  }
-
-  Future<void> _uploadToGoogleDrive() async {
-    if (_authClient == null) {
-      print('Authentication is not complete.');
-      return;
-    }
-
-    if (_pickedImage == null) {
-      print('No file selected.');
-      return;
-    }
-
-    try {
-      final driveApi = drive.DriveApi(_authClient!);
-
-      final fileToUpload = drive.File();
-      fileToUpload.name = _pickedImage!.uri.pathSegments.last;
-
-      final media = drive.Media(
-        _pickedImage!.openRead(),
-        _pickedImage!.lengthSync(),
-      );
-
-      final uploadedFile =
-          await driveApi.files.create(fileToUpload, uploadMedia: media);
-
-      print('File uploaded successfully: ${uploadedFile.name}');
-    } catch (e) {
-      print('Error uploading file: $e');
     }
   }
 
@@ -165,6 +103,7 @@ Future<void> _authenticate() async {
       return;
     }
     product.URL2 = secondPhotoUrl.text.isEmpty ? null : secondPhotoUrl.text;
+    product.label = label.text;
     product.article = article.text;
     product.brandName = brandName.text;
     product.category = category!;
@@ -194,6 +133,7 @@ Future<void> _authenticate() async {
       mrp.clear();
       sellingPrice.clear();
       costPrice.clear();
+      label.clear();
       if (widget.todo == Constants.create) {
         widget.switchChild();
       } else {
@@ -347,6 +287,7 @@ Future<void> _authenticate() async {
                       style: TextStyle(color: Colors.red)),
                 ],
               ),
+            CustomText(label: 'Label', tc: label, required: true),
             CustomText(label: 'Article', tc: article, required: true),
             CustomText(
                 label: 'Size Range',
@@ -463,11 +404,6 @@ Future<void> _authenticate() async {
               Image.network(firstPhotoUrl.text),
             _showCameraOrGallery(deviceSize, 1),
             const SizedBox(height: 15),
-            ElevatedButton(
-                onPressed: () {
-                  _uploadToGoogleDrive();
-                },
-                child: Text('Try Upload')),
             if (firstPhotoUrl.text.isEmpty)
               const Text("Choose First Image To Upload"),
             const SizedBox(height: 15),
