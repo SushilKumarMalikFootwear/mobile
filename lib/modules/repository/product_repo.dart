@@ -17,14 +17,11 @@ class ProductRepository {
       });
       temp = temp['documents'][0];
     }
-    List list = temp['sizeRangeList'];
-    List<String> sizeRangeList = list.map((e) => e.toString()).toList();
-    list = temp['categoryList'];
+    List list = temp['categoryList'];
     List<String> categoryList = list.map((e) => e.toString()).toList();
     list = temp['vendorList'];
     List<String> vendorList = list.map((e) => e.toString()).toList();
     Map<String, List<String>> configLists = {
-      'sizeRangeList': sizeRangeList,
       'categoryList': categoryList,
       'vendorList': vendorList
     };

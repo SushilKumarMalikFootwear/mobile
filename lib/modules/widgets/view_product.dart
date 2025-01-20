@@ -75,7 +75,7 @@ class _ViewProductState extends State<ViewProduct> {
                       IconButton(
                           onPressed: () {
                             customBottomSheet(context,
-                                ProductsFilter(applyFilter: applyFilter));
+                                ProductsFilter(applyFilter: applyFilter, filterOptions: filterMap,));
                           },
                           icon: const Icon(
                             Icons.filter_alt,

@@ -86,7 +86,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                       IconButton(
                           onPressed: () {
                             customBottomSheet(context,
-                                InvoicesFilter(applyFilter: applyFilter));
+                                InvoicesFilter(applyFilter: applyFilter, flterOptions: filterMap,));
                           },
                           icon: const Icon(
                             Icons.filter_alt,

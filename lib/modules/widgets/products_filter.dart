@@ -6,7 +6,9 @@ import '../../utils/widgets/custom_dropdown.dart';
 
 class ProductsFilter extends StatefulWidget {
   final Function applyFilter;
-  const ProductsFilter({super.key, required this.applyFilter});
+  Map<String, String> filterOptions;
+  ProductsFilter(
+      {super.key, required this.applyFilter, required this.filterOptions});
 
   @override
   State<ProductsFilter> createState() => _ProductsFilterState();
@@ -21,6 +23,33 @@ class _ProductsFilterState extends State<ProductsFilter> {
   String selectedCategory = '';
   String selectedVendor = '';
   bool outOfStock = false;
+  
+@override
+  void initState() {
+    super.initState();
+    if (widget.filterOptions.isNotEmpty) {
+      if (widget.filterOptions.containsKey('brand')) {
+        brandNameCtrl.text = widget.filterOptions['brand']!;
+      }
+      if (widget.filterOptions.containsKey('category')) {
+        selectedCategory = widget.filterOptions['category']!;
+      }
+      if (widget.filterOptions.containsKey('article')) {
+        articleCtrl.text = widget.filterOptions['article']!;
+      }
+      if (widget.filterOptions.containsKey('vendor')) {
+        selectedVendor = widget.filterOptions['vendor']!;
+      }
+      if (widget.filterOptions.containsKey('color')) {
+        colorCtrl.text = widget.filterOptions['color']!;
+      }
+      if (widget.filterOptions.containsKey('out_of_stock')) {
+        outOfStock = widget.filterOptions['out_of_stock']!.toLowerCase() == 'true';
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +122,6 @@ class _ProductsFilterState extends State<ProductsFilter> {
                         'brand': brandNameCtrl.text,
                         'category': selectedCategory,
                         'article': articleCtrl.text,
-                        'size_range': selectedSizeRange,
                         'color': colorCtrl.text,
                         'vendor': selectedVendor,
                         'out_of_stock': outOfStock.toString()
@@ -102,12 +130,22 @@ class _ProductsFilterState extends State<ProductsFilter> {
                       Navigator.pop(context);
                       setState(() {});
                     },
-                    child: const Text('Apply',style: TextStyle(color: Colors.blue))),
+                    child: const Text('Apply',
+                        style: TextStyle(color: Colors.blue))),
                 ElevatedButton(
                     onPressed: () {
                       filterMap.clear();
+                      setState(() {
+                        brandNameCtrl.clear();
+                        articleCtrl.clear();
+                        colorCtrl.clear();
+                        selectedCategory = '';
+                        selectedVendor = '';
+                        outOfStock = false;
+                      });
                     },
-                    child: const Text("Reset",style: TextStyle(color: Colors.blue))),
+                    child: const Text("Reset",
+                        style: TextStyle(color: Colors.blue))),
               ],
             )
           ],

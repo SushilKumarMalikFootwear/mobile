@@ -94,10 +94,12 @@ abstract class RouteConstants {
   static String manageProducts = '/manage_products';
   static String invoices = '/invoices';
   static String traderFinances = '/trader_finances';
+  static String salesReport = '/sales_report';
 }
 
 abstract class AppBarTitle {
   static String manageProducts = "Manage Products";
   static String invoices = "Invoices";
   static String traderFinances = "Trader Finances";
+  static String salesReport = "Sales Report";
 }

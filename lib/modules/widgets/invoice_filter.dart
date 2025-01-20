@@ -6,7 +6,9 @@ import '../../utils/widgets/custom_checkbox.dart';
 
 class InvoicesFilter extends StatefulWidget {
   final Function applyFilter;
-  const InvoicesFilter({super.key, required this.applyFilter});
+  Map<String, dynamic> flterOptions;
+  InvoicesFilter(
+      {super.key, required this.applyFilter, required this.flterOptions});
 
   @override
   State<InvoicesFilter> createState() => _InvoicesFilterState();
@@ -35,6 +37,32 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
   DateTime selectedDateRangeStartDate =
       DateTime.now().subtract(Duration(days: 30));
   DateTime selectedDateRangeEndDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    articleCtrl.text = widget.flterOptions['article'] ?? '';
+    colorCtrl.text = widget.flterOptions['color'] ?? '';
+    sizeCtrl.text = widget.flterOptions['size'] ?? '';
+    selectedDate = widget.flterOptions['date'] != null
+        ? DateTime.parse(widget.flterOptions['date']!)
+        : null;
+    shopChecked = widget.flterOptions['soldAt'] == 'SHOP';
+    homeChecked = widget.flterOptions['soldAt'] == 'HOME';
+    paymentPending = widget.flterOptions['paymentPending'] == 'true';
+    returnedInvoice = widget.flterOptions['returnedInvoice'] == 'true';
+    hideProfitAndCp = widget.flterOptions['hideProfitAndCp'] == 'true';
+    selectedDateRangeStartDate =
+        widget.flterOptions['selectedDateRangeStartDate'] != null
+            ? widget.flterOptions['selectedDateRangeStartDate']
+            : DateTime.now().subtract(Duration(days: 30));
+    selectedDateRangeEndDate =
+        widget.flterOptions['selectedDateRangeEndDate'] != null
+            ? widget.flterOptions['selectedDateRangeEndDate']
+            : DateTime.now();
+    selectedDateRangeOption =
+        widget.flterOptions['selectedDateRangeOption'] ?? dateRangeList.first;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,9 +146,6 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                   });
                 },
                 label: "Returned Invoices"),
-            const SizedBox(
-              height: 10,
-            ),
             CustomCheckBox(
                 isSelected: hideProfitAndCp,
                 onClicked: (value) {
@@ -162,6 +187,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                 value: selectedDateRangeOption,
                 hint: 'Select Date Range',
                 onChange: (val) {
+                  selectedDateRangeOption = val;
                   DateTime now = DateTime.now().add(Duration(days: 1));
                   if (val == dateRangeList[0]) {
                     selectedDateRangeStartDate =
@@ -199,7 +225,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                 ElevatedButton(
                     onPressed: () {
                       filterMap = {
-                        'hideProfitAndCp':hideProfitAndCp,
+                        'hideProfitAndCp': hideProfitAndCp,
                         'article': articleCtrl.text,
                         'color': colorCtrl.text,
                         'size': sizeCtrl.text,
@@ -214,7 +240,8 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                         'returnedInvoice': returnedInvoice.toString(),
                         'selectedDateRangeStartDate':
                             selectedDateRangeStartDate,
-                        'selectedDateRangeEndDate': selectedDateRangeEndDate
+                        'selectedDateRangeEndDate': selectedDateRangeEndDate,
+                        'selectedDateRangeOption': selectedDateRangeOption
                       };
                       widget.applyFilter(filterMap);
                       Navigator.pop(context);
