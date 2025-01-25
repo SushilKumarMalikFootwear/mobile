@@ -127,7 +127,7 @@ class ProductRepository {
     return response.data;
   }
 
-  getAllArticles() async {
+  Future<List<String>> getAllArticles() async {
     var data = json.encode({
       "collection": "footwears",
       "database": "test",
@@ -160,5 +160,39 @@ class ProductRepository {
     List temp = response.data['documents'][0]['uniqueArticles'];
     List<String> articleList = temp.map((e) => e.toString()).toList();
     return articleList;
+  }
+    Future<List<String>> getAllLables() async {
+    var data = json.encode({
+      "collection": "footwears",
+      "database": "test",
+      "dataSource": "SushilKumarMalikFootwear",
+      "pipeline": [
+        {
+          "\$group": {
+            "_id": null,
+            "uniqueLables": {"\$addToSet": "\$label"}
+          }
+        },
+        {
+          "\$sort": {"label": 1}
+        },
+        {
+          "\$project": {"_id": 0, "uniqueLables": 1}
+        }
+      ]
+    });
+
+    var dio = Dio();
+    var response = await dio.request(
+      "${ApiUrls.mongoDbApiUrl}/aggregate",
+      options: Options(
+        method: 'POST',
+        headers: Constants.mongoDbHeaders,
+      ),
+      data: data,
+    );
+    List temp = response.data['documents'][0]['uniqueLables'];
+    List<String> labelList = temp.map((e) => e.toString()).toList();
+    return labelList;
   }
 }
