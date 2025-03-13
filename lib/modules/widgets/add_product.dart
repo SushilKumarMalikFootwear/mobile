@@ -13,18 +13,20 @@ import '../models/product.dart';
 import '../repository/product_repo.dart';
 
 class AddProduct extends StatefulWidget {
+  final bool scroll; //scroll upto sizes
   final Product product;
   final String todo;
   final Function refreshChild;
   final Function switchChild;
   const AddProduct(this.refreshChild, this.switchChild, this.todo, this.product,
-      {super.key});
+      {this.scroll = false});
 
   @override
   State<AddProduct> createState() => _AddProductState();
 }
 
 class _AddProductState extends State<AddProduct> {
+  ScrollController controller = ScrollController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController brandName = TextEditingController();
   TextEditingController subBrandName = TextEditingController();
@@ -59,6 +61,14 @@ class _AddProductState extends State<AddProduct> {
   initState() {
     setConfigList();
     super.initState();
+
+    Future.delayed(Duration(milliseconds: 250), () {
+      controller.animateTo(
+        controller.offset + 850, // Scroll 50 pixels down
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
 
     product = widget.product;
     if (widget.todo == Constants.edit) {
@@ -242,6 +252,7 @@ class _AddProductState extends State<AddProduct> {
     Size deviceSize = MediaQuery.of(context).size;
     ctx = context;
     return SingleChildScrollView(
+      controller: controller,
       child: Form(
         key: _form,
         child: Column(
@@ -275,6 +286,9 @@ class _AddProductState extends State<AddProduct> {
                   hint: 'Select a Categoy',
                   onChange: (value) {
                     category = value;
+                    if (widget.todo == Constants.create) {
+                      label.text = value;
+                    }
                     showCategoryError = false;
                     setState(() {});
                   },
@@ -453,7 +467,7 @@ class _AddProductState extends State<AddProduct> {
                   }
                 },
                 child: const Text('ADD PRODUCT',
-                    style: TextStyle(color: Colors.blue)))
+                    ))
           ],
         ),
       ),

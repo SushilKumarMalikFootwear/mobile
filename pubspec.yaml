@@ -45,7 +45,8 @@ dependencies:
   modal_bottom_sheet: ^2.1.2
   autocomplete_textfield: ^2.0.1
   flutter_typeahead: ^4.8.0
-  d_chart: ^2.8.0
+  d_chart: ^2.6.9
+  fl_chart: 0.60.0
 
 dev_dependencies:
   flutter_test:

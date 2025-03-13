@@ -29,9 +29,26 @@ void main() async {
           .putIfAbsent(articleWithColor, () => product);
     }).toList();
   });
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    initialRoute: RouteConstants.manageProducts,
-    routes: getRoutes(),
-  ));
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: RouteConstants.manageProducts,
+      routes: getRoutes(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            textStyle: MaterialStateProperty.all<TextStyle>(TextStyle(color: Colors.white)),
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
 }

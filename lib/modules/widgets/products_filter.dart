@@ -130,8 +130,7 @@ class _ProductsFilterState extends State<ProductsFilter> {
                       Navigator.pop(context);
                       setState(() {});
                     },
-                    child: const Text('Apply',
-                        style: TextStyle(color: Colors.blue))),
+                    child: const Text('Apply')),
                 ElevatedButton(
                     onPressed: () {
                       filterMap.clear();
@@ -144,8 +143,7 @@ class _ProductsFilterState extends State<ProductsFilter> {
                         outOfStock = false;
                       });
                     },
-                    child: const Text("Reset",
-                        style: TextStyle(color: Colors.blue))),
+                    child: const Text("Reset")),
               ],
             )
           ],

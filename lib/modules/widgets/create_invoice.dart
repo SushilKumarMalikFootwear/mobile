@@ -343,8 +343,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                     }
                   },
                   child: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.blue),
+                    'Save'
                   ))
             ]),
           ),

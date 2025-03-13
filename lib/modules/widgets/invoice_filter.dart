@@ -248,8 +248,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                       setState(() {});
                     },
                     child: const Text(
-                      'Apply',
-                      style: TextStyle(color: Colors.blue),
+                      'Apply'
                     )),
                 ElevatedButton(
                     onPressed: () {
@@ -265,8 +264,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                         filterMap.clear();
                       });
                     },
-                    child: const Text("Reset",
-                        style: TextStyle(color: Colors.blue))),
+                    child: const Text("Reset")),
               ],
             ),
           ],

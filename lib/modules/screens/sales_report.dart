@@ -65,7 +65,6 @@ class _SalesReportState extends State<SalesReport> {
           future: salesReportFuture,
           builder: (context, AsyncSnapshot<Map<String, int>> snapshot) {
             if (snapshot.hasError) {
-              print(snapshot);
               return Center(
                 child: Text('Some Error hass Occcurred'),
               );
@@ -81,20 +80,24 @@ class _SalesReportState extends State<SalesReport> {
               return Column(
                 children: [
                   Text('Label - ${filterMap['label']}'),
-                  Container(
-              height: 350,
-              padding: const EdgeInsets.all(10.0),
-                    child: DChartBarCustom(
-                      showDomainLabel: true,
-                      listData: snapshot.data!.entries.map((entry) {
-                        return DChartBarDataCustom(
-                          valueStyle: TextStyle(color: Colors.white),
-                          color: Colors.teal[300],
-                          value: entry.value.toDouble(),
-                          label: entry.key.toString(),
-                          showValue: true,
-                        );
-                      }).toList(),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      height: 350,
+                      width: 500,
+                      padding: const EdgeInsets.all(15.0),
+                      child: DChartBarCustom(
+                        showDomainLabel: true,
+                        listData: snapshot.data!.entries.map((entry) {
+                          return DChartBarDataCustom(
+                            valueStyle: TextStyle(color: Colors.white),
+                            color: Colors.teal[300],
+                            value: entry.value.toDouble(),
+                            label: entry.key.toString(),
+                            showValue: true,
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ],

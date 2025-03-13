@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:footwear/utils/services/api_client.dart';
 import '../../config/constants/app_constants.dart';
+import '../models/product.dart';
 
 class ProductRepository {
   Future<Map<String, List<String>>> getConfigLists() async {
@@ -125,6 +126,31 @@ class ProductRepository {
       data: data,
     );
     return response.data;
+  }
+
+  Future<Product?> getProductById(String footwearId) async {
+    var data = json.encode({
+      "collection": "footwears",
+      "database": "test",
+      "dataSource": "SushilKumarMalikFootwear",
+      "filter": {"footwear_id": footwearId}
+    });
+
+    var dio = Dio();
+    var response = await dio.request(
+      "${ApiUrls.mongoDbApiUrl}/findOne",
+      options: Options(
+        method: 'POST',
+        headers: Constants.mongoDbHeaders,
+      ),
+      data: data,
+    );
+
+    if (response.data['document'] != null) {
+      return Product.fromJSON(response.data['document']);
+    } else {
+      return null;
+    }
   }
 
   Future<List<String>> getAllArticles() async {

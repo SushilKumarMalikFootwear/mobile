@@ -189,17 +189,18 @@ class InvoiceRepository {
       ),
       data: data,
     );
+
     if (response.statusCode == 200) {
       List<String> sizeSet = [];
       List list = response.data['documents'];
-      int sum = list.fold(0, (val, inv) {
-        return val + int.parse(inv['cost_price'].toString());
-      });
+      int sum = list.fold(
+          0, (val, inv) => val + int.parse(inv['cost_price'].toString()));
       int avg = sum ~/ list.length;
       List<String> footwearIds = list.map((e) {
         sizeSet.add(e['size_range']);
         return e['footwear_id'].toString();
       }).toList();
+
       pipeline = [
         {
           "\$match": {
@@ -212,6 +213,7 @@ class InvoiceRepository {
           }
         }
       ];
+
       data = json.encode({
         "collection": "invoices",
         "database": "test",
@@ -219,7 +221,6 @@ class InvoiceRepository {
         "pipeline": pipeline
       });
 
-      dio = Dio();
       response = await dio.request(
         "${ApiUrls.mongoDbApiUrl}/aggregate",
         options: Options(
@@ -228,70 +229,189 @@ class InvoiceRepository {
         ),
         data: data,
       );
+
       list = response.data['documents'];
       if (list.isEmpty) {
         return {};
       }
-      print(sizeSet);
 
       Map<String, int> report = {};
-      List<String> sortedSizes = [];
-      bool smallSizesProcessed = false;
 
-      void extractSizes(String range) {
-        var parts = range.split('X').map(int.parse).toList();
-        List<int> sizes = [for (int i = parts[0]; i <= parts[1]; i++) i];
-
-        // If sizes are within the "kids range" and not processed yet, mark them with 'k'
-        if (sizes.first <= 10 && !smallSizesProcessed) {
-          sortedSizes.addAll(sizes.map((size) => '${size}k'));
-          smallSizesProcessed = true;
-        } else {
-          sortedSizes.addAll(sizes.map((size) => size.toString()));
-        }
-      }
-
-      for (String range in sizeSet) {
-        if (range.contains('-')) {
-          var splitRanges = range.split('-');
-          for (String subRange in splitRanges) {
-            extractSizes(subRange);
+      if (["GOLA BLACK", "GOLA WHITE", "DERBY BLACK", "ANKLE BLACK"]
+          .contains(label)) {
+        report = {
+          for (var i = 6; i <= 10; i++) "${i}K": 0,
+          for (var i = 11; i <= 13; i++) "$i": 0,
+          for (var i = 1; i <= 10; i++) "$i": 0
+        };
+      } else {
+        void extractSizes(String range) {
+          var sizeGroups = range.split('-');
+          for (String group in sizeGroups) {
+            var parts = group.split('X').map(int.parse).toList();
+            for (int i = parts[0]; i <= parts[1]; i++) {
+              report["$i"] = 0;
+            }
           }
-        } else {
+        }
+
+        for (String range in sizeSet) {
           extractSizes(range);
         }
       }
 
-      // Remove duplicates and retain order
-      sortedSizes = sortedSizes.toSet().toList();
-
-      for (String size in sortedSizes) {
-        report[size] = 0;
-      }
-
-      for (int i = 0; i < list.length; i++) {
-        Map invoice = list[i];
-        if (!([6, 7, 8, 9, 10].contains(invoice['size'])) &&
-            report.containsKey(invoice['size'].toString())) {
-          report[invoice['size'].toString()] =
-              report[invoice['size'].toString()]! + 1;
-        } else if (([6, 7, 8, 9, 10].contains(invoice['size']))) {
-          if (invoice['cost_price'] > avg) {
-            report[invoice['size'].toString()] =
-                report[invoice['size'].toString()]! + 1;
-          } else {
-            report[invoice['size'].toString() + 'k'] =
-                report[invoice['size'].toString() + 'k']! + 1;
-          }
+      for (Map invoice in list) {
+        String sizeKey = invoice['size'].toString();
+        if ([6, 7, 8, 9, 10].contains(invoice['size'])) {
+          String finalSizeKey =
+              invoice['cost_price'] < avg ? "${sizeKey}K" : sizeKey;
+          report[finalSizeKey] = (report[finalSizeKey] ?? 0) + 1;
         } else {
-          report[invoice['size'].toString()] = 1;
+          report[sizeKey] = (report[sizeKey] ?? 0) + 1;
         }
       }
-
-      print(report);
+      if (["GOLA BLACK", "GOLA WHITE", "DERBY BLACK", "ANKLE BLACK"]
+          .contains(label)) {
+        report.removeWhere((key, value) => value == 0);
+      }
       return report;
     } else {
       throw Exception("Failed to fetch invoices");
     }
+  }
+
+  Future<List> fetchMonthlySalesReport() async {
+    List<Map<String, dynamic>> pipeline = [
+      {
+        '\$match': {
+          'invoice_status': {
+            '\$in': ["COMPLETED", "RETURNED"]
+          },
+        },
+      },
+      {
+        '\$group': {
+          '_id': {
+            'month': {
+              '\$dateToString': {'format': "%Y-%m", 'date': "\$invoice_date"}
+            },
+            'place': "\$sold_at",
+            'day': {
+              '\$dateToString': {'format': "%Y-%m-%d", 'date': "\$invoice_date"}
+            },
+          },
+          'totalSP': {'\$sum': "\$selling_price"},
+          'totalProfit': {'\$sum': "\$profit"},
+          'totalInvoices': {'\$sum': 1},
+          'returnedInvoices': {
+            '\$sum': {
+              '\$cond': [
+                {
+                  '\$eq': ["\$invoice_status", "RETURNED"]
+                }, // Condition
+                1, // If true, add 1
+                0 // Else, add 0
+              ]
+            }
+          },
+        },
+      },
+      {
+        '\$group': {
+          '_id': {'month': "\$_id.month", 'place': "\$_id.place"},
+          'totalSP': {'\$sum': "\$totalSP"},
+          'totalProfit': {'\$sum': "\$totalProfit"},
+          'totalInvoices': {'\$sum': "\$totalInvoices"},
+          'returnedInvoices': {'\$sum': "\$returnedInvoices"},
+          'uniqueDays': {'\$addToSet': "\$_id.day"},
+        },
+      },
+      {
+        '\$addFields': {
+          'numDays': {'\$size': "\$uniqueDays"},
+          'dailyAvgSales': {
+            '\$round': [
+              {
+                '\$cond': [
+                  {
+                    '\$gt': [
+                      {'\$size': "\$uniqueDays"},
+                      0
+                    ]
+                  }, // If numDays > 0
+                  {
+                    '\$divide': [
+                      "\$totalSP",
+                      {'\$size': "\$uniqueDays"}
+                    ]
+                  }, // Compute avg sales
+                  0 // Else return 0
+                ]
+              },
+              0 // Round to 0 decimal places
+            ],
+          },
+          'dailyAvgInvoices': {
+            '\$round': [
+              {
+                '\$cond': [
+                  {
+                    '\$gt': [
+                      {'\$size': "\$uniqueDays"},
+                      0
+                    ]
+                  },
+                  {
+                    '\$divide': [
+                      "\$totalInvoices",
+                      {'\$size': "\$uniqueDays"}
+                    ]
+                  },
+                  0
+                ]
+              },
+              0
+            ],
+          },
+        },
+      },
+      {
+        '\$group': {
+          '_id': "\$_id.month",
+          'sales': {
+            '\$push': {
+              'place': "\$_id.place",
+              'totalSP': "\$totalSP",
+              'totalProfit': "\$totalProfit",
+              'totalInvoices': "\$totalInvoices",
+              'returnedInvoices': "\$returnedInvoices",
+              'numDays': "\$numDays",
+              'dailyAvgSales': "\$dailyAvgSales",
+              'dailyAvgInvoices': "\$dailyAvgInvoices",
+            },
+          },
+        },
+      },
+      {
+        '\$sort': {'_id': 1},
+      },
+    ];
+    var data = json.encode({
+      "collection": "invoices",
+      "database": "test",
+      "dataSource": "SushilKumarMalikFootwear",
+      "pipeline": pipeline
+    });
+
+    var dio = Dio();
+    var response = await dio.request(
+      "${ApiUrls.mongoDbApiUrl}/aggregate",
+      options: Options(
+        method: 'POST',
+        headers: Constants.mongoDbHeaders,
+      ),
+      data: data,
+    );
+    return response.data['documents'];
   }
 }

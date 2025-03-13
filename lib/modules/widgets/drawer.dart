@@ -18,7 +18,7 @@ class MyDrawer extends StatelessWidget {
           SizedBox(
               height: 200,
               child: UserAccountsDrawerHeader(
-                decoration: BoxDecoration(),
+                  decoration: BoxDecoration(),
                   margin: EdgeInsets.zero,
                   currentAccountPicture: const CircleAvatar(
                     backgroundImage: NetworkImage(
@@ -34,8 +34,9 @@ class MyDrawer extends StatelessWidget {
             color: const Color.fromARGB(255, 143, 136, 136),
           ),
           SizedBox(
-            height: 300,
+            height: 320,
             child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: drawerOptions.length,
                 itemBuilder: (context, index) {
                   return Container(
