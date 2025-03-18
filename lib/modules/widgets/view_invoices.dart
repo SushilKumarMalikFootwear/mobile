@@ -48,7 +48,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
     double totalSelling = 0;
     dailyInvoicesMap.forEach((key, dailyInvoices) {
       dailyInvoices.invoices.forEach((invoice) {
-        totalSelling += invoice.sellingPrice;
+        totalSelling += invoice.pendingAmount;
       });
     });
     return totalSelling;
@@ -288,9 +288,14 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                                                                       context,
                                                                       MaterialPageRoute(
                                                                           builder: (context) => Scaffold(
-                                                                                  body: AddProduct(
+                                                                              appBar: AppBar(
+                                                                                title: Text('Edit Product'),
+                                                                              ),
+                                                                              body: AddProduct(
                                                                                 () {},
-                                                                                () {},
+                                                                                () {
+                                                                                  Navigator.pop(context);
+                                                                                },
                                                                                 Constants.edit,
                                                                                 product,
                                                                                 scroll: true,

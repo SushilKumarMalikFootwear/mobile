@@ -29,6 +29,7 @@ class _AddProductState extends State<AddProduct> {
   ScrollController controller = ScrollController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController brandName = TextEditingController();
+  TextEditingController rating = TextEditingController();
   TextEditingController subBrandName = TextEditingController();
   TextEditingController article = TextEditingController();
   TextEditingController label = TextEditingController();
@@ -61,14 +62,15 @@ class _AddProductState extends State<AddProduct> {
   initState() {
     setConfigList();
     super.initState();
-
-    Future.delayed(Duration(milliseconds: 250), () {
-      controller.animateTo(
-        controller.offset + 850, // Scroll 50 pixels down
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
+    if (widget.scroll) {
+      Future.delayed(const Duration(milliseconds: 250), () {
+        controller.animateTo(
+          controller.offset + 850, // Scroll 50 pixels down
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
 
     product = widget.product;
     if (widget.todo == Constants.edit) {
@@ -86,7 +88,10 @@ class _AddProductState extends State<AddProduct> {
       firstPhotoUrl.text = product.URL1 ?? '';
       secondPhotoUrl.text = product.URL2 ?? '';
       label.text = product.label;
+      rating.text = product.rating!;
       setState(() {});
+    } else {
+      rating.text = '0.0';
     }
   }
 
@@ -125,6 +130,7 @@ class _AddProductState extends State<AddProduct> {
     product.sizeRange = sizeRange.text.toUpperCase();
     product.description = descCtrl.text;
     product.vendor = vendor.toString();
+    product.rating = rating.text;
     widget.todo == Constants.create
         ? await productRepo.add(product.toJSON())
         : await productRepo.update(product.toJSON());
@@ -303,21 +309,22 @@ class _AddProductState extends State<AddProduct> {
               ),
             CustomText(label: 'Label', tc: label, required: true),
             CustomText(label: 'Article', tc: article, required: true),
+            CustomText(label: 'Color', tc: color, required: true),
             CustomText(
                 label: 'Size Range',
                 tc: sizeRange,
                 onChange: _onChangeSizeRange,
                 required: true),
+            CustomText(label: 'MRP', tc: mrp),
+            CustomText(
+                label: 'Selling Price', tc: sellingPrice, required: true),
+            CustomText(label: 'Cost Price', tc: costPrice, required: true),
+            CustomText(label: 'Rating', tc: rating, required: true),
             CustomText(
               label: 'Type Description Here',
               tc: descCtrl,
               isMultiLine: true,
             ),
-            CustomText(label: 'MRP', tc: mrp),
-            CustomText(
-                label: 'Selling Price', tc: sellingPrice, required: true),
-            CustomText(label: 'Cost Price', tc: costPrice, required: true),
-            CustomText(label: 'Color', tc: color, required: true),
             const SizedBox(
               height: 10,
             ),
@@ -466,8 +473,9 @@ class _AddProductState extends State<AddProduct> {
                     _addProduct();
                   }
                 },
-                child: const Text('ADD PRODUCT',
-                    ))
+                child: const Text(
+                  'ADD PRODUCT',
+                ))
           ],
         ),
       ),

@@ -30,6 +30,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   late Invoice invoice;
   TextEditingController costPriceCtrl = TextEditingController();
+  TextEditingController pendingPaymentCtrl = TextEditingController();
   TextEditingController sellingPriceCtrl = TextEditingController();
   TextEditingController profitCtrl = TextEditingController();
   TextEditingController descriptionCtrl = TextEditingController();
@@ -58,6 +59,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
       invoice.paymentStatus = Constants.paid;
       invoice.soldAt = Constants.soldAt;
       isOldInvoice = Constants.isOldInvoice;
+      pendingPaymentCtrl.text = '0.0';
     } else {
       invoice = widget.invoice;
       articleCtrl.text = "${invoice.article} :${invoice.color}";
@@ -76,12 +78,14 @@ class _CreateInvoiceState extends State<CreateInvoice> {
       sellingPriceCtrl.text = invoice.sellingPrice.toString();
       profitCtrl.text = invoice.profit.toString();
       descriptionCtrl.text = invoice.description;
+      pendingPaymentCtrl.text = invoice.pendingAmount.toString();
     }
   }
 
   saveInvoice() async {
     invoice.costPrice = double.parse(costPriceCtrl.text);
     invoice.sellingPrice = double.parse(sellingPriceCtrl.text);
+    invoice.pendingAmount = double.parse(pendingPaymentCtrl.text);
     invoice.profit = double.parse(profitCtrl.text);
     invoice.mrp = double.parse(mrpCtrl.text);
     invoice.description = descriptionCtrl.text;
@@ -282,9 +286,16 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                     hint: 'Payment Status',
                     onChange: (val) {
                       invoice.paymentStatus = val;
+                      if (invoice.paymentStatus == 'PENDING') {
+                        pendingPaymentCtrl.text = sellingPriceCtrl.text;
+                      }
                     },
                     items: [Constants.paid, Constants.pending]),
               ),
+              const SizedBox(height: 5),
+              if (invoice.paymentStatus == 'PENDING')
+                CustomText(
+                    label: 'Pending Payment Amount', tc: pendingPaymentCtrl),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -342,9 +353,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       saveInvoice();
                     }
                   },
-                  child: const Text(
-                    'Save'
-                  ))
+                  child: const Text('Save'))
             ]),
           ),
         ),

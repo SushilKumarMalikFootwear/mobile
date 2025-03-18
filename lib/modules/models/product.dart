@@ -10,6 +10,7 @@ class Product {
   late String color;
   String? URL1;
   String? URL2;
+  String? rating;
   late String sizeRange;
   late String description;
   late String vendor;
@@ -18,6 +19,7 @@ class Product {
   late bool outOfStock = false;
   Product();
   Product.fromJSON(Map product) {
+    rating = product['rating'].toString();
     vendor = product['vendor'] ?? '';
     footwear_id = product['footwear_id'];
     brandName = product['brand'];
@@ -52,9 +54,10 @@ class Product {
       "size_range": sizeRange,
       "description": description,
       "images": [URL1, URL2],
-      'footwear_id':  footwear_id,
+      'footwear_id': footwear_id,
       'out_of_stock': outOfStock,
-      'label':label
+      'label': label,
+      'rating':rating
     };
   }
 }

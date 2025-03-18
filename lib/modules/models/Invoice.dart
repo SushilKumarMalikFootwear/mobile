@@ -16,6 +16,7 @@ class Invoice {
   late String vendor;
   late double mrp;
   late bool addInTotalCost;
+  late double pendingAmount;
 
   Invoice(
       {this.article = '',
@@ -34,10 +35,12 @@ class Invoice {
       this.vendor = '',
       this.mrp = 0,
       this.addInTotalCost = false,
+      this.pendingAmount = 0,
       DateTime? invoiceDate})
       : this.invoiceDate = invoiceDate ?? DateTime.now();
   Invoice.fromJson(Map invoice) {
     mrp = double.parse(invoice['mrp'].toString());
+    pendingAmount = double.parse(invoice['pending_amount'].toString());
     vendor = invoice['vendor'] ?? '';
     color = invoice['color'];
     costPrice = double.parse(invoice['cost_price'].toString());
@@ -74,7 +77,8 @@ class Invoice {
       'article': article,
       'vendor': vendor,
       'mrp': mrp,
-      'add_in_total_cost':addInTotalCost
+      'add_in_total_cost': addInTotalCost,
+      'pending_amount':pendingAmount
     };
   }
 }
