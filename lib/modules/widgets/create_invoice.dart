@@ -288,7 +288,10 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       invoice.paymentStatus = val;
                       if (invoice.paymentStatus == 'PENDING') {
                         pendingPaymentCtrl.text = sellingPriceCtrl.text;
+                      } else if (invoice.paymentStatus == 'PAID') {
+                        pendingPaymentCtrl.text = '0';
                       }
+                      setState(() {});
                     },
                     items: [Constants.paid, Constants.pending]),
               ),

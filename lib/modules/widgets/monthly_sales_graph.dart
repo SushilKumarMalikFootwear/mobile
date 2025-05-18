@@ -40,42 +40,36 @@ class _SalesChartScreenState extends State<SalesChartScreen> {
   String selectedPreviousFinancialYear = "";
   bool showComparison = false;
   bool showFilters = false;
-  String filterType = 'Total Sales'; // Default filter
+  String filterType = 'Total Sales';
   String placeFilter = 'shop';
   String selectedMetric = 'totalSP';
   Map<String, List<Map<String, dynamic>>> processedData = {};
   DateTime now = DateTime.now();
 
   final ScrollController _scrollController = ScrollController();
-  final double _chartWidth = 80.0; // Width per month in the chart
+  final double _chartWidth = 80.0;
 
-  // Processed data
   List<SalesData> currentYearData = [];
   List<SalesData> previousYearData = [];
 
-  // Add this to your state variables
-  int selectedCurrentYear = DateTime.now().year; // Default to current year
-  int selectedPreviousYear =
-      DateTime.now().year - 1; // Default to previous year
+  int selectedCurrentYear = DateTime.now().year;
+  int selectedPreviousYear = DateTime.now().year - 1;
 
-  // Add these state variables
-  String selectedFinancialYear = ""; // Default financial year
-  List<String> availableFinancialYears = []; // Available financial years
+  String selectedFinancialYear = "";
+  List<String> availableFinancialYears = [];
 
   @override
   void initState() {
     super.initState();
     int currentYear = now.year;
-    int startYear = 2023; // Earliest year in your data
+    int startYear = 2023;
 
-    // Set the default financial year correctly based on current month
     if (now.month >= 4) {
       selectedFinancialYear = "$currentYear-${(currentYear + 1) % 100}";
     } else {
       selectedFinancialYear = "${currentYear - 1}-${currentYear % 100}";
     }
 
-    // Generate available financial years
     int lastYear = (now.month >= 4) ? currentYear : currentYear - 1;
 
     for (int year = startYear; year <= lastYear; year++) {
@@ -85,16 +79,13 @@ class _SalesChartScreenState extends State<SalesChartScreen> {
       availableFinancialYears.add("$year-$nextYearCode");
     }
 
-    // Set the previous financial year for comparison
     if (availableFinancialYears.length > 1) {
       selectedPreviousFinancialYear =
           availableFinancialYears[availableFinancialYears.length - 2];
     }
 
-    // Process the data by financial year
     _processDataByFinancialYear();
-
-    // Process the data for the charts
+    populateWithEmptyData();
     _processFinancialYearData();
   }
 
@@ -134,6 +125,71 @@ class _SalesChartScreenState extends State<SalesChartScreen> {
       }
       processedData[financialYear]!.add(map);
     }
+  }
+
+  populateWithEmptyData() {
+    List<Map<String, dynamic>> currentData;
+    // Define financial year range: April to March
+    final DateTime now = DateTime.now();
+    final int currentYear = now.month >= 4 ? now.year : now.year - 1;
+    final financialYear =
+        '${DateTime.now().month >= 4 ? DateTime.now().year : DateTime.now().year - 1}-${(DateTime.now().month >= 4 ? DateTime.now().year + 1 : DateTime.now().year).toString().substring(2)}';
+    currentData = processedData[financialYear]!;
+    // Create a set of months already present in the input data
+    final Set<String> presentMonths =
+        currentData.map((e) => e['month'] as String).toSet();
+
+    // List of all months in financial year order
+    final List<String> financialMonths = [
+      'April $currentYear',
+      'May $currentYear',
+      'June $currentYear',
+      'July $currentYear',
+      'August $currentYear',
+      'September $currentYear',
+      'October $currentYear',
+      'November $currentYear',
+      'December $currentYear',
+      'January ${currentYear + 1}',
+      'February ${currentYear + 1}',
+      'March ${currentYear + 1}',
+    ];
+
+    // Template for empty month data
+    Map<String, dynamic> emptyMonthTemplate(String month) {
+      return {
+        'month': month,
+        'totalSP': 0,
+        'profit': 0,
+        'home': {
+          'totalSP': 0,
+          'profit': 0,
+          'totalInvoices': 0,
+          'dailyAvgSales': 0,
+          'avgInvoicesPerDay': 0,
+          'returnedInvoices': 0,
+        },
+        'shop': {
+          'totalSP': 0,
+          'profit': 0,
+          'totalInvoices': 0,
+          'dailyAvgSales': 0,
+          'avgInvoicesPerDay': 0,
+          'returnedInvoices': 0,
+        },
+        'isExpanded': false,
+      };
+    }
+
+    // Create a map for quick lookup from the input data
+    final Map<String, Map<String, dynamic>> monthDataMap = {
+      for (var item in currentData) item['month']: item
+    };
+
+    // Build final processed data with all months
+    processedData[financialYear] = financialMonths.map((month) {
+      return monthDataMap[month] ?? emptyMonthTemplate(month);
+    }).toList();
   }
 
   void _processFinancialYearData() {

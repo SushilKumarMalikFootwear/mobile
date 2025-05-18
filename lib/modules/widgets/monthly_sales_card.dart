@@ -9,20 +9,24 @@ class MonthlySalesCard extends StatefulWidget {
 }
 
 class _MonthlySalesCardState extends State<MonthlySalesCard> {
+  List<Map<String, dynamic>> salesData = [];
+
   @override
   Widget build(BuildContext context) {
+    salesData = widget.salesData.reversed.toList();
     return Padding(
-      padding: const EdgeInsets.only(bottom:50.0),
+      padding: const EdgeInsets.only(bottom: 50.0),
       child: ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          itemCount: widget.salesData.length,
-          itemBuilder: (context, index) {
-            return _buildExpandableMonthCard(widget.salesData[index], index);
-          },
-        ),
+        padding: EdgeInsets.symmetric(vertical: 16),
+        itemCount: salesData.length,
+        itemBuilder: (context, index) {
+          return _buildExpandableMonthCard(salesData[index], index);
+        },
+      ),
     );
   }
-    Widget _buildExpandableMonthCard(Map<String, dynamic> data, int index) {
+
+  Widget _buildExpandableMonthCard(Map<String, dynamic> data, int index) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(

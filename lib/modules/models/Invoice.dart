@@ -40,7 +40,7 @@ class Invoice {
       : this.invoiceDate = invoiceDate ?? DateTime.now();
   Invoice.fromJson(Map invoice) {
     mrp = double.parse(invoice['mrp'].toString());
-    pendingAmount = double.parse(invoice['pending_amount'].toString());
+    pendingAmount = double.parse((invoice['pending_amount']??'0.0').toString());
     vendor = invoice['vendor'] ?? '';
     color = invoice['color'];
     costPrice = double.parse(invoice['cost_price'].toString());

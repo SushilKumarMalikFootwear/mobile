@@ -206,7 +206,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                                       ),
                                       SizedBox(
                                         height:
-                                            (88 * dailyInvoice.invoices.length)
+                                            (101 * dailyInvoice.invoices.length)
                                                 .toDouble(),
                                         child: ListView.builder(
                                           physics:
