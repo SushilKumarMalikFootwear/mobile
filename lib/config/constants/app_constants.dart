@@ -96,6 +96,7 @@ abstract class RouteConstants {
   static String traderFinances = '/trader_finances';
   static String salesReport = '/sales_report';
   static String monthlySales = '/monthly_sales';
+  static String traderFinancesLogs = '/trader_finances_logs';
 }
 
 abstract class AppBarTitle {
@@ -104,4 +105,5 @@ abstract class AppBarTitle {
   static String traderFinances = "Trader Finances";
   static String salesReport = "Sales Report";
   static String monthlySales = "Monthly Sales";
+  static String traderFinancesLogs = "Trader Finances Logs";
 }

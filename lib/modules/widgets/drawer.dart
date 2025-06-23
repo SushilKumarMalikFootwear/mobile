@@ -34,7 +34,7 @@ class MyDrawer extends StatelessWidget {
             color: const Color.fromARGB(255, 143, 136, 136),
           ),
           SizedBox(
-            height: 320,
+            height: 380,
             child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: drawerOptions.length,

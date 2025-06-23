@@ -20,8 +20,12 @@ class DrawerOptionList {
         isActive: false,
         route: RouteConstants.salesReport),
     DrawerOption(
-      name: AppBarTitle.monthlySales,
-      isActive: false,
-      route: RouteConstants.monthlySales),
+        name: AppBarTitle.monthlySales,
+        isActive: false,
+        route: RouteConstants.monthlySales),
+    DrawerOption(
+        name: AppBarTitle.traderFinancesLogs,
+        isActive: false,
+        route: RouteConstants.traderFinancesLogs),
   ];
 }
