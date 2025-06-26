@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:footwear/utils/widgets/custom_dropdown.dart';
 import 'package:footwear/utils/widgets/searchable_dropdown.dart';
 import '../../config/constants/app_constants.dart';
+import '../../utils/widgets/custom_checkbox.dart';
 
 class TraderFinancesLogsFilter extends StatefulWidget {
   final Function(Map<String, dynamic>) applyFilter;
@@ -22,6 +23,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
   String? selectedType;
   DateTime? fromDate;
   DateTime? toDate;
+  bool showPendingPayment = false;
 
   final List<String> typeList = ['PURCHASE', 'PAYMENT', 'CLAIM'];
 
@@ -32,6 +34,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
     selectedType = widget.filterOptions['type'];
     fromDate = widget.filterOptions['fromDate'];
     toDate = widget.filterOptions['toDate'];
+    showPendingPayment = widget.filterOptions['showPendingPayment'] ?? false;
   }
 
   @override
@@ -81,7 +84,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  fromDate != null ? 'From: ${fromDate!.toString().split(' ')[0]}' : 'From Date',
+                  fromDate != null ? 'From: \${fromDate!.toString().split(' ')[0]}' : 'From Date',
                   style: const TextStyle(fontSize: 16),
                 ),
                 IconButton(
@@ -104,7 +107,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  toDate != null ? 'To: ${toDate!.toString().split(' ')[0]}' : 'To Date',
+                  toDate != null ? 'To: \${toDate!.toString().split(' ')[0]}' : 'To Date',
                   style: const TextStyle(fontSize: 16),
                 ),
                 IconButton(
@@ -120,6 +123,19 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
                 )
               ],
             ),
+            const SizedBox(height: 10),
+
+            // Show Pending Payment Checkbox
+            CustomCheckBox(
+              isSelected: showPendingPayment,
+              onClicked: (val) {
+                setState(() {
+                  showPendingPayment = val;
+                });
+              },
+              label: "Show Pending Payment",
+            ),
+
             const SizedBox(height: 20),
 
             Row(
@@ -132,6 +148,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
                       'type': selectedType,
                       'fromDate': fromDate,
                       'toDate': toDate,
+                      'showPendingPayment': showPendingPayment,
                     }..removeWhere((key, value) => value == null || value == '');
 
                     widget.applyFilter(filters);
@@ -146,6 +163,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
                       selectedType = null;
                       fromDate = null;
                       toDate = null;
+                      showPendingPayment = false;
                     });
                   },
                   child: const Text('Reset'),

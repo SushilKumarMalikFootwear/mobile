@@ -15,7 +15,8 @@ class ViewTraderFinacesLogs extends StatefulWidget {
 class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
   final TraderFinancesLogs traderFinancesLogs = TraderFinancesLogs();
   late Future<List<Map<String, dynamic>>> future;
-  Map<String, dynamic> filterMap = {};
+  Map<String, int>? traderWisePendingMap;
+  Map<String, dynamic> filterMap = {'showPendingPayment':true};
 
   @override
   void initState() {
@@ -23,9 +24,11 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
     getTraderFinancesLogs(filterMap);
   }
 
-  void getTraderFinancesLogs(Map<String, dynamic> filterMap) {
+  void getTraderFinancesLogs(Map<String, dynamic> filterMap) async {
     future = traderFinancesLogs.getFilteredTraderFinanceLogs(filterMap);
     this.filterMap = filterMap;
+      traderWisePendingMap = await traderFinancesLogs.getTraderWisePendingPayments();
+
     setState(() {});
   }
 
@@ -96,9 +99,40 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
             return ListView.separated(
               padding: const EdgeInsets.all(16),
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemCount: logs.length,
+              itemCount: logs.length + (traderWisePendingMap != null ? traderWisePendingMap!.length : 0),
               itemBuilder: (context, index) {
-                final log = logs[index];
+                if (traderWisePendingMap != null && index < traderWisePendingMap!.length) {
+                  final traderName = traderWisePendingMap!.keys.elementAt(index);
+                  final pending = traderWisePendingMap![traderName]!;
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          traderName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          "Pending: ₹ ${pending.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final log = logs[index - (traderWisePendingMap?.length ?? 0)];
                 final type = log['type'] ?? '';
                 final amount = log['amount']?.toStringAsFixed(2) ?? '0.00';
                 final date = log['date'] ?? '';
