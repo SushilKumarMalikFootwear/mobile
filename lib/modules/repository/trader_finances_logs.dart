@@ -96,7 +96,6 @@ Future<List<Map<String, dynamic>>> getFilteredTraderFinanceLogs(
   try {
     final Map<String, dynamic> filter = {};
 
-    // Extract optional filters from map
     final String? traderName = filterMap['trader_name'];
     final String? type = filterMap['type'];
     final DateTime? fromDate = filterMap['fromDate'];
@@ -129,6 +128,9 @@ Future<List<Map<String, dynamic>>> getFilteredTraderFinanceLogs(
         "database": "test",
         "dataSource": "SushilKumarMalikFootwear",
         "filter": filter,
+        "sort": {
+          "date": -1 // 🔽 descending order by date
+        }
       },
       headers: Constants.mongoDbHeaders,
     );
@@ -140,6 +142,7 @@ Future<List<Map<String, dynamic>>> getFilteredTraderFinanceLogs(
     return [];
   }
 }
+
 
 
 }

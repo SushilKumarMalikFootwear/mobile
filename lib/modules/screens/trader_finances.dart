@@ -79,6 +79,14 @@ class TraderFinanceCard extends StatelessWidget {
             ),
             const SizedBox(height: 4.0),
             Text(
+              'Pending Payment: ₹${traderFinance.pendingPayment.toStringAsFixed(2)}',
+              style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4.0),
+            Text(
               'Profit: ₹${traderFinance.profit.toStringAsFixed(2)}',
               style: TextStyle(
                   fontSize: 18,
