@@ -110,7 +110,7 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemCount: logs.length +
                   (traderWisePendingMap != null &&
-                          traderWisePendingMap!.isNotEmpt
+                          traderWisePendingMap!.isNotEmpty
                       ? 1
                       : 0),
               itemBuilder: (context, index) {
