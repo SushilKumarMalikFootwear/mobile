@@ -93,10 +93,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
         "amount": double.parse(_amountController.text),
         "description": _descriptionController.text.trim(),
       };
-
-      if (_selectedType == 'PURCHASE') {
-        log["pending_amount"] =
-            double.tryParse(_pendingPaymentController.text) ?? 0;
+      if (_selectedType != 'CLAIM') {
         double runningPendingPayment = await traderFinancesLogs
             .getLastRunningPendingPayment(_selectedTrader!);
         if (_selectedType == 'PURCHASE') {
@@ -105,6 +102,11 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
           runningPendingPayment -= log['amount'];
         }
         log['running_pending_payment'] = runningPendingPayment;
+      }
+        if (_selectedType == 'PURCHASE') {
+          log["pending_amount"] =
+              double.tryParse(_pendingPaymentController.text) ?? 0;
+        
         // final bool increaseTotalCost =
         //     await traderFinancesRepository.updateTraderTotalCostPrice(
         //         traderName: _selectedTrader!,
@@ -120,6 +122,8 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
         // }
       } else if (_selectedType == 'PAYMENT') {
         log['bill_ids'] = [];
+        log['date'] =
+            _selectedDate.add(const Duration(seconds: 1)).toIso8601String();
         log['payment_mode'] = _selectedPaymentMode;
         for (int i = 0; i < selectedBills.length; i++) {
           log['bill_ids'].add(selectedBills[i]['id']);

@@ -15,9 +15,8 @@ class ViewTraderFinacesLogs extends StatefulWidget {
 class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
   final TraderFinancesLogs traderFinancesLogs = TraderFinancesLogs();
   late Future<List<Map<String, dynamic>>> future;
-  Map<String, int>? traderWisePendingMap;
+  Map<String, int>? traderWisePendingMap = {'R.S. Trading': 1000};
   Map<String, dynamic> filterMap = {'showPendingPayment': true};
-  Map<String, int> runingPendingPayment = {};
 
   @override
   void initState() {
@@ -100,6 +99,7 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
             }
 
             final logs = snapshot.data ?? [];
+            print(logs);
 
             if (logs.isEmpty) {
               return const Center(child: Text("No logs found."));
@@ -108,9 +108,15 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
             return ListView.separated(
               padding: const EdgeInsets.all(16),
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemCount: logs.length + (traderWisePendingMap != null ? 1 : 0),
+              itemCount: logs.length +
+                  (traderWisePendingMap != null &&
+                          traderWisePendingMap!.isNotEmpty[{_id: 686585be41f62eba8f356de5, id: 1751483837555_R.S. Trading_PURCHASE, date: 2023-04-25T00:00:00.000, trader_name: R.S. Trading, type: PURCHASE, amount: 3463, description: , running_pending_payment: 3463, pending_amount: 3463}, {_id: 686585891962d757de1551c6, id: 1751483784668_Baba Footwear_PAYMENT, date: 2023-04-24T00:00:01.000, trader_name: Baba Footwear, type: PAYMENT, amount: 12229, description: UPI + 4500 cashback of previous scheme, running_pending_payment: 0, bill_ids: [1751483697050_Baba Footwear_PURCHASE], payment_mode: UPI}, {_id: 6865853dd678a9f20baa1bcf, id: 1751483697050_Baba Footwear_PURCHASE, date: 2023-04-24T00:00:00.000, trader_name: Baba Footwear, type: PURCHASE, amount: 12229, description: , running_pending_payment: 12229, pending_amount: 0}
+                      ? 1
+                      : 0),
               itemBuilder: (context, index) {
-                if (traderWisePendingMap != null && index == 0) {
+                if (traderWisePendingMap != null &&
+                    index == 0 &&
+                    (traderWisePendingMap?.isNotEmpty ?? false)) {
                   return Container(
                     decoration: BoxDecoration(
                       color: Colors.orange.shade100,
@@ -157,32 +163,16 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
                   );
                 }
 
-                final log =
-                    logs[index - (traderWisePendingMap != null ? 1 : 0)];
+                final log = logs[index -
+                    (traderWisePendingMap != null &&
+                            traderWisePendingMap!.isNotEmpty
+                        ? 1
+                        : 0)];
                 final type = log['type'] ?? '';
                 final amount = log['amount']?.toStringAsFixed(2) ?? '0.00';
                 final date = log['date'] ?? '';
                 final trader = log['trader_name'] ?? '';
                 final runningPendingPayment = log['running_pending_payment'];
-                if (runingPendingPayment.containsKey(trader)) {
-                  if (type == 'PURCHASE') {
-                    runingPendingPayment[trader] =
-                        runingPendingPayment[trader]! +
-                            double.parse(amount).toInt();
-                  } else if (type == 'PAYMENT') {
-                    runingPendingPayment[trader] =
-                        runingPendingPayment[trader]! -
-                            double.parse(amount).toInt();
-                  }
-                } else {
-                  int balance = 0;
-                  if (type == 'PURCHASE') {
-                    balance = double.parse(amount).toInt();
-                  } else if (type == 'PAYMENT') {
-                    balance - double.parse(amount).toInt();
-                  }
-                  runingPendingPayment.putIfAbsent(trader, () => balance);
-                }
                 return Container(
                   decoration: BoxDecoration(
                     color: getCardColor(log),
@@ -261,11 +251,9 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
                           ),
                         ],
                       ),
-                      if(type!='CLAIM')
-                      const Divider(),
-                      if(type!='CLAIM')
-                      Text(
-                          'Running Pending Payment - $runningPendingPayment')
+                      if (type != 'CLAIM') const Divider(),
+                      if (type != 'CLAIM')
+                        Text('Running Pending Payment - $runningPendingPayment')
                     ],
                   ),
                 );

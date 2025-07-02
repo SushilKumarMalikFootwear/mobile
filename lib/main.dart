@@ -6,7 +6,7 @@ import '/config/routes/routes.dart';
 import 'modules/models/product.dart';
 import 'modules/repository/product_repo.dart';
 
-void main() async {
+void main() async { 
   Dio dio = Dio();
   dio.get(ApiUrls.getConfigList).then((value) {
     Constants.isBackendStarted = true;
