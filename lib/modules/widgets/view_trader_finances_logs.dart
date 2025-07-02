@@ -110,7 +110,7 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemCount: logs.length +
                   (traderWisePendingMap != null &&
-                          traderWisePendingMap!.isNotEmpty[{_id: 686585be41f62eba8f356de5, id: 1751483837555_R.S. Trading_PURCHASE, date: 2023-04-25T00:00:00.000, trader_name: R.S. Trading, type: PURCHASE, amount: 3463, description: , running_pending_payment: 3463, pending_amount: 3463}, {_id: 686585891962d757de1551c6, id: 1751483784668_Baba Footwear_PAYMENT, date: 2023-04-24T00:00:01.000, trader_name: Baba Footwear, type: PAYMENT, amount: 12229, description: UPI + 4500 cashback of previous scheme, running_pending_payment: 0, bill_ids: [1751483697050_Baba Footwear_PURCHASE], payment_mode: UPI}, {_id: 6865853dd678a9f20baa1bcf, id: 1751483697050_Baba Footwear_PURCHASE, date: 2023-04-24T00:00:00.000, trader_name: Baba Footwear, type: PURCHASE, amount: 12229, description: , running_pending_payment: 12229, pending_amount: 0}
+                          traderWisePendingMap!.isNotEmpt
                       ? 1
                       : 0),
               itemBuilder: (context, index) {
