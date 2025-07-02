@@ -4,7 +4,8 @@ import 'package:footwear/modules/repository/trader_finances_logs.dart';
 import '../../config/constants/app_constants.dart';
 
 class AddTraderFinancesLogs extends StatefulWidget {
-  const AddTraderFinancesLogs({super.key});
+  final Function switchChild;
+  const AddTraderFinancesLogs({super.key, required this.switchChild});
 
   @override
   State<AddTraderFinancesLogs> createState() => _AddTraderFinancesLogsState();
@@ -20,6 +21,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
       TraderFinancesRepository();
 
   DateTime _selectedDate = DateTime.now();
+  String _selectedPaymentMode = 'UPI';
   double remainingPaymentAmount = 0.0;
   String? _selectedTrader;
   String _selectedType = 'PURCHASE';
@@ -66,15 +68,17 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
   }
 
   void _updatePendingPaymentIfNeeded() {
-    final amount = double.tryParse(_amountController.text);
-    if (_selectedType == 'PURCHASE' && amount != null) {
-      _pendingPaymentController.text = amount.toStringAsFixed(2);
-    } else {
-      _pendingPaymentController.clear();
-    }
-    if (_selectedType == 'PAYMENT') {
-      remainingPaymentAmount = double.parse(_amountController.text);
-      setState(() {});
+    if (_amountController.text.isNotEmpty) {
+      final amount = double.tryParse(_amountController.text);
+      if (_selectedType == 'PURCHASE' && amount != null) {
+        _pendingPaymentController.text = amount.toStringAsFixed(2);
+      } else {
+        _pendingPaymentController.clear();
+      }
+      if (_selectedType == 'PAYMENT') {
+        remainingPaymentAmount = double.parse(_amountController.text);
+        setState(() {});
+      }
     }
   }
 
@@ -93,6 +97,14 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
       if (_selectedType == 'PURCHASE') {
         log["pending_amount"] =
             double.tryParse(_pendingPaymentController.text) ?? 0;
+        double runningPendingPayment = await traderFinancesLogs
+            .getLastRunningPendingPayment(_selectedTrader!);
+        if (_selectedType == 'PURCHASE') {
+          runningPendingPayment += log['amount'];
+        } else if (_selectedType == 'PAYMENT') {
+          runningPendingPayment -= log['amount'];
+        }
+        log['running_pending_payment'] = runningPendingPayment;
         // final bool increaseTotalCost =
         //     await traderFinancesRepository.updateTraderTotalCostPrice(
         //         traderName: _selectedTrader!,
@@ -108,6 +120,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
         // }
       } else if (_selectedType == 'PAYMENT') {
         log['bill_ids'] = [];
+        log['payment_mode'] = _selectedPaymentMode;
         for (int i = 0; i < selectedBills.length; i++) {
           log['bill_ids'].add(selectedBills[i]['id']);
           bool res = await traderFinancesLogs.decreasePendingAmountById(
@@ -149,6 +162,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
           _pendingPaymentController.clear();
           _descriptionController.clear();
         });
+        widget.switchChild();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save log')),
@@ -237,6 +251,24 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
             ),
             const SizedBox(height: 10),
 
+            if (_selectedType == 'PAYMENT')
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Payment Mode',
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedPaymentMode,
+                items: const [
+                  DropdownMenuItem(value: 'UPI', child: Text('UPI')),
+                  DropdownMenuItem(value: 'CASH', child: Text('CASH'))
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPaymentMode = value!;
+                  });
+                },
+              ),
+            const SizedBox(height: 10),
             if (_selectedType == 'PAYMENT') const SizedBox(height: 10),
             TextFormField(
               controller: _amountController,

@@ -91,6 +91,36 @@ class TraderFinancesLogs {
       return false;
     }
   }
+  Future<double> getLastRunningPendingPayment(String traderName) async {
+  try {
+    final response = await ApiClient.post(
+      "${ApiUrls.mongoDbApiUrl}/find",
+      {
+        "collection": "trader_finances_logs",
+        "database": "test",
+        "dataSource": "SushilKumarMalikFootwear",
+        "filter": {
+          "trader_name": traderName,
+          "type": {"\$in": ["PURCHASE", "PAYMENT"]}
+        },
+        "sort": {"date": -1},
+        "limit": 1
+      },
+      headers: Constants.mongoDbHeaders,
+    );
+
+    final documents = response['documents'] as List<dynamic>;
+    if (documents.isNotEmpty) {
+      final doc = documents.first as Map<String, dynamic>;
+      return (doc['running_pending_payment'] ?? 0).toDouble();
+    }
+    return 0;
+  } catch (e) {
+    print("Error in getLastRunningPendingPayment: $e");
+    return 0;
+  }
+}
+
 Future<List<Map<String, dynamic>>> getFilteredTraderFinanceLogs(
     Map<String, dynamic> filterMap) async {
   try {

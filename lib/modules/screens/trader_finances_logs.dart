@@ -20,7 +20,7 @@ class _TraderFinancesLogsState extends State<TraderFinancesLogs> {
   List<Map<String, dynamic>> _loadAllPages() {
     return [
       {
-        'page': AddTraderFinancesLogs(),
+        'page': AddTraderFinancesLogs(switchChild: switchChild),
         'title': 'Add',
         'icon': Icons.add
       },
