@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:footwear/modules/repository/trader_finances.dart';
 import 'package:footwear/modules/repository/trader_finances_logs.dart';
 import '../../config/constants/app_constants.dart';
+import '../../utils/widgets/custom_checkbox.dart';
 
 class AddTraderFinancesLogs extends StatefulWidget {
   final Function switchChild;
@@ -27,6 +28,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
   String _selectedType = 'PURCHASE';
   String? _selectedBillId;
   List<Map> selectedBills = [];
+  bool markAsPaid = false;
 
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -38,6 +40,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
 
   @override
   void initState() {
+    _selectedDate = Constants.invoiceDate;
     traderFinancesLogs.getPendingBills().then((value) {
       billList = value;
       setState(() {});
@@ -70,10 +73,10 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
   void _updatePendingPaymentIfNeeded() {
     if (_amountController.text.isNotEmpty) {
       final amount = double.tryParse(_amountController.text);
-      if (_selectedType == 'PURCHASE' && amount != null) {
+      if (_selectedType == 'PURCHASE' && amount != null && !markAsPaid) {
         _pendingPaymentController.text = amount.toStringAsFixed(2);
       } else {
-        _pendingPaymentController.clear();
+        _pendingPaymentController.text = '0';
       }
       if (_selectedType == 'PAYMENT') {
         remainingPaymentAmount = double.parse(_amountController.text);
@@ -84,6 +87,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
 
   void handleSubmit() async {
     if (_formKey.currentState!.validate()) {
+      Constants.invoiceDate = _selectedDate;
       final Map<String, dynamic> log = {
         "id":
             '${DateTime.now().millisecondsSinceEpoch}_${_selectedTrader}_$_selectedType',
@@ -103,10 +107,9 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
         }
         log['running_pending_payment'] = runningPendingPayment;
       }
-        if (_selectedType == 'PURCHASE') {
-          log["pending_amount"] =
-              double.tryParse(_pendingPaymentController.text) ?? 0;
-        
+      if (_selectedType == 'PURCHASE') {
+        log["pending_amount"] =
+            double.tryParse(_pendingPaymentController.text) ?? 0;
         // final bool increaseTotalCost =
         //     await traderFinancesRepository.updateTraderTotalCostPrice(
         //         traderName: _selectedTrader!,
@@ -151,12 +154,27 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
           }
         }
       }
-      final bool isSaved = await traderFinancesLogs.saveTraderFinanceLog(log);
+      final Map? doc = await traderFinancesLogs.saveTraderFinanceLog(log);
 
-      if (isSaved) {
+      if (doc != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Log saved successfully')),
         );
+        if (markAsPaid) {
+          log['type'] = 'PAYMENT';
+          log['bill_ids'] = log['id'];
+          log['date'] =
+              _selectedDate.add(const Duration(seconds: 1)).toIso8601String();
+          log['id'] =
+              '${DateTime.now().millisecondsSinceEpoch}_${_selectedTrader}_PAYMENT';
+          log['payment_mode'] = 'UPI';
+          log['running_pending_payment'] -= log['amount'];
+          final Map? paymentDoc =
+              await traderFinancesLogs.saveTraderFinanceLog(log);
+          if (paymentDoc != null) {
+            const SnackBar(content: Text('Payment saved successfully'));
+          }
+        }
         _formKey.currentState!.reset();
         setState(() {
           _selectedTrader = null;
@@ -392,7 +410,18 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
               ),
             ),
             const SizedBox(height: 10),
-
+            CustomCheckBox(
+                isSelected: markAsPaid,
+                label: 'Mark as Paid',
+                onClicked: (val) {
+                  markAsPaid = val;
+                  if (markAsPaid) {
+                    _pendingPaymentController.text = '0';
+                  } else {
+                    _pendingPaymentController.text = _amountController.text;
+                  }
+                }),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: handleSubmit,
               icon: const Icon(Icons.check),

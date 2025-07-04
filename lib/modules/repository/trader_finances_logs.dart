@@ -43,7 +43,7 @@ class TraderFinancesLogs {
     return result;
   }
 
-  Future<bool> saveTraderFinanceLog(Map<String, dynamic> log) async {
+  Future<Map?> saveTraderFinanceLog(Map<String, dynamic> log) async {
     try {
       final response = await ApiClient.post(
         "${ApiUrls.mongoDbApiUrl}/insertOne",
@@ -56,9 +56,9 @@ class TraderFinancesLogs {
         headers: Constants.mongoDbHeaders,
       );
 
-      return response["insertedId"] != null;
+      return response;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
