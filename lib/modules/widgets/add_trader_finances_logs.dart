@@ -124,12 +124,18 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
         //   );
         // }
       } else if (_selectedType == 'PAYMENT') {
-        log['bill_ids'] = [];
+        log['bill_ids'] ={};
         log['date'] =
             _selectedDate.add(const Duration(seconds: 1)).toIso8601String();
         log['payment_mode'] = _selectedPaymentMode;
         for (int i = 0; i < selectedBills.length; i++) {
-          log['bill_ids'].add(selectedBills[i]['id']);
+          log['bill_ids'].putIfAbsent(selectedBills[i]['id'],()=> selectedBills[i]
+                          ['currentRemainingPaymentAmount'] ==
+                      'Completed'
+                  ? selectedBills[i]['pendingAmount']
+                  : double.parse(selectedBills[i]
+                          ['currentRemainingPaymentAmount']
+                      .toString()));
           bool res = await traderFinancesLogs.decreasePendingAmountById(
               id: selectedBills[i]['id'],
               newPendingAmount: selectedBills[i]
