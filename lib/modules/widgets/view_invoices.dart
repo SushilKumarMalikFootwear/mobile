@@ -191,7 +191,7 @@ class _ViewInvoicesState extends State<ViewInvoices> {
                                                   ),
                                                   if (!hideProfitAndCp)
                                                     Text(
-                                                      "Profit : ₹ ${dailyInvoice.profit}",
+                                                      "Profit : ₹ ${dailyInvoice.profit.toStringAsFixed(2)}",
                                                       style: const TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 18,

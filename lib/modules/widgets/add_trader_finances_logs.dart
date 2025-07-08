@@ -157,12 +157,14 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
       final Map? doc = await traderFinancesLogs.saveTraderFinanceLog(log);
 
       if (doc != null) {
+        Constants.invoiceDate = Constants.invoiceDate.add(const Duration(seconds: 1));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Log saved successfully')),
         );
         if (markAsPaid) {
+          log['description'] = '';
           log['type'] = 'PAYMENT';
-          log['bill_ids'] = log['id'];
+          log['bill_ids'] = {log['id']:log['amount']};
           log['date'] =
               _selectedDate.add(const Duration(seconds: 1)).toIso8601String();
           log['id'] =
