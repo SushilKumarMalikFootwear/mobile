@@ -23,8 +23,9 @@ class _ProductsFilterState extends State<ProductsFilter> {
   String selectedCategory = '';
   String selectedVendor = '';
   bool outOfStock = false;
-  
-@override
+  bool showUnrated = false;
+
+  @override
   void initState() {
     super.initState();
     if (widget.filterOptions.isNotEmpty) {
@@ -44,11 +45,15 @@ class _ProductsFilterState extends State<ProductsFilter> {
         colorCtrl.text = widget.filterOptions['color']!;
       }
       if (widget.filterOptions.containsKey('out_of_stock')) {
-        outOfStock = widget.filterOptions['out_of_stock']!.toLowerCase() == 'true';
+        outOfStock =
+            widget.filterOptions['out_of_stock']!.toLowerCase() == 'true';
+      }
+      if (widget.filterOptions.containsKey('show_unrated')) {
+        showUnrated =
+            widget.filterOptions['show_unrated']!.toLowerCase() == 'true';
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +118,15 @@ class _ProductsFilterState extends State<ProductsFilter> {
             const SizedBox(
               height: 10,
             ),
+            CustomCheckBox(
+                isSelected: showUnrated,
+                onClicked: (value) {
+                  showUnrated = value;
+                },
+                label: "Show Unrated"),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -124,7 +138,8 @@ class _ProductsFilterState extends State<ProductsFilter> {
                         'article': articleCtrl.text,
                         'color': colorCtrl.text,
                         'vendor': selectedVendor,
-                        'out_of_stock': outOfStock.toString()
+                        'out_of_stock': outOfStock.toString(),
+                        'show_unrated': showUnrated.toString()
                       };
                       widget.applyFilter(filterMap);
                       Navigator.pop(context);

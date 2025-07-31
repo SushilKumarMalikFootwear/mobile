@@ -34,6 +34,14 @@ class _SalesReportState extends State<SalesReport> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(milliseconds: 200), () {
+    customBottomSheet(context,
+        SalesReportFilter(applyFilter: applyFilter, filterOptions: filterMap));});
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<DrawerOption> drawerOptionList = list.drawerOptions;
     drawerOptionList = drawerOptionList.map((drawerOption) {

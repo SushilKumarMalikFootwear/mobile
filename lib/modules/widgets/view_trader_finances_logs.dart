@@ -26,6 +26,7 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
   static const Color neutralColor = Color(0xFF424242);
   static const Color cardColor = Colors.white;
   static const Color backgroundColor = Color(0xFFF5F5F5);
+  double totalPending = 0;
 
   @override
   void initState() {
@@ -40,6 +41,9 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
     if (filterMap['showPendingPayment'] == true) {
       traderWisePendingMap =
           await traderFinancesLogs.getTraderWisePendingPayments();
+      traderWisePendingMap!.forEach((key, value) {
+        totalPending += value;
+      });
     } else {
       traderWisePendingMap = null;
     }
@@ -56,8 +60,8 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
   }
 
   String formatAmount(dynamic amount) {
-    if (amount == null) return '₹0.00';
-    return '₹${(amount as num).toStringAsFixed(2)}';
+    if (amount == null) return '₹0';
+    return '₹${(amount as num).toStringAsFixed(0)}';
   }
 
   Color getStatusColor(Map<String, dynamic> log) {
@@ -214,10 +218,18 @@ class _ViewTraderFinacesLogsState extends State<ViewTraderFinacesLogs> {
                             ),
                           ),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
                                 "Pending Payments",
-                                style: TextStyle(
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                formatAmount(totalPending),
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
                                 ),

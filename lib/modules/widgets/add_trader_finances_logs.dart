@@ -40,7 +40,6 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
 
   @override
   void initState() {
-    _selectedDate = Constants.invoiceDate;
     traderFinancesLogs.getPendingBills().then((value) {
       billList = value;
       setState(() {});
@@ -110,32 +109,33 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
       if (_selectedType == 'PURCHASE') {
         log["pending_amount"] =
             double.tryParse(_pendingPaymentController.text) ?? 0;
-        // final bool increaseTotalCost =
-        //     await traderFinancesRepository.updateTraderTotalCostPrice(
-        //         traderName: _selectedTrader!,
-        //         amountToAdd: double.parse(_amountController.text));
-        // if (increaseTotalCost) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     const SnackBar(content: Text('Trader Total Cost Price Updated')),
-        //   );
-        // } else {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     const SnackBar(content: Text('Unable to Update Trader Total Cost Price')),
-        //   );
-        // }
+        final bool increaseTotalCost =
+            await traderFinancesRepository.updateTraderTotalCostPrice(
+                traderName: _selectedTrader!,
+                amountToAdd: double.parse(_amountController.text));
+        if (increaseTotalCost) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Trader Total Cost Price Updated')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unable to Update Trader Total Cost Price')),
+          );
+        }
       } else if (_selectedType == 'PAYMENT') {
-        log['bill_ids'] ={};
+        log['bill_ids'] = {};
         log['date'] =
             _selectedDate.add(const Duration(seconds: 1)).toIso8601String();
         log['payment_mode'] = _selectedPaymentMode;
         for (int i = 0; i < selectedBills.length; i++) {
-          log['bill_ids'].putIfAbsent(selectedBills[i]['id'],()=> selectedBills[i]
-                          ['currentRemainingPaymentAmount'] ==
-                      'Completed'
-                  ? selectedBills[i]['pendingAmount']
-                  : double.parse(selectedBills[i]
-                          ['currentRemainingPaymentAmount']
-                      .toString()));
+          log['bill_ids'].putIfAbsent(selectedBills[i]['id'], () {
+            double amount = selectedBills[i]['currentRemainingPaymentAmount'] ==
+                    'Completed'
+                ? double.parse(selectedBills[i]['pending_amount'].toString())
+                : double.parse(selectedBills[i]['currentRemainingPaymentAmount']
+                    .toString());
+            return amount;
+          });
           bool res = await traderFinancesLogs.decreasePendingAmountById(
               id: selectedBills[i]['id'],
               newPendingAmount: selectedBills[i]
@@ -163,14 +163,15 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
       final Map? doc = await traderFinancesLogs.saveTraderFinanceLog(log);
 
       if (doc != null) {
-        Constants.invoiceDate = Constants.invoiceDate.add(const Duration(seconds: 1));
+        Constants.invoiceDate =
+            Constants.invoiceDate.add(const Duration(seconds: 1));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Log saved successfully')),
         );
         if (markAsPaid) {
           log['description'] = '';
           log['type'] = 'PAYMENT';
-          log['bill_ids'] = {log['id']:log['amount']};
+          log['bill_ids'] = {log['id']: log['amount']};
           log['date'] =
               _selectedDate.add(const Duration(seconds: 1)).toIso8601String();
           log['id'] =
@@ -418,6 +419,7 @@ class _AddTraderFinancesLogsState extends State<AddTraderFinancesLogs> {
               ),
             ),
             const SizedBox(height: 10),
+            if (_selectedType == 'PURCHASE')
             CustomCheckBox(
                 isSelected: markAsPaid,
                 label: 'Mark as Paid',

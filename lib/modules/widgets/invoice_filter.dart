@@ -247,9 +247,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                       Navigator.pop(context);
                       setState(() {});
                     },
-                    child: const Text(
-                      'Apply'
-                    )),
+                    child: const Text('Apply')),
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -259,8 +257,9 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
                         selectedDate = null;
                         shopChecked = false;
                         homeChecked = false;
-                        paymentPending = true;
-                        returnedInvoice = true;
+                        paymentPending = false;
+                        returnedInvoice = false;
+                        selectedDateRangeOption = 'Last 30 Days';
                         filterMap.clear();
                       });
                     },

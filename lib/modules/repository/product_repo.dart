@@ -63,6 +63,9 @@ class ProductRepository {
     bool outOfStock = filterMap['out_of_stock'] != null
         ? filterMap['out_of_stock'] == 'true'
         : false;
+    bool showUnrated = filterMap['show_unrated'] != null
+        ? filterMap['show_unrated'] == 'true'
+        : false;
     var data = json.encode({
       "collection": "footwears",
       "database": "test",
@@ -111,6 +114,19 @@ class ProductRepository {
         {
           "\$match": {"out_of_stock": outOfStock}
         },
+        if (showUnrated)
+          {
+            "\$match": {
+              "\$or": [
+                {"rating": 0},
+                {"rating": null},
+                {"rating": ""},
+                {
+                  "rating": {"\$exists": false}
+                }
+              ]
+            }
+          },
         {
           "\$sort": {"createdAt": -1}
         }
@@ -187,7 +203,8 @@ class ProductRepository {
     List<String> articleList = temp.map((e) => e.toString()).toList();
     return articleList;
   }
-    Future<List<String>> getAllLables() async {
+
+  Future<List<String>> getAllLables() async {
     var data = json.encode({
       "collection": "footwears",
       "database": "test",
