@@ -63,9 +63,13 @@ class ProductRepository {
     bool outOfStock = filterMap['out_of_stock'] != null
         ? filterMap['out_of_stock'] == 'true'
         : false;
-    bool showUnrated = filterMap['show_unrated'] != null
-        ? filterMap['show_unrated'] == 'true'
-        : false;
+    double? ratingMoreThan = filterMap['rating_more_than'] != null
+        ? double.tryParse(filterMap['rating_more_than']!)
+        : null;
+    double? ratingLessThan = filterMap['rating_less_than'] != null
+        ? double.tryParse(filterMap['rating_less_than']!)
+        : null;
+
     var data = json.encode({
       "collection": "footwears",
       "database": "test",
@@ -114,17 +118,16 @@ class ProductRepository {
         {
           "\$match": {"out_of_stock": outOfStock}
         },
-        if (showUnrated)
+        if (ratingMoreThan != null)
           {
             "\$match": {
-              "\$or": [
-                {"rating": 0},
-                {"rating": null},
-                {"rating": ""},
-                {
-                  "rating": {"\$exists": false}
-                }
-              ]
+              "rating": {"\$gte": ratingMoreThan}
+            }
+          },
+        if (ratingLessThan != null)
+          {
+            "\$match": {
+              "rating": {"\$lte": ratingLessThan}
             }
           },
         {
@@ -235,7 +238,12 @@ class ProductRepository {
       data: data,
     );
     List temp = response.data['documents'][0]['uniqueLables'];
-    List<String> labelList = temp.map((e) => e.toString()).toList();
+    List<String> labelList = [];
+    for (List item in temp) {
+      for (String e in item) {
+        labelList.add(e.toString());
+      }
+    }
     return labelList;
   }
 }

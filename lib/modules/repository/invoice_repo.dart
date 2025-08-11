@@ -193,8 +193,8 @@ class InvoiceRepository {
     if (response.statusCode == 200) {
       List<String> sizeSet = [];
       List list = response.data['documents'];
-      int sum = list.fold(
-          0, (val, inv) => val + int.parse(inv['cost_price'].toString()));
+      double sum = list.fold(
+          0, (val, inv) => val + double.parse(inv['cost_price'].toString()));
       int avg = sum ~/ list.length;
       List<String> footwearIds = list.map((e) {
         sizeSet.add(e['size_range']);
@@ -259,7 +259,6 @@ class InvoiceRepository {
           extractSizes(range);
         }
       }
-
       for (Map invoice in list) {
         String sizeKey = invoice['size'].toString();
         if ([6, 7, 8, 9, 10].contains(invoice['size'])) {

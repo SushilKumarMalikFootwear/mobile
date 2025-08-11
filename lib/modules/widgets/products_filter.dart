@@ -19,11 +19,12 @@ class _ProductsFilterState extends State<ProductsFilter> {
   TextEditingController brandNameCtrl = TextEditingController();
   TextEditingController articleCtrl = TextEditingController();
   TextEditingController colorCtrl = TextEditingController();
+  TextEditingController ratingMoreThanCtrl = TextEditingController();
+  TextEditingController ratingLessThanCtrl = TextEditingController();
   String selectedSizeRange = '';
   String selectedCategory = '';
   String selectedVendor = '';
   bool outOfStock = false;
-  bool showUnrated = false;
 
   @override
   void initState() {
@@ -48,9 +49,11 @@ class _ProductsFilterState extends State<ProductsFilter> {
         outOfStock =
             widget.filterOptions['out_of_stock']!.toLowerCase() == 'true';
       }
-      if (widget.filterOptions.containsKey('show_unrated')) {
-        showUnrated =
-            widget.filterOptions['show_unrated']!.toLowerCase() == 'true';
+      if (widget.filterOptions.containsKey('rating_more_than')) {
+        ratingMoreThanCtrl.text = widget.filterOptions['rating_more_than']!;
+      }
+      if (widget.filterOptions.containsKey('rating_less_than')) {
+        ratingLessThanCtrl.text = widget.filterOptions['rating_less_than']!;
       }
     }
   }
@@ -109,21 +112,24 @@ class _ProductsFilterState extends State<ProductsFilter> {
               controller: colorCtrl,
               decoration: const InputDecoration(labelText: 'Color'),
             ),
+            TextField(
+              controller: ratingMoreThanCtrl,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Rating More Than'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: ratingLessThanCtrl,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Rating Less Than'),
+            ),
+            const SizedBox(height: 10),
             CustomCheckBox(
                 isSelected: outOfStock,
                 onClicked: (value) {
                   outOfStock = value;
                 },
                 label: "Out of Stock"),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomCheckBox(
-                isSelected: showUnrated,
-                onClicked: (value) {
-                  showUnrated = value;
-                },
-                label: "Show Unrated"),
             const SizedBox(
               height: 10,
             ),
@@ -139,7 +145,10 @@ class _ProductsFilterState extends State<ProductsFilter> {
                         'color': colorCtrl.text,
                         'vendor': selectedVendor,
                         'out_of_stock': outOfStock.toString(),
-                        'show_unrated': showUnrated.toString()
+                        if (ratingMoreThanCtrl.text.isNotEmpty)
+                          'rating_more_than': ratingMoreThanCtrl.text,
+                        if (ratingLessThanCtrl.text.isNotEmpty)
+                          'rating_less_than': ratingLessThanCtrl.text,
                       };
                       widget.applyFilter(filterMap);
                       Navigator.pop(context);
@@ -150,12 +159,15 @@ class _ProductsFilterState extends State<ProductsFilter> {
                     onPressed: () {
                       filterMap.clear();
                       setState(() {
+                        filterMap.clear();
                         brandNameCtrl.clear();
                         articleCtrl.clear();
                         colorCtrl.clear();
                         selectedCategory = '';
                         selectedVendor = '';
                         outOfStock = false;
+                        ratingMoreThanCtrl.clear();
+                        ratingLessThanCtrl.clear();
                       });
                     },
                     child: const Text("Reset")),

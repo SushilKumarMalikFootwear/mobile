@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:footwear/modules/widgets/select_label.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../config/constants/app_constants.dart';
 import '../../utils/services/upload.dart';
@@ -26,13 +27,14 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
+  List<String> selectedLabels = [];
+  List<String> labelOptions = [];
   ScrollController controller = ScrollController();
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController brandName = TextEditingController();
   TextEditingController rating = TextEditingController();
   TextEditingController subBrandName = TextEditingController();
   TextEditingController article = TextEditingController();
-  TextEditingController label = TextEditingController();
   TextEditingController mrp = TextEditingController();
   TextEditingController sellingPrice = TextEditingController();
   TextEditingController costPrice = TextEditingController();
@@ -87,11 +89,11 @@ class _AddProductState extends State<AddProduct> {
       color.text = product.color;
       firstPhotoUrl.text = product.URL1 ?? '';
       secondPhotoUrl.text = product.URL2 ?? '';
-      label.text = product.label;
+      selectedLabels = product.label;
       rating.text = product.rating!;
       setState(() {});
     } else {
-      rating.text = '0.0';
+      rating.text = '7';
     }
   }
 
@@ -108,6 +110,7 @@ class _AddProductState extends State<AddProduct> {
     configList = await productRepo.getConfigLists();
     categoryList = configList['categoryList']!;
     vendorList = configList['vendorList']!;
+    labelOptions = await productRepo.getAllLables();
     setState(() {});
   }
 
@@ -118,7 +121,7 @@ class _AddProductState extends State<AddProduct> {
       return;
     }
     product.URL2 = secondPhotoUrl.text.isEmpty ? null : secondPhotoUrl.text;
-    product.label = label.text;
+    product.label = selectedLabels;
     product.article = article.text;
     product.brandName = brandName.text;
     product.category = category!;
@@ -149,7 +152,7 @@ class _AddProductState extends State<AddProduct> {
       mrp.clear();
       sellingPrice.clear();
       costPrice.clear();
-      label.clear();
+      selectedLabels.clear();
       if (widget.todo == Constants.create) {
         widget.switchChild();
       } else {
@@ -292,9 +295,6 @@ class _AddProductState extends State<AddProduct> {
                   hint: 'Select a Categoy',
                   onChange: (value) {
                     category = value;
-                    if (widget.todo == Constants.create) {
-                      label.text = value;
-                    }
                     showCategoryError = false;
                     setState(() {});
                   },
@@ -307,8 +307,68 @@ class _AddProductState extends State<AddProduct> {
                       style: TextStyle(color: Colors.red)),
                 ],
               ),
-            CustomText(label: 'Label', tc: label, required: true),
             CustomText(label: 'Article', tc: article, required: true),
+            const Padding(
+              padding:
+                  EdgeInsets.only(left: 12.0, right: 10, top: 5, bottom: 5),
+              child: Row(
+                children: [
+                  Text('Labels', style: TextStyle(fontSize: 16)),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, right: 10, bottom: 10),
+              child: GestureDetector(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue, width: 1),
+                  ),
+                  child: selectedLabels.isNotEmpty
+                      ? Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: selectedLabels.map((label) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        )
+                      : const Text('Tap to Select Labels'),
+                ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SelectLabel(
+                            options: labelOptions,
+                            selectedValues: selectedLabels,
+                            onSelectionChanged: (List<String> list) {
+                              selectedLabels = list;
+                              setState(() {});
+                            }),
+                      ));
+                },
+              ),
+            ),
             CustomText(label: 'Color', tc: color, required: true),
             CustomText(
                 label: 'Size Range',

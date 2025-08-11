@@ -21,6 +21,7 @@ class _SalesReportState extends State<SalesReport> {
   InvoiceRepository invoiceRepo = InvoiceRepository();
   Map<String, dynamic> filterMap = {};
   Future<Map<String, int>> salesReportFuture = Future.value({});
+  int total = 0;
 
   applyFilter(Map<String, dynamic> filters) async {
     filterMap = filters;
@@ -36,9 +37,12 @@ class _SalesReportState extends State<SalesReport> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 200), () {
-    customBottomSheet(context,
-        SalesReportFilter(applyFilter: applyFilter, filterOptions: filterMap));});
+    Future.delayed(const Duration(milliseconds: 200), () {
+      customBottomSheet(
+          context,
+          SalesReportFilter(
+              applyFilter: applyFilter, filterOptions: filterMap));
+    });
   }
 
   @override
@@ -58,7 +62,7 @@ class _SalesReportState extends State<SalesReport> {
         title: Text(AppBarTitle.salesReport),
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_alt),
+            icon: const Icon(Icons.filter_alt),
             onPressed: () {
               customBottomSheet(
                   context,
@@ -73,21 +77,29 @@ class _SalesReportState extends State<SalesReport> {
           future: salesReportFuture,
           builder: (context, AsyncSnapshot<Map<String, int>> snapshot) {
             if (snapshot.hasError) {
-              return Center(
+              return const Center(
                 child: Text('Some Error hass Occcurred'),
               );
             } else if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-              return Center(
+              return const Center(
                 child: Text('No Data Available'),
               );
             } else {
+              Map<String, int> data = snapshot.data!;
+              total = 0;
+              data.forEach(
+                (key, value) {
+                  total += value;
+                },
+              );
               return Column(
                 children: [
                   Text('Label - ${filterMap['label']}'),
+                  Text('Toat - $total'),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Container(
@@ -98,7 +110,7 @@ class _SalesReportState extends State<SalesReport> {
                         showDomainLabel: true,
                         listData: snapshot.data!.entries.map((entry) {
                           return DChartBarDataCustom(
-                            valueStyle: TextStyle(color: Colors.white),
+                            valueStyle: const TextStyle(color: Colors.white),
                             color: Colors.teal[300],
                             value: entry.value.toDouble(),
                             label: entry.key.toString(),

@@ -14,7 +14,7 @@ class Product {
   late String sizeRange;
   late String description;
   late String vendor;
-  late String label;
+  late List<String> label;
   List pairs_in_stock = [];
   late bool outOfStock = false;
   Product();
@@ -36,7 +36,8 @@ class Product {
     pairs_in_stock = product['pairs_in_stock'];
     description = product['description'];
     outOfStock = product['out_of_stock'];
-    label = product['label'];
+    List temp = product['label']??[];
+    label = temp.map((e) => e.toString()).toList();
   }
 
   Map<String, dynamic> toJSON() {
@@ -57,7 +58,7 @@ class Product {
       'footwear_id': footwear_id,
       'out_of_stock': outOfStock,
       'label': label,
-      'rating':rating
+      'rating': rating
     };
   }
 }
