@@ -95,7 +95,7 @@ class _ViewProductState extends State<ViewProduct> {
                     child: ListView.builder(
                       itemBuilder: (BuildContext ctx, int index) {
                         product =
-                            Product.fromJSON(snapshot.data['documents'][index]);
+                            Product.fromJSON(snapshot.data[index]);
                         String sizeAtShop = '';
                         String sizeAtHome = '';
                         for (Map<String, dynamic> element
@@ -126,7 +126,7 @@ class _ViewProductState extends State<ViewProduct> {
                                     applyFilter(filterMap);
                                   },
                                   product: Product.fromJSON(
-                                      snapshot.data['documents'][index]),
+                                      snapshot.data[index]),
                                   sizeAtHome: sizeAtHome,
                                   sizeAtShope: sizeAtShop,
                                 );
@@ -193,7 +193,7 @@ class _ViewProductState extends State<ViewProduct> {
                           ),
                         );
                       },
-                      itemCount: snapshot.data['documents'].length,
+                      itemCount: snapshot.data.length,
                     ),
                   ),
                 ],

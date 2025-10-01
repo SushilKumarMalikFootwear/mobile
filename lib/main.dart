@@ -22,7 +22,7 @@ void main() async {
   Constants.articleList = await productRepo.getAllArticles();
   Future getAllProducts = productRepo.getAllProducts();
   getAllProducts.then((value) {
-    List temp = value['documents'];
+    List temp = value['footwears'];
     temp.map((e) {
       Product product = Product.fromJSON(e);
       String articleWithColor = "${product.article} : ${product.color}";
