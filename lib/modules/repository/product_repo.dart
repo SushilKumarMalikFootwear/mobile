@@ -8,16 +8,7 @@ import '../models/product.dart';
 class ProductRepository {
   Future<Map<String, List<String>>> getConfigLists() async {
     Map<String, dynamic> temp = {};
-    if (Constants.isBackendStarted) {
-      temp = await ApiClient.get(ApiUrls.getConfigList);
-    } else {
-      temp = await ApiClient.post("${ApiUrls.mongoDbApiUrl}/find", {
-        "collection": "config_lists",
-        "database": "test",
-        "dataSource": "SushilKumarMalikFootwear"
-      });
-      temp = temp['documents'][0];
-    }
+    temp = await ApiClient.get(ApiUrls.getConfigList);
     List list = temp['categoryList'];
     List<String> categoryList = list.map((e) => e.toString()).toList();
     list = temp['vendorList'];
@@ -60,8 +51,12 @@ class ProductRepository {
     String sizeRange = filterMap['size_range'] ?? '';
     String color = filterMap['color'] ?? '';
     String vendor = filterMap['vendor'] ?? '';
+    String label = filterMap['label'] ?? '';
     bool outOfStock = filterMap['out_of_stock'] != null
         ? filterMap['out_of_stock'] == 'true'
+        : false;
+    bool notUpdated = filterMap['notUpdated'] != null
+        ? filterMap['notUpdated'] == 'true'
         : false;
     double? ratingMoreThan = filterMap['rating_more_than'] != null
         ? double.tryParse(filterMap['rating_more_than']!)
@@ -75,15 +70,15 @@ class ProductRepository {
       "database": "test",
       "dataSource": "SushilKumarMalikFootwear",
       "pipeline": [
-        if (outOfStock)
-          {
-            "\$match": {"out_of_stock": true}
-          },
         if (brand.isNotEmpty)
           {
             "\$match": {
               "brand": {"\$regex": brand, "\$options": "i"}
             }
+          },
+        if (label.isNotEmpty)
+          {
+            "\$match": {"label": label}
           },
         if (category.isNotEmpty)
           {
@@ -118,6 +113,10 @@ class ProductRepository {
         {
           "\$match": {"out_of_stock": outOfStock}
         },
+        if (notUpdated)
+          {
+            "\$match": {"updated": !notUpdated}
+          },
         if (ratingMoreThan != null)
           {
             "\$match": {
@@ -238,12 +237,12 @@ class ProductRepository {
       data: data,
     );
     List temp = response.data['documents'][0]['uniqueLables'];
-    List<String> labelList = [];
+    Set<String> labelList = {};
     for (List item in temp) {
       for (String e in item) {
         labelList.add(e.toString());
       }
     }
-    return labelList;
+    return labelList.toList();
   }
 }

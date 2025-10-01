@@ -25,6 +25,7 @@ class _SelectLabelState extends State<SelectLabel> {
   void initState() {
     super.initState();
     selected = List.from(widget.selectedValues);
+    filteredOptions = List.from(widget.options);
   }
 
   void filterList(String query) {
@@ -36,11 +37,14 @@ class _SelectLabelState extends State<SelectLabel> {
   }
 
   void toggleSelection(String label) {
+    filteredOptions = List.from(widget.options);
     setState(() {
       if (selected.contains(label)) {
         selected.remove(label);
       } else {
         selected.add(label);
+        widget.options.remove(label);
+        widget.options.insert(0, label);
       }
     });
   }

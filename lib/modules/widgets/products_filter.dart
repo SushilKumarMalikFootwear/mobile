@@ -3,6 +3,7 @@ import 'package:footwear/utils/widgets/searchable_dropdown.dart';
 import '../../config/constants/app_constants.dart';
 import '../../utils/widgets/custom_checkbox.dart';
 import '../../utils/widgets/custom_dropdown.dart';
+import '../repository/product_repo.dart';
 
 class ProductsFilter extends StatefulWidget {
   final Function applyFilter;
@@ -17,19 +18,27 @@ class ProductsFilter extends StatefulWidget {
 class _ProductsFilterState extends State<ProductsFilter> {
   Map<String, String> filterMap = {};
   TextEditingController brandNameCtrl = TextEditingController();
+  TextEditingController labelCtrl = TextEditingController();
   TextEditingController articleCtrl = TextEditingController();
   TextEditingController colorCtrl = TextEditingController();
   TextEditingController ratingMoreThanCtrl = TextEditingController();
+  List<String> labelList = [];
   TextEditingController ratingLessThanCtrl = TextEditingController();
+  ProductRepository productRepo = ProductRepository();
   String selectedSizeRange = '';
   String selectedCategory = '';
   String selectedVendor = '';
   bool outOfStock = false;
+  bool notUpdated = false;
 
   @override
   void initState() {
     super.initState();
+    productRepo.getAllLables().then((val) {
+      labelList = [...val];
+    });
     if (widget.filterOptions.isNotEmpty) {
+      labelCtrl.text = widget.filterOptions['label'] ?? '';
       if (widget.filterOptions.containsKey('brand')) {
         brandNameCtrl.text = widget.filterOptions['brand']!;
       }
@@ -48,6 +57,10 @@ class _ProductsFilterState extends State<ProductsFilter> {
       if (widget.filterOptions.containsKey('out_of_stock')) {
         outOfStock =
             widget.filterOptions['out_of_stock']!.toLowerCase() == 'true';
+      }
+      if (widget.filterOptions.containsKey('notUpdated')) {
+        notUpdated =
+            widget.filterOptions['notUpdated']!.toLowerCase() == 'true';
       }
       if (widget.filterOptions.containsKey('rating_more_than')) {
         ratingMoreThanCtrl.text = widget.filterOptions['rating_more_than']!;
@@ -112,6 +125,17 @@ class _ProductsFilterState extends State<ProductsFilter> {
               controller: colorCtrl,
               decoration: const InputDecoration(labelText: 'Color'),
             ),
+            SearchableDropdown(
+              onSelect: (String val) {},
+              controller: labelCtrl,
+              onChange: (String val) async {
+                return labelList
+                    .where((label) =>
+                        label.toUpperCase().contains(val.toUpperCase()))
+                    .toList();
+              },
+              hintText: "Enter Label",
+            ),
             TextField(
               controller: ratingMoreThanCtrl,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -133,6 +157,15 @@ class _ProductsFilterState extends State<ProductsFilter> {
             const SizedBox(
               height: 10,
             ),
+            CustomCheckBox(
+                isSelected: notUpdated,
+                onClicked: (value) {
+                  notUpdated = value;
+                },
+                label: "Not Updated"),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -145,6 +178,8 @@ class _ProductsFilterState extends State<ProductsFilter> {
                         'color': colorCtrl.text,
                         'vendor': selectedVendor,
                         'out_of_stock': outOfStock.toString(),
+                        'notUpdated': notUpdated.toString(),
+                        'label':labelCtrl.text,
                         if (ratingMoreThanCtrl.text.isNotEmpty)
                           'rating_more_than': ratingMoreThanCtrl.text,
                         if (ratingLessThanCtrl.text.isNotEmpty)

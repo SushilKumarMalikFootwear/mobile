@@ -160,12 +160,14 @@ class InvoiceRepository {
     return dailyInvoicesMap;
   }
 
-  Future<Map<String, int>> fetchInvoicesForSalesReport(String article,
+  Future<Map<String, dynamic>> fetchInvoicesForSizesSalesReport(String article,
       DateTime startDate, DateTime endDate, String label) async {
     List pipeline = [
       if (label.isNotEmpty)
         {
-          "\$match": {"label": label}
+          "\$match": {
+            "article": {"\$regex": article, "\$options": "i"}
+          }
         },
       if (article.isNotEmpty)
         {
@@ -193,9 +195,12 @@ class InvoiceRepository {
     if (response.statusCode == 200) {
       List<String> sizeSet = [];
       List list = response.data['documents'];
-      double sum = list.fold(
-          0, (val, inv) => val + double.parse(inv['cost_price'].toString()));
-      int avg = sum ~/ list.length;
+
+      if (list.isEmpty) {
+        return {};
+      }
+
+      // Collect footwear IDs for invoice query
       List<String> footwearIds = list.map((e) {
         sizeSet.add(e['size_range']);
         return e['footwear_id'].toString();
@@ -230,50 +235,59 @@ class InvoiceRepository {
         data: data,
       );
 
-      list = response.data['documents'];
-      if (list.isEmpty) {
+      List invoices = response.data['documents'];
+      if (invoices.isEmpty) {
         return {};
       }
 
       Map<String, int> report = {};
-
-      if (["GOLA BLACK", "GOLA WHITE", "DERBY BLACK", "ANKLE BLACK"]
-          .contains(label)) {
-        report = {
-          for (var i = 6; i <= 10; i++) "${i}K": 0,
-          for (var i = 11; i <= 13; i++) "$i": 0,
-          for (var i = 1; i <= 10; i++) "$i": 0
-        };
-      } else {
-        void extractSizes(String range) {
-          var sizeGroups = range.split('-');
-          for (String group in sizeGroups) {
-            var parts = group.split('X').map(int.parse).toList();
-            for (int i = parts[0]; i <= parts[1]; i++) {
+      Map<String, Map> productMap = {};
+      Map<String, dynamic> dataMap = {
+        'report': report,
+        'total_count': invoices.length,
+        'cost_price': 0,
+        'selling_price': 0,
+        'profit': 0
+      };
+      // Function to expand size ranges
+      void extractSizes(String range, String sizeDescription) {
+        var sizeGroups = range.split('-');
+        for (String group in sizeGroups) {
+          var parts = group.split('X').map(int.parse).toList();
+          for (int i = parts[0]; i <= parts[1]; i++) {
+            if (sizeDescription == "S") {
+              report["${i}K"] = 0;
+            } else {
               report["$i"] = 0;
             }
           }
         }
+      }
 
-        for (String range in sizeSet) {
-          extractSizes(range);
-        }
+      // Initialize report keys using size ranges and descriptions
+      for (var product in list) {
+        productMap[product['footwear_id']] = product;
+        String range = product['size_range'];
+        String sizeDescription = product['size_description'] ?? "";
+        extractSizes(range, sizeDescription);
       }
-      for (Map invoice in list) {
+
+      // Fill counts from invoices
+      for (Map invoice in invoices) {
         String sizeKey = invoice['size'].toString();
-        if ([6, 7, 8, 9, 10].contains(invoice['size'])) {
-          String finalSizeKey =
-              invoice['cost_price'] < avg ? "${sizeKey}K" : sizeKey;
-          report[finalSizeKey] = (report[finalSizeKey] ?? 0) + 1;
-        } else {
-          report[sizeKey] = (report[sizeKey] ?? 0) + 1;
+        String sizeDescription =
+            productMap[invoice['product_id']]!['size_description'].toString();
+
+        if (sizeDescription == "S") {
+          sizeKey = "${sizeKey}K";
         }
+
+        report[sizeKey] = (report[sizeKey] ?? 0) + 1;
+        dataMap['cost_price'] += invoice['cost_price'];
+        dataMap['selling_price'] += invoice['selling_price'];
+        dataMap['profit'] += invoice['profit'];
       }
-      if (["GOLA BLACK", "GOLA WHITE", "DERBY BLACK", "ANKLE BLACK"]
-          .contains(label)) {
-        report.removeWhere((key, value) => value == 0);
-      }
-      return report;
+      return dataMap;
     } else {
       throw Exception("Failed to fetch invoices");
     }

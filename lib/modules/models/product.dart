@@ -1,7 +1,6 @@
 class Product {
   String footwear_id = '';
   late String brandName;
-  late String subBrandName;
   late String article;
   late String mrp;
   late String sellingPrice;
@@ -16,14 +15,16 @@ class Product {
   late String vendor;
   late List<String> label;
   List pairs_in_stock = [];
-  late bool outOfStock = false;
+  bool outOfStock = false;
+  bool updated = false;
+  String sizeDescription = 'M';
   Product();
   Product.fromJSON(Map product) {
+    sizeDescription = product['size_description']??'M';
     rating = product['rating'].toString();
     vendor = product['vendor'] ?? '';
     footwear_id = product['footwear_id'];
     brandName = product['brand'];
-    subBrandName = product['sub_brand'];
     article = product['article'];
     mrp = product['mrp'].toString();
     sellingPrice = product['selling_price'].toString();
@@ -36,6 +37,7 @@ class Product {
     pairs_in_stock = product['pairs_in_stock'];
     description = product['description'];
     outOfStock = product['out_of_stock'];
+    updated = product['updated']??false;
     List temp = product['label']??[];
     label = temp.map((e) => e.toString()).toList();
   }
@@ -44,7 +46,6 @@ class Product {
     return {
       "vendor": vendor,
       "brand": brandName,
-      "sub_brand": subBrandName,
       "article": article,
       "mrp": mrp,
       "selling_price": sellingPrice,
@@ -58,7 +59,9 @@ class Product {
       'footwear_id': footwear_id,
       'out_of_stock': outOfStock,
       'label': label,
-      'rating': rating
+      'rating': rating,
+      'updated':updated,
+      'size_description':sizeDescription
     };
   }
 }

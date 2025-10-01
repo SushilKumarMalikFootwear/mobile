@@ -17,11 +17,16 @@ class SalesReportFilter extends StatefulWidget {
   State<SalesReportFilter> createState() => _SalesReportFilterState();
 }
 
+enum Frequency { daily, monthly }
+
 class _SalesReportFilterState extends State<SalesReportFilter> {
   TextEditingController labelCtrl = TextEditingController();
   TextEditingController articleCtrl = TextEditingController();
   ProductRepository productRepo = ProductRepository();
+  String type = 'Sizes';
+  List<String> typeList = ['Sizes', 'Daily Sales', 'Label Only', 'All labels'];
   List<String> labelList = [];
+  Frequency _selectedFrequency = Frequency.monthly; // default
   List<String> articleList = [];
   DateTime now = DateTime.now().add(Duration(days: 1));
   DateTime startDate =
@@ -46,6 +51,7 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
     endDate = widget.filterOptions['endDate'] ?? endDate;
     selectedDateRangeOption =
         widget.filterOptions['dateRange'] ?? 'Last 30 Days';
+    type = widget.filterOptions['type'] ?? 'Sizes';
     productRepo.getAllLables().then((val) {
       labelList = [...val];
     });
@@ -86,30 +92,79 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Column(
           children: [
-            SearchableDropdown(
-              onSelect: (String val) {},
-              controller: labelCtrl,
-              onChange: (String val) async {
-                return labelList
-                    .where((label) =>
-                        label.toUpperCase().contains(val.toUpperCase()))
-                    .toList();
-              },
-              hintText: "Enter Label",
-            ),
+            CustomDropDown(
+                value: type,
+                hint: 'Select Filter Type',
+                onChange: (val) {
+                  type = val;
+                  setState(() {});
+                },
+                items: typeList),
             const SizedBox(height: 10),
-            SearchableDropdown(
-              onSelect: (String val) {},
-              controller: articleCtrl,
-              onChange: (String val) async {
-                return articleList
-                    .where((article) =>
-                        article.toUpperCase().contains(val.toUpperCase()))
-                    .toList();
-              },
-              hintText: "Enter Article",
-            ),
-            const SizedBox(height: 10),
+            if (type != 'All labels') ...[
+              SearchableDropdown(
+                onSelect: (String val) {},
+                controller: labelCtrl,
+                onChange: (String val) async {
+                  return labelList
+                      .where((label) =>
+                          label.toUpperCase().contains(val.toUpperCase()))
+                      .toList();
+                },
+                hintText: "Enter Label",
+              ),
+              const SizedBox(height: 10),
+              SearchableDropdown(
+                onSelect: (String val) {},
+                controller: articleCtrl,
+                onChange: (String val) async {
+                  return articleList
+                      .where((article) =>
+                          article.toUpperCase().contains(val.toUpperCase()))
+                      .toList();
+                },
+                hintText: "Enter Article",
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (type == 'All labels') ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Radio<Frequency>(
+                        activeColor: Colors.blue,
+                        value: Frequency.daily,
+                        groupValue: _selectedFrequency,
+                        onChanged: (Frequency? value) {
+                          setState(() {
+                            _selectedFrequency = value!;
+                          });
+                        },
+                      ),
+                      const Text("Daily"),
+                    ],
+                  ),
+                  const SizedBox(width: 20),
+                  Row(
+                    children: [
+                      Radio<Frequency>(
+                        activeColor: Colors.blue,
+                        value: Frequency.monthly,
+                        groupValue: _selectedFrequency,
+                        onChanged: (Frequency? value) {
+                          setState(() {
+                            _selectedFrequency = value!;
+                          });
+                        },
+                      ),
+                      const Text("Monthly"),
+                    ],
+                  ),
+                ],
+              )
+            ],
             CustomDropDown(
               value: selectedDateRangeOption,
               hint: 'Select Date Range',
@@ -186,10 +241,11 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
               onPressed: () {
                 widget.applyFilter({
                   'label': labelCtrl.text,
-                  'article':articleCtrl.text,
+                  'article': articleCtrl.text,
                   'startDate': startDate,
                   'endDate': endDate,
-                  'dateRange': selectedDateRangeOption
+                  'dateRange': selectedDateRangeOption,
+                  'type': type
                 });
                 Navigator.pop(context);
               },

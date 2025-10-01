@@ -33,7 +33,6 @@ class _AddProductState extends State<AddProduct> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController brandName = TextEditingController();
   TextEditingController rating = TextEditingController();
-  TextEditingController subBrandName = TextEditingController();
   TextEditingController article = TextEditingController();
   TextEditingController mrp = TextEditingController();
   TextEditingController sellingPrice = TextEditingController();
@@ -78,7 +77,6 @@ class _AddProductState extends State<AddProduct> {
     if (widget.todo == Constants.edit) {
       vendor = product.vendor;
       brandName.text = product.brandName;
-      subBrandName.text = product.subBrandName;
       category = product.category;
       article.text = product.article;
       sizeRange.text = product.sizeRange;
@@ -129,7 +127,6 @@ class _AddProductState extends State<AddProduct> {
     product.costPrice = costPrice.text;
     product.sellingPrice = sellingPrice.text;
     product.mrp = mrp.text;
-    product.subBrandName = subBrandName.text;
     product.sizeRange = sizeRange.text.toUpperCase();
     product.description = descCtrl.text;
     product.vendor = vendor.toString();
@@ -147,7 +144,6 @@ class _AddProductState extends State<AddProduct> {
       secondPhotoUrl.clear();
       brandName.clear();
       descCtrl.clear();
-      subBrandName.clear();
       article.clear();
       mrp.clear();
       sellingPrice.clear();
@@ -207,7 +203,7 @@ class _AddProductState extends State<AddProduct> {
       setState(() {});
       image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        UploadDownload obj = UploadDownload();
+UploadDownload obj = UploadDownload();
         UploadTask upload = obj.uploadImage(image!.path);
         upload.then((TaskSnapshot shot) async {
           photoNumber == 1
@@ -268,7 +264,6 @@ class _AddProductState extends State<AddProduct> {
           children: [
             const SizedBox(height: 10),
             CustomText(label: 'Brand Name', tc: brandName, required: true),
-            CustomText(label: 'Sub Brand Name', tc: subBrandName),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: CustomDropDown(
@@ -515,7 +510,62 @@ class _AddProductState extends State<AddProduct> {
                   setState(() {});
                 },
                 label: 'Out of Stock'),
+            const SizedBox(height: 5),
+            CustomCheckBox(
+                isSelected: product.updated,
+                onClicked: (bool value) {
+                  product.updated = value;
+                  setState(() {});
+                },
+                label: 'Updated'),
             const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Wrap(
+                  alignment: WrapAlignment.spaceAround,
+                  spacing: 2,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        product.sizeDescription = 'S';
+                        setState(() {});
+                      },
+                      child: Chip(
+                        label: Text('S'),
+                        backgroundColor: product.sizeDescription == 'S'
+                            ? Colors.blue[400]
+                            : Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        product.sizeDescription = 'M';
+                        setState(() {});
+                      },
+                      child: Chip(
+                        label: Text('M'),
+                        backgroundColor: product.sizeDescription == 'M'
+                            ? Colors.blue[400]
+                            : Colors.white,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        product.sizeDescription = 'L';
+                        setState(() {});
+                      },
+                      child: Chip(
+                        label: Text('L'),
+                        backgroundColor: product.sizeDescription == 'L'
+                            ? Colors.blue[400]
+                            : Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
             ElevatedButton(
                 onPressed: () {
                   if (category == null ||
