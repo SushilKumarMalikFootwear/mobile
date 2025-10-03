@@ -37,7 +37,6 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   TextEditingController sizeCtrl = TextEditingController();
   TextEditingController articleCtrl = TextEditingController();
   TextEditingController mrpCtrl = TextEditingController();
-  bool isOldInvoice = false;
   bool addInTotalCost = false;
   bool showProductError = false;
   bool showVendorError = false;
@@ -58,7 +57,6 @@ class _CreateInvoiceState extends State<CreateInvoice> {
       invoice.paymentMode = Constants.cash;
       invoice.paymentStatus = Constants.paid;
       invoice.soldAt = Constants.soldAt;
-      isOldInvoice = Constants.isOldInvoice;
       pendingPaymentCtrl.text = '0.0';
     } else {
       invoice = widget.invoice;
@@ -90,7 +88,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
     invoice.mrp = double.parse(mrpCtrl.text);
     invoice.description = descriptionCtrl.text;
     if (widget.todo == Constants.create) {
-      await invoiceRepo.saveInvoice(invoice, isOldInvoice);
+      await invoiceRepo.saveInvoice(invoice);
       widget.switchChild();
     } else {
       await invoiceRepo.updateInvoice(invoice);
@@ -311,12 +309,6 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                     items: [Constants.completed, Constants.returned]),
               ),
               CustomCheckBox(
-                  isSelected: isOldInvoice,
-                  onClicked: (val) {
-                    isOldInvoice = val;
-                  },
-                  label: 'Old Invoice?'),
-              CustomCheckBox(
                   isSelected: invoice.addInTotalCost,
                   onClicked: (val) {
                     invoice.addInTotalCost = val;
@@ -341,7 +333,6 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                     }
                     if (_form.currentState!.validate()) {
                       if (widget.todo == Constants.create) {
-                        Constants.isOldInvoice = isOldInvoice;
                         Constants.soldAt = invoice.soldAt;
                         DateTime invoiceDate = DateTime(
                             invoice.invoiceDate.year,

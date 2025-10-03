@@ -8,9 +8,8 @@ import '../../utils/services/api_client.dart';
 import '../models/Invoice.dart';
 
 class InvoiceRepository {
-  saveInvoice(Invoice invoice, bool isOldInvoice) async {
-    var response = await ApiClient.post(
-        '${ApiUrls.saveInvoice}?isOldInvoice=$isOldInvoice', invoice.toJson());
+  saveInvoice(Invoice invoice) async {
+    var response = await ApiClient.post(ApiUrls.saveInvoice, invoice.toJson());
     return response;
   }
 
@@ -131,7 +130,7 @@ class InvoiceRepository {
     //   ),
     //   data: data,
     // );
-    Map<String,dynamic> clone = {...filterMap};
+    Map<String, dynamic> clone = {...filterMap};
     clone.updateAll((key, value) => value.toString());
     var response =
         await ApiClient.post("${ApiUrls.baseUrl}/fetchInvoices", clone);

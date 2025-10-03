@@ -73,7 +73,6 @@ abstract class Constants {
     '44',
     '45'
   ];
-  static bool isOldInvoice = false;
   static String soldAt = 'HOME';
   static DateTime invoiceDate = DateTime.now();
 }

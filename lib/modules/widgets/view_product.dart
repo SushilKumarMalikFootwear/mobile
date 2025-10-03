@@ -16,7 +16,8 @@ class ViewProduct extends StatefulWidget {
 class _ViewProductState extends State<ViewProduct> {
   ProductRepository productRepo = ProductRepository();
   bool showImages = false;
-  Map<String, String> filterMap = {};
+  int page = 1;
+  Map<String, String> filterMap = {'limit': '50'};
 
   late Product product;
 
@@ -32,6 +33,8 @@ class _ViewProductState extends State<ViewProduct> {
     if (filterMap != null) {
       this.filterMap = filterMap;
     }
+    page = 1;
+    this.filterMap['page'] = page.toString();
     getProducts = productRepo.filterProducts(this.filterMap);
     setState(() {});
   }
@@ -74,8 +77,12 @@ class _ViewProductState extends State<ViewProduct> {
                       const SizedBox(width: 15),
                       IconButton(
                           onPressed: () {
-                            customBottomSheet(context,
-                                ProductsFilter(applyFilter: applyFilter, filterOptions: filterMap,));
+                            customBottomSheet(
+                                context,
+                                ProductsFilter(
+                                  applyFilter: applyFilter,
+                                  filterOptions: filterMap,
+                                ));
                           },
                           icon: const Icon(
                             Icons.filter_alt,
@@ -84,18 +91,34 @@ class _ViewProductState extends State<ViewProduct> {
                       const Spacer(),
                       IconButton(
                           onPressed: () {
-                            getProducts = productRepo.filterProducts(filterMap);
-                            setState(() {});
+                            if (page > 1) {
+                              page--;
+                              filterMap['page'] = page.toString();
+                              getProducts =
+                                  productRepo.filterProducts(filterMap);
+                              setState(() {});
+                            }
                           },
-                          icon: const Icon(Icons.refresh))
+                          icon: Icon(Icons.chevron_left)),
+                      Text(page.toString()),
+                      IconButton(
+                          onPressed: () {
+                            if (snapshot.data.length == 50) {
+                              page++;
+                              filterMap['page'] = page.toString();
+                              getProducts =
+                                  productRepo.filterProducts(filterMap);
+                              setState(() {});
+                            }
+                          },
+                          icon: Icon(Icons.chevron_right))
                     ],
                   ),
                   SizedBox(
                     height: deviceSize.height - 210,
                     child: ListView.builder(
                       itemBuilder: (BuildContext ctx, int index) {
-                        product =
-                            Product.fromJSON(snapshot.data[index]);
+                        product = Product.fromJSON(snapshot.data[index]);
                         String sizeAtShop = '';
                         String sizeAtHome = '';
                         for (Map<String, dynamic> element
@@ -125,8 +148,8 @@ class _ViewProductState extends State<ViewProduct> {
                                   refreshParent: () {
                                     applyFilter(filterMap);
                                   },
-                                  product: Product.fromJSON(
-                                      snapshot.data[index]),
+                                  product:
+                                      Product.fromJSON(snapshot.data[index]),
                                   sizeAtHome: sizeAtHome,
                                   sizeAtShope: sizeAtShop,
                                 );
