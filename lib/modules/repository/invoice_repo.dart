@@ -131,7 +131,10 @@ class InvoiceRepository {
     //   ),
     //   data: data,
     // );
-    var response  = await ApiClient.post("${ApiUrls.baseUrl}/fetchInvoices", filterMap);
+    Map<String,dynamic> clone = {...filterMap};
+    clone.updateAll((key, value) => value.toString());
+    var response =
+        await ApiClient.post("${ApiUrls.baseUrl}/fetchInvoices", clone);
     List list = response['doc'];
     Map<String, DailyInvoices> dailyInvoicesMap = {};
     for (Map invoiceMap in list) {
