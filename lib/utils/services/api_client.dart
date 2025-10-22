@@ -9,9 +9,7 @@ abstract class ApiClient {
     ResponseType responseType = ResponseType.json,
   }) async {
     try {
-      _dio.options.headers = Constants.isBackendStarted
-          ? Constants.basicHeaders
-          : Constants.mongoDbHeaders;
+      _dio.options.headers = Constants.basicHeaders;
       Response response = await _dio.get(url,
           options: Options(
               validateStatus: (status) {
@@ -29,11 +27,8 @@ abstract class ApiClient {
       if (headers != null) {
         _dio.options.headers = headers;
       } else {
-        _dio.options.headers = Constants.isBackendStarted
-            ? Constants.basicHeaders
-            : Constants.mongoDbHeaders;
+      _dio.options.headers = Constants.basicHeaders;
       }
-      print(json.encode(data));
       Response response = await _dio.post(url,
           data: json.encode(data),
           options: Options(
@@ -50,9 +45,7 @@ abstract class ApiClient {
 
   put(String url) async {
     try {
-      _dio.options.headers = Constants.isBackendStarted
-          ? Constants.basicHeaders
-          : Constants.mongoDbHeaders;
+      _dio.options.headers = Constants.basicHeaders;
       Response response =
           await _dio.put(url, options: Options(validateStatus: (status) {
         return true;
@@ -65,9 +58,7 @@ abstract class ApiClient {
 
   delete(String url) async {
     try {
-      _dio.options.headers = Constants.isBackendStarted
-          ? Constants.basicHeaders
-          : Constants.mongoDbHeaders;
+      _dio.options.headers = Constants.basicHeaders;
       Response response =
           await _dio.delete(url, options: Options(validateStatus: (status) {
         return true;

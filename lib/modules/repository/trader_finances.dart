@@ -4,15 +4,9 @@ import '../models/trader_finances.dart';
 
 class TraderFinancesRepository {
   Future<List<TraderFinance>> getData() async {
-    var response = await ApiClient.post(
-        "${ApiUrls.mongoDbApiUrl}/find",
-        {
-          "collection": "trader_finances",
-          "database": "test",
-          "dataSource": "SushilKumarMalikFootwear",
-        },
-        headers: Constants.mongoDbHeaders);
-    List<dynamic> data = response['documents'];
+    var response =
+        await ApiClient.get("${ApiUrls.baseUrl}/get_trader_finances");
+    List<dynamic> data = response;
     return data.map((json) {
       return TraderFinance.fromJson(json);
     }).toList();
@@ -24,20 +18,10 @@ class TraderFinancesRepository {
   }) async {
     try {
       final response = await ApiClient.post(
-        "${ApiUrls.mongoDbApiUrl}/updateOne",
-        {
-          "collection": "trader_finances",
-          "database": "test",
-          "dataSource": "SushilKumarMalikFootwear",
-          "filter": {"trader_name": traderName},
-          "update": {
-            "\$inc": {"total_cost_price": amountToAdd}
-          }
-        },
-        headers: Constants.mongoDbHeaders,
-      );
+          "${ApiUrls.baseUrl}/update_total_cost_price",
+          {"traderName": traderName, "costPrice": amountToAdd});
 
-      return (response["matchedCount"] ?? 0) > 0;
+      return response["status"];
     } catch (e) {
       print("Error updating trader total_cost_price: $e");
       return false;

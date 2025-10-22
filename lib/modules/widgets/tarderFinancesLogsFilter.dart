@@ -15,7 +15,8 @@ class TraderFinancesLogsFilter extends StatefulWidget {
   });
 
   @override
-  State<TraderFinancesLogsFilter> createState() => _TraderFinancesLogsFilterState();
+  State<TraderFinancesLogsFilter> createState() =>
+      _TraderFinancesLogsFilterState();
 }
 
 class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
@@ -32,8 +33,8 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
     super.initState();
     traderCtrl.text = widget.filterOptions['trader_name'] ?? '';
     selectedType = widget.filterOptions['type'];
-    fromDate = widget.filterOptions['fromDate'];
-    toDate = widget.filterOptions['toDate'];
+    fromDate = DateTime.tryParse(widget.filterOptions['fromDate'].toString());
+    toDate = DateTime.tryParse(widget.filterOptions['toDate'].toString());
     showPendingPayment = widget.filterOptions['showPendingPayment'] ?? false;
   }
 
@@ -84,13 +85,17 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  fromDate != null ? 'From: \${fromDate!.toString().split(' ')[0]}' : 'From Date',
+                  fromDate != null
+                      ? 'From: ${fromDate!.toString().split(' ')[0]}'
+                      : 'From Date',
                   style: const TextStyle(fontSize: 16),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.calendar_month_outlined, color: Colors.blue),
+                  icon: const Icon(Icons.calendar_month_outlined,
+                      color: Colors.blue),
                   onPressed: () async {
-                    final picked = await selectDate(context, fromDate ?? DateTime.now());
+                    final picked =
+                        await selectDate(context, fromDate ?? DateTime.now());
                     if (picked != null) {
                       setState(() {
                         fromDate = picked;
@@ -107,13 +112,17 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  toDate != null ? 'To: \${toDate!.toString().split(' ')[0]}' : 'To Date',
+                  toDate != null
+                      ? 'To: ${toDate!.toString().split(' ')[0]}'
+                      : 'To Date',
                   style: const TextStyle(fontSize: 16),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.calendar_month_outlined, color: Colors.blue),
+                  icon: const Icon(Icons.calendar_month_outlined,
+                      color: Colors.blue),
                   onPressed: () async {
-                    final picked = await selectDate(context, toDate ?? DateTime.now());
+                    final picked =
+                        await selectDate(context, toDate ?? DateTime.now());
                     if (picked != null) {
                       setState(() {
                         toDate = picked;
@@ -146,10 +155,11 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
                     final Map<String, dynamic> filters = {
                       'trader_name': traderCtrl.text,
                       'type': selectedType,
-                      'fromDate': fromDate,
-                      'toDate': toDate,
+                      'fromDate': fromDate==null?null:fromDate.toString(),
+                      'toDate': toDate==null?null:toDate.toString(),
                       'showPendingPayment': showPendingPayment,
-                    }..removeWhere((key, value) => value == null || value == '');
+                    }..removeWhere(
+                        (key, value) => value == null || value == '');
 
                     widget.applyFilter(filters);
                     Navigator.pop(context);
@@ -176,7 +186,8 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
     );
   }
 
-  Future<DateTime?> selectDate(BuildContext context, DateTime initialDate) async {
+  Future<DateTime?> selectDate(
+      BuildContext context, DateTime initialDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,

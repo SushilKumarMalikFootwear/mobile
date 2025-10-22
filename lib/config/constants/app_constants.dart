@@ -79,7 +79,7 @@ abstract class Constants {
 
 abstract class ApiUrls {
   static String baseUrl =
-      'https://sushilkumarmalikfootwearbackend.onrender.com';
+      'https://sushil-kumar-malik-footwear-backend.vercel.app';
   static String getConfigList = '$baseUrl/get_config_lists';
   static String addFootwear = '$baseUrl/add_footwear';
   static String updateFootwear = '$baseUrl/update_product';

@@ -3,22 +3,11 @@ import '../../utils/services/api_client.dart';
 
 class TraderFinancesLogs {
   Future<Map<String, Map<String, Map>>> getPendingBills() async {
-    var response = await ApiClient.post(
-      "${ApiUrls.mongoDbApiUrl}/find",
-      {
-        "collection": "trader_finances_logs",
-        "database": "test",
-        "dataSource": "SushilKumarMalikFootwear",
-        "filter": {
-          "type": "PURCHASE",
-          "pending_amount": {"\$ne": 0}
-        }
-      },
-      headers: Constants.mongoDbHeaders,
+    var response = await ApiClient.get(
+      "${ApiUrls.baseUrl}/get_pending_bills",
     );
 
-    List<dynamic> documents = response['documents'];
-
+    List<dynamic> documents = response;
     Map<String, Map<String, Map>> result = {};
 
     for (var doc in documents) {
@@ -32,8 +21,9 @@ class TraderFinancesLogs {
         result[traderName]!.remove(baseDate.split(' ').first);
         result[traderName]![baseDate] = doc;
         result[traderName]!.putIfAbsent(
-            DateTime.parse(data['date']).toLocal().toString().split('.').first,
-            () => data);
+          DateTime.parse(data['date']).toLocal().toString().split('.').first,
+          () => data,
+        );
       } else {
         result[traderName]![baseDate.split(' ').first] =
             Map<String, dynamic>.from(doc);
@@ -45,19 +35,10 @@ class TraderFinancesLogs {
 
   Future<Map?> saveTraderFinanceLog(Map<String, dynamic> log) async {
     try {
-      final response = await ApiClient.post(
-        "${ApiUrls.mongoDbApiUrl}/insertOne",
-        {
-          "collection": "trader_finances_logs",
-          "database": "test",
-          "dataSource": "SushilKumarMalikFootwear",
-          "document": log,
-        },
-        headers: Constants.mongoDbHeaders,
-      );
-
+      final response = await ApiClient.post("${ApiUrls.baseUrl}/save_log", log);
       return response;
     } catch (e) {
+      print("Error saving trader finance log: $e");
       return null;
     }
   }
@@ -68,149 +49,61 @@ class TraderFinancesLogs {
   }) async {
     try {
       final response = await ApiClient.post(
-        "${ApiUrls.mongoDbApiUrl}/updateOne",
+        "${ApiUrls.baseUrl}/decrease_pending_payment",
         {
-          "collection": "trader_finances_logs",
-          "database": "test",
-          "dataSource": "SushilKumarMalikFootwear",
-          "filter": {
-            "id": id,
-          },
-          "update": {
-            "\$set": {
-              "pending_amount": newPendingAmount,
-            }
-          }
+          "id": id,
+          "newPendingAmount": newPendingAmount,
         },
-        headers: Constants.mongoDbHeaders,
       );
 
-      return response["modifiedCount"] > 0;
+      return response["modifiedCount"] != null && response["modifiedCount"] > 0;
     } catch (e) {
       print("Error decreasing pending_amount: $e");
       return false;
     }
   }
+
   Future<double> getLastRunningPendingPayment(String traderName) async {
-  try {
-    final response = await ApiClient.post(
-      "${ApiUrls.mongoDbApiUrl}/find",
-      {
-        "collection": "trader_finances_logs",
-        "database": "test",
-        "dataSource": "SushilKumarMalikFootwear",
-        "filter": {
-          "trader_name": traderName,
-          "type": {"\$in": ["PURCHASE", "PAYMENT"]}
-        },
-        "sort": {"date": -1},
-        "limit": 1
-      },
-      headers: Constants.mongoDbHeaders,
-    );
+    try {
+      final response = await ApiClient.get(
+        "${ApiUrls.baseUrl}/last_pending_amount?trader_name=$traderName",
+      );
 
-    final documents = response['documents'] as List<dynamic>;
-    if (documents.isNotEmpty) {
-      final doc = documents.first as Map<String, dynamic>;
-      return (doc['running_pending_payment'] ?? 0).toDouble();
+      final data = response;
+      return double.parse(data.toString());
+    } catch (e) {
+      print("Error in getLastRunningPendingPayment: $e");
+      return 0;
     }
-    return 0;
-  } catch (e) {
-    print("Error in getLastRunningPendingPayment: $e");
-    return 0;
   }
-}
 
-Future<List<Map<String, dynamic>>> getFilteredTraderFinanceLogs(
-    Map<String, dynamic> filterMap) async {
-  try {
-    final Map<String, dynamic> filter = {};
+  Future<List<Map<String, dynamic>>> getFilteredTraderFinanceLogs(
+      Map<String, dynamic> filterMap) async {
+    try {
+      final response = await ApiClient.post(
+        "${ApiUrls.baseUrl}/filtered_logs",
+        filterMap,
+      );
 
-    final String? traderName = filterMap['trader_name'];
-    final String? type = filterMap['type'];
-    final DateTime? fromDate = filterMap['fromDate'];
-    final DateTime? toDate = filterMap['toDate'];
-
-    if (traderName != null && traderName.isNotEmpty) {
-      filter["trader_name"] = traderName;
+      final List<dynamic> documents = response;
+      return documents.cast<Map<String, dynamic>>();
+    } catch (e) {
+      return [];
     }
-
-    if (type != null && type.isNotEmpty) {
-      filter["type"] = type;
-    }
-
-    if (fromDate != null || toDate != null) {
-      filter["date"] = {};
-
-      if (fromDate != null) {
-        filter["date"]["\$gte"] = fromDate.toIso8601String();
-      }
-
-      if (toDate != null) {
-        filter["date"]["\$lte"] = toDate.toIso8601String();
-      }
-    }
-
-    final response = await ApiClient.post(
-      "${ApiUrls.mongoDbApiUrl}/find",
-      {
-        "collection": "trader_finances_logs",
-        "database": "test",
-        "dataSource": "SushilKumarMalikFootwear",
-        "filter": filter,
-        "sort": {
-          "date": -1 // 🔽 descending order by date
-        }
-      },
-      headers: Constants.mongoDbHeaders,
-    );
-
-    final List<dynamic> documents = response["documents"];
-    return documents.cast<Map<String, dynamic>>();
-  } catch (e) {
-    print("Error fetching filtered trader finance logs: $e");
-    return [];
   }
-}
 
   Future<Map<String, int>> getTraderWisePendingPayments() async {
     try {
-      final response = await ApiClient.post(
-        "${ApiUrls.mongoDbApiUrl}/aggregate",
-        {
-          "collection": "trader_finances_logs",
-          "database": "test",
-          "dataSource": "SushilKumarMalikFootwear",
-          "pipeline": [
-            {
-              "\$match": {
-                "type": "PURCHASE",
-                "pending_amount": {"\$gt": 0}
-              }
-            },
-            {
-              "\$group": {
-                "_id": "\$trader_name",
-                "totalPending": {"\$sum": "\$pending_amount"}
-              }
-            }
-          ]
-        },
-        headers: Constants.mongoDbHeaders,
+      final response = await ApiClient.get(
+        "${ApiUrls.baseUrl}/trader_wise_pending_payment",
       );
-
-      final List<dynamic> docs = response["documents"];
-      final Map<String, int> result = {};
-      for (var doc in docs) {
-        result[doc["_id"]] = (doc["totalPending"] as num).round();
-      }
-      return result;
+      Map<String, int> res = {};
+      response.forEach((key, value) {
+        res.putIfAbsent(key, () => int.parse(value.toString()));
+      });
+      return res;
     } catch (e) {
-      print("Error fetching trader-wise pending payments: $e");
       return {};
     }
   }
-
-
-
 }
