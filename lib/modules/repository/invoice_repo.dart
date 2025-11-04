@@ -63,271 +63,119 @@ class InvoiceRepository {
     return dailyInvoicesMap;
   }
 
-  Future<Map<String, dynamic>> fetchInvoicesForSizesSalesReport(String article,
-      DateTime startDate, DateTime endDate, String label) async {
-    List pipeline = [
-      if (label.isNotEmpty)
-        {
-          "\$match": {
-            "article": {"\$regex": article, "\$options": "i"}
-          }
-        },
-      if (article.isNotEmpty)
-        {
-          "\$match": {"article": article}
-        }
-    ];
+  Future<Map<String, dynamic>> fetchInvoicesForSizesSalesReport(
+    String article,
+    DateTime startDate,
+    DateTime endDate,
+    String label,
+  ) async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "article": article,
+        "startDate": startDate.toIso8601String(),
+        "endDate": endDate.toIso8601String(),
+        "label": label,
+      };
 
-    var data = json.encode({
-      "collection": "footwears",
-      "database": "test",
-      "dataSource": "SushilKumarMalikFootwear",
-      "pipeline": pipeline
-    });
-
-    var dio = Dio();
-    var response = await dio.request(
-      "${ApiUrls.mongoDbApiUrl}/aggregate",
-      options: Options(
-        method: 'POST',
-        headers: Constants.mongoDbHeaders,
-      ),
-      data: data,
-    );
-
-    if (response.statusCode == 200) {
-      List<String> sizeSet = [];
-      List list = response.data['documents'];
-
-      if (list.isEmpty) {
-        return {};
-      }
-
-      // Collect footwear IDs for invoice query
-      List<String> footwearIds = list.map((e) {
-        sizeSet.add(e['size_range']);
-        return e['footwear_id'].toString();
-      }).toList();
-
-      pipeline = [
-        {
-          "\$match": {
-            "product_id": {"\$in": footwearIds},
-            "invoice_date": {
-              "\$gte": {"\$date": formatToIso8601WithTimezone(startDate)},
-              "\$lt": {"\$date": formatToIso8601WithTimezone(endDate)}
-            },
-            "invoice_status": "COMPLETED"
-          }
-        }
-      ];
-
-      data = json.encode({
-        "collection": "invoices",
-        "database": "test",
-        "dataSource": "SushilKumarMalikFootwear",
-        "pipeline": pipeline
-      });
-
-      response = await dio.request(
-        "${ApiUrls.mongoDbApiUrl}/aggregate",
-        options: Options(
-          method: 'POST',
-          headers: Constants.mongoDbHeaders,
-        ),
-        data: data,
+      final response = await ApiClient.post(
+        "${ApiUrls.baseUrl}/fetchSizesSalesReport",
+        requestBody,
       );
 
-      List invoices = response.data['documents'];
-      if (invoices.isEmpty) {
-        return {};
-      }
+      if (response != null && response.isNotEmpty) {
+        Map<String, dynamic> res = Map<String, dynamic>.from(response);
+        Map<String, dynamic> reportData =
+            Map<String, dynamic>.from(res['report']);
 
-      Map<String, int> report = {};
-      Map<String, Map> productMap = {};
-      Map<String, dynamic> dataMap = {
-        'report': report,
-        'total_count': invoices.length,
-        'cost_price': 0,
-        'selling_price': 0,
-        'profit': 0
-      };
-      // Function to expand size ranges
-      void extractSizes(String range, String sizeDescription) {
-        var sizeGroups = range.split('-');
-        for (String group in sizeGroups) {
-          var parts = group.split('X').map(int.parse).toList();
-          for (int i = parts[0]; i <= parts[1]; i++) {
-            if (sizeDescription == "S") {
-              report["${i}K"] = 0;
-            } else {
-              report["$i"] = 0;
-            }
+        Map<String, Map> smallMap = {};
+        Map<String, Map> otherMap = {};
+
+        reportData.forEach((key, value) {
+          if (value['sizeDescription'] == 'S') {
+            smallMap[key] = value;
+          } else {
+            otherMap[key] = value;
+          }
+        });
+        List<Map<String, int>> smallList = [];
+        List<String> smallKeys = smallMap.keys.toList();
+
+        smallKeys.sort((a, b) {
+          int aNum = int.tryParse(a.replaceAll('K', '')) ?? 0;
+          int bNum = int.tryParse(b.replaceAll('K', '')) ?? 0;
+          return aNum.compareTo(bNum);
+        });
+
+        String? oneKey = smallKeys.firstWhere(
+          (k) => k == '1K' || k == '1',
+          orElse: () => '',
+        );
+        if (oneKey.isNotEmpty) {
+          smallKeys.remove(oneKey);
+          smallKeys.add('1');
+        }
+        if (smallMap.containsKey('1K')) {
+          smallMap.putIfAbsent('1', () => smallMap['1K']!);
+          smallMap.remove('1K');
+        }
+        for (var key in smallKeys) {
+          final val = smallMap[key];
+          if (val != null) {
+            String finalKey = key == '1K' ? '1' : key;
+            smallList.add({finalKey: val['count']});
           }
         }
-      }
 
-      // Initialize report keys using size ranges and descriptions
-      for (var product in list) {
-        productMap[product['footwear_id']] = product;
-        String range = product['size_range'];
-        String sizeDescription = product['size_description'] ?? "";
-        extractSizes(range, sizeDescription);
-      }
+        List<Map<String, int>> otherList = [];
+        List<String> otherKeys = otherMap.keys.toList();
 
-      // Fill counts from invoices
-      for (Map invoice in invoices) {
-        String sizeKey = invoice['size'].toString();
-        String sizeDescription =
-            productMap[invoice['product_id']]!['size_description'].toString();
+        otherKeys.sort((a, b) {
+          int aNum = int.tryParse(a.replaceAll('K', '')) ?? 0;
+          int bNum = int.tryParse(b.replaceAll('K', '')) ?? 0;
+          return aNum.compareTo(bNum);
+        });
 
-        if (sizeDescription == "S") {
-          sizeKey = "${sizeKey}K";
+        for (var key in otherKeys) {
+          final val = otherMap[key];
+          if (val != null) {
+            otherList.add({key: val['count']});
+          }
         }
 
-        report[sizeKey] = (report[sizeKey] ?? 0) + 1;
-        dataMap['cost_price'] += invoice['cost_price'];
-        dataMap['selling_price'] += invoice['selling_price'];
-        dataMap['profit'] += invoice['profit'];
+        List<Map<String, int>> finalList = [...smallList, ...otherList];
+
+        res['report'] = finalList;
+
+        return res;
+      } else {
+        return {};
       }
-      return dataMap;
-    } else {
-      throw Exception("Failed to fetch invoices");
+    } catch (e) {
+      return {};
     }
   }
 
-  Future<List> fetchMonthlySalesReport() async {
-    List<Map<String, dynamic>> pipeline = [
-      {
-        '\$match': {
-          'invoice_status': {
-            '\$in': ["COMPLETED", "RETURNED"]
-          },
-        },
-      },
-      {
-        '\$group': {
-          '_id': {
-            'month': {
-              '\$dateToString': {'format': "%Y-%m", 'date': "\$invoice_date"}
-            },
-            'place': "\$sold_at",
-            'day': {
-              '\$dateToString': {'format': "%Y-%m-%d", 'date': "\$invoice_date"}
-            },
-          },
-          'totalSP': {'\$sum': "\$selling_price"},
-          'totalProfit': {'\$sum': "\$profit"},
-          'totalInvoices': {'\$sum': 1},
-          'returnedInvoices': {
-            '\$sum': {
-              '\$cond': [
-                {
-                  '\$eq': ["\$invoice_status", "RETURNED"]
-                }, // Condition
-                1, // If true, add 1
-                0 // Else, add 0
-              ]
-            }
-          },
-        },
-      },
-      {
-        '\$group': {
-          '_id': {'month': "\$_id.month", 'place': "\$_id.place"},
-          'totalSP': {'\$sum': "\$totalSP"},
-          'totalProfit': {'\$sum': "\$totalProfit"},
-          'totalInvoices': {'\$sum': "\$totalInvoices"},
-          'returnedInvoices': {'\$sum': "\$returnedInvoices"},
-          'uniqueDays': {'\$addToSet': "\$_id.day"},
-        },
-      },
-      {
-        '\$addFields': {
-          'numDays': {'\$size': "\$uniqueDays"},
-          'dailyAvgSales': {
-            '\$round': [
-              {
-                '\$cond': [
-                  {
-                    '\$gt': [
-                      {'\$size': "\$uniqueDays"},
-                      0
-                    ]
-                  }, // If numDays > 0
-                  {
-                    '\$divide': [
-                      "\$totalSP",
-                      {'\$size': "\$uniqueDays"}
-                    ]
-                  }, // Compute avg sales
-                  0 // Else return 0
-                ]
-              },
-              0 // Round to 0 decimal places
-            ],
-          },
-          'dailyAvgInvoices': {
-            '\$round': [
-              {
-                '\$cond': [
-                  {
-                    '\$gt': [
-                      {'\$size': "\$uniqueDays"},
-                      0
-                    ]
-                  },
-                  {
-                    '\$divide': [
-                      "\$totalInvoices",
-                      {'\$size': "\$uniqueDays"}
-                    ]
-                  },
-                  0
-                ]
-              },
-              0
-            ],
-          },
-        },
-      },
-      {
-        '\$group': {
-          '_id': "\$_id.month",
-          'sales': {
-            '\$push': {
-              'place': "\$_id.place",
-              'totalSP': "\$totalSP",
-              'totalProfit': "\$totalProfit",
-              'totalInvoices': "\$totalInvoices",
-              'returnedInvoices': "\$returnedInvoices",
-              'numDays': "\$numDays",
-              'dailyAvgSales': "\$dailyAvgSales",
-              'dailyAvgInvoices': "\$dailyAvgInvoices",
-            },
-          },
-        },
-      },
-      {
-        '\$sort': {'_id': 1},
-      },
-    ];
-    var data = json.encode({
-      "collection": "invoices",
-      "database": "test",
-      "dataSource": "SushilKumarMalikFootwear",
-      "pipeline": pipeline
-    });
+  Future<List<Map<String, dynamic>>> fetchMonthlySalesReport() async {
+    try {
+      final url = "${ApiUrls.baseUrl}/monthlySalesReport";
 
-    var dio = Dio();
-    var response = await dio.request(
-      "${ApiUrls.mongoDbApiUrl}/aggregate",
-      options: Options(
-        method: 'POST',
-        headers: Constants.mongoDbHeaders,
-      ),
-      data: data,
-    );
-    return response.data['documents'];
+      final response = await ApiClient.get(
+        url,
+      );
+
+      if (response['message'] != null && response['message'] == 'successful') {
+        final data = response['doc'];
+
+        if (data is List) {
+          return data.cast<Map<String, dynamic>>();
+        } else {
+          return [];
+        }
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
   }
 }

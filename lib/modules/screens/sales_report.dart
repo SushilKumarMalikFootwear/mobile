@@ -132,7 +132,6 @@ class _SalesReportState extends State<SalesReport> {
                 );
               } else {
                 Map<String, dynamic> dataMap = snapshot.data!;
-                Map<String, int> data = dataMap['report'];
 
                 return Card(
                   elevation: 4,
@@ -222,13 +221,17 @@ class _SalesReportState extends State<SalesReport> {
                             padding: const EdgeInsets.all(15.0),
                             child: DChartBarCustom(
                               showDomainLabel: true,
-                              listData: data.entries.map((entry) {
+                              listData:
+                                  (dataMap['report'] as List).map((entry) {
+                                final String label = entry.keys.first;
+                                final num value = entry.values.first;
+
                                 return DChartBarDataCustom(
                                   valueStyle:
                                       const TextStyle(color: Colors.white),
                                   color: Colors.teal[300],
-                                  value: entry.value.toDouble(),
-                                  label: entry.key.toString(),
+                                  value: value.toDouble(),
+                                  label: label,
                                   showValue: true,
                                 );
                               }).toList(),
