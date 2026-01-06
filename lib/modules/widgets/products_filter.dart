@@ -74,141 +74,143 @@ class _ProductsFilterState extends State<ProductsFilter> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: Column(
-          children: [
-            const Text('Filters'),
-            TextField(
-              controller: brandNameCtrl,
-              decoration: const InputDecoration(labelText: 'Brand Name'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SearchableDropdown(
-                onSelect: (String val) {},
-                controller: articleCtrl,
-                onChange: (String val) {
-                  List<String> articleList = [];
-                  for (int i = 0; i < Constants.articleList.length; i++) {
-                    if (Constants.articleList[i]
-                        .toUpperCase()
-                        .contains(val.toUpperCase())) {
-                      articleList.add(Constants.articleList[i]);
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Column(
+            children: [
+              const Text('Filters'),
+              TextField(
+                controller: brandNameCtrl,
+                decoration: const InputDecoration(labelText: 'Brand Name'),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              SearchableDropdown(
+                  onSelect: (String val) {},
+                  controller: articleCtrl,
+                  onChange: (String val) {
+                    List<String> articleList = [];
+                    for (int i = 0; i < Constants.articleList.length; i++) {
+                      if (Constants.articleList[i]
+                          .toUpperCase()
+                          .contains(val.toUpperCase())) {
+                        articleList.add(Constants.articleList[i]);
+                      }
                     }
-                  }
-                  return articleList;
+                    return articleList;
+                  },
+                  hintText: "Enter Article"),
+              const SizedBox(
+                height: 10,
+              ),
+              CustomDropDown(
+                  value: selectedCategory.isEmpty ? null : selectedCategory,
+                  hint: 'Select a Categoy',
+                  onChange: (value) {
+                    selectedCategory = value;
+                  },
+                  items: Constants.categoryList),
+              const SizedBox(
+                height: 10,
+              ),
+              CustomDropDown(
+                  value: selectedVendor.isEmpty ? null : selectedVendor,
+                  hint: 'Select a Vendor',
+                  onChange: (value) {
+                    selectedVendor = value;
+                  },
+                  items: Constants.vendorList),
+              TextField(
+                controller: colorCtrl,
+                decoration: const InputDecoration(labelText: 'Color'),
+              ),
+              SearchableDropdown(
+                onSelect: (String val) {},
+                controller: labelCtrl,
+                onChange: (String val) async {
+                  return labelList
+                      .where((label) =>
+                          label.toUpperCase().contains(val.toUpperCase()))
+                      .toList();
                 },
-                hintText: "Enter Article"),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomDropDown(
-                value: selectedCategory.isEmpty ? null : selectedCategory,
-                hint: 'Select a Categoy',
-                onChange: (value) {
-                  selectedCategory = value;
-                },
-                items: Constants.categoryList),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomDropDown(
-                value: selectedVendor.isEmpty ? null : selectedVendor,
-                hint: 'Select a Vendor',
-                onChange: (value) {
-                  selectedVendor = value;
-                },
-                items: Constants.vendorList),
-            TextField(
-              controller: colorCtrl,
-              decoration: const InputDecoration(labelText: 'Color'),
-            ),
-            SearchableDropdown(
-              onSelect: (String val) {},
-              controller: labelCtrl,
-              onChange: (String val) async {
-                return labelList
-                    .where((label) =>
-                        label.toUpperCase().contains(val.toUpperCase()))
-                    .toList();
-              },
-              hintText: "Enter Label",
-            ),
-            TextField(
-              controller: ratingMoreThanCtrl,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Rating More Than'),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: ratingLessThanCtrl,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Rating Less Than'),
-            ),
-            const SizedBox(height: 10),
-            CustomCheckBox(
-                isSelected: outOfStock,
-                onClicked: (value) {
-                  outOfStock = value;
-                },
-                label: "Out of Stock"),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomCheckBox(
-                isSelected: notUpdated,
-                onClicked: (value) {
-                  notUpdated = value;
-                },
-                label: "Not Updated"),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      filterMap = {
-                        'brand': brandNameCtrl.text,
-                        'category': selectedCategory,
-                        'article': articleCtrl.text,
-                        'color': colorCtrl.text,
-                        'vendor': selectedVendor,
-                        'out_of_stock': outOfStock.toString(),
-                        'notUpdated': notUpdated.toString(),
-                        'label':labelCtrl.text,
-                        if (ratingMoreThanCtrl.text.isNotEmpty)
-                          'rating_more_than': ratingMoreThanCtrl.text,
-                        if (ratingLessThanCtrl.text.isNotEmpty)
-                          'rating_less_than': ratingLessThanCtrl.text,
-                      };
-                      widget.applyFilter(filterMap);
-                      Navigator.pop(context);
-                      setState(() {});
-                    },
-                    child: const Text('Apply')),
-                ElevatedButton(
-                    onPressed: () {
-                      filterMap.clear();
-                      setState(() {
+                hintText: "Enter Label",
+              ),
+              TextField(
+                controller: ratingMoreThanCtrl,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Rating More Than'),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: ratingLessThanCtrl,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Rating Less Than'),
+              ),
+              const SizedBox(height: 10),
+              CustomCheckBox(
+                  isSelected: outOfStock,
+                  onClicked: (value) {
+                    outOfStock = value;
+                  },
+                  label: "Out of Stock"),
+              const SizedBox(
+                height: 10,
+              ),
+              CustomCheckBox(
+                  isSelected: notUpdated,
+                  onClicked: (value) {
+                    notUpdated = value;
+                  },
+                  label: "Not Updated"),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      onPressed: () {
+                        filterMap = {
+                          'brand': brandNameCtrl.text,
+                          'category': selectedCategory,
+                          'article': articleCtrl.text,
+                          'color': colorCtrl.text,
+                          'vendor': selectedVendor,
+                          'out_of_stock': outOfStock.toString(),
+                          'notUpdated': notUpdated.toString(),
+                          'label':labelCtrl.text,
+                          if (ratingMoreThanCtrl.text.isNotEmpty)
+                            'rating_more_than': ratingMoreThanCtrl.text,
+                          if (ratingLessThanCtrl.text.isNotEmpty)
+                            'rating_less_than': ratingLessThanCtrl.text,
+                        };
+                        widget.applyFilter(filterMap);
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
+                      child: const Text('Apply')),
+                  ElevatedButton(
+                      onPressed: () {
                         filterMap.clear();
-                        brandNameCtrl.clear();
-                        articleCtrl.clear();
-                        colorCtrl.clear();
-                        selectedCategory = '';
-                        selectedVendor = '';
-                        outOfStock = false;
-                        ratingMoreThanCtrl.clear();
-                        ratingLessThanCtrl.clear();
-                      });
-                    },
-                    child: const Text("Reset")),
-              ],
-            )
-          ],
+                        setState(() {
+                          filterMap.clear();
+                          brandNameCtrl.clear();
+                          articleCtrl.clear();
+                          colorCtrl.clear();
+                          selectedCategory = '';
+                          selectedVendor = '';
+                          outOfStock = false;
+                          ratingMoreThanCtrl.clear();
+                          ratingLessThanCtrl.clear();
+                        });
+                      },
+                      child: const Text("Reset")),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
