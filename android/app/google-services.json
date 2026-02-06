@@ -7,6 +7,35 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:985808829907:android:2c3ab3032c745378bec326",
+        "android_client_info": {
+          "package_name": "com.example.footwear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "985808829907-nhk5k52mnjb622fueqoadsd9ehaivk6f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVWfnxhlEbJ79J2XsIPy592Ex5UAUkx-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "985808829907-nhk5k52mnjb622fueqoadsd9ehaivk6f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:985808829907:android:0c69cd76677087f7bec326",
         "android_client_info": {
           "package_name": "com.sushilkumarmalik.footwear"

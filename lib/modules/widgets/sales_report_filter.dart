@@ -29,8 +29,9 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
   Frequency _selectedFrequency = Frequency.monthly; // default
   List<String> articleList = [];
   DateTime now = DateTime.now().add(Duration(days: 1));
-  DateTime startDate =
-      DateTime.now().add(Duration(days: 1)).subtract(Duration(days: 30));
+  DateTime startDate = DateTime.now()
+      .add(Duration(days: 1))
+      .subtract(Duration(days: 30));
   DateTime endDate = DateTime.now().add(Duration(days: 1));
   List<String> dateRangeList = [
     'Last 30 Days',
@@ -85,30 +86,31 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sales Report Filters'),
-      ),
+      appBar: AppBar(title: const Text('Sales Report Filters')),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Column(
           children: [
             CustomDropDown(
-                value: type,
-                hint: 'Select Filter Type',
-                onChange: (val) {
-                  type = val;
-                  setState(() {});
-                },
-                items: typeList),
+              value: type,
+              hint: 'Select Filter Type',
+              onChange: (val) {
+                type = val;
+                setState(() {});
+              },
+              items: typeList,
+            ),
             const SizedBox(height: 10),
             if (type != 'All labels') ...[
               SearchableDropdown(
                 onSelect: (String val) {},
                 controller: labelCtrl,
-                onChange: (String val) async {
+                onChange: (String val) async{
                   return labelList
-                      .where((label) =>
-                          label.toUpperCase().contains(val.toUpperCase()))
+                      .where(
+                        (label) =>
+                            label.toUpperCase().contains(val.toUpperCase()),
+                      )
                       .toList();
                 },
                 hintText: "Enter Label",
@@ -117,10 +119,12 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
               SearchableDropdown(
                 onSelect: (String val) {},
                 controller: articleCtrl,
-                onChange: (String val) async {
+                onChange: (String val) async{
                   return articleList
-                      .where((article) =>
-                          article.toUpperCase().contains(val.toUpperCase()))
+                      .where(
+                        (article) =>
+                            article.toUpperCase().contains(val.toUpperCase()),
+                      )
                       .toList();
                 },
                 hintText: "Enter Article",
@@ -163,7 +167,7 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
                     ],
                   ),
                 ],
-              )
+              ),
             ],
             CustomDropDown(
               value: selectedDateRangeOption,
@@ -190,9 +194,7 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
                         style: const TextStyle(fontSize: 18),
                       ),
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    SizedBox(width: 10),
                     IconButton(
                       padding: const EdgeInsets.only(right: 10),
                       onPressed: () async {
@@ -217,9 +219,7 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
                         style: const TextStyle(fontSize: 18),
                       ),
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    SizedBox(width: 10),
                     IconButton(
                       padding: const EdgeInsets.only(right: 10),
                       onPressed: () async {
@@ -245,7 +245,7 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
                   'startDate': startDate,
                   'endDate': endDate,
                   'dateRange': selectedDateRangeOption,
-                  'type': type
+                  'type': type,
                 });
                 Navigator.pop(context);
               },
@@ -258,7 +258,9 @@ class _SalesReportFilterState extends State<SalesReportFilter> {
   }
 
   Future<DateTime> selectDate(
-      BuildContext context, DateTime initialDate) async {
+    BuildContext context,
+    DateTime initialDate,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,

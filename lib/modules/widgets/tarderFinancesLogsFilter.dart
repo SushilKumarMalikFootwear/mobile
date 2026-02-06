@@ -55,7 +55,7 @@ class _TraderFinancesLogsFilterState extends State<TraderFinancesLogsFilter> {
               controller: traderCtrl,
               hintText: 'Select Trader',
               onSelect: (val) {},
-              onChange: (input) {
+              onChange: (input) async{
                 List<String> results = [];
                 for (var trader in Constants.vendorList) {
                   if (trader.toLowerCase().contains(input.toLowerCase())) {

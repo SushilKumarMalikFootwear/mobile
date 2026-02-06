@@ -204,26 +204,27 @@ class _AddProductState extends State<AddProduct> {
       image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         //upload.dart
-        UploadDownload obj = UploadDownload();
-          UploadTask upload = obj.uploadImage(image!.path);
-          upload.then((TaskSnapshot shot) async {
-            photoNumber == 1
-                ? firstPhotoUrl.text = await obj.ref.getDownloadURL()
-                : secondPhotoUrl.text = await obj.ref.getDownloadURL();
-            photoNumber == 1
-                ? uploadingFirstImage = false
-                : uploadingSecondImage = false;
-            setState(() {});
+        // UploadDownload obj = UploadDownload();
+        //   UploadTask upload = obj.uploadImage(image!.path);
+        //   upload.then((TaskSnapshot shot) async {
+        //     photoNumber == 1
+        //         ? firstPhotoUrl.text = await obj.ref.getDownloadURL()
+        //         : secondPhotoUrl.text = await obj.ref.getDownloadURL();
+        //     photoNumber == 1
+        //         ? uploadingFirstImage = false
+        //         : uploadingSecondImage = false;
+        //     setState(() {});
             //upload2.dart
-        // Future<String?> upload = UploadService.uploadFile(image!.path);
-        // upload.then((String? shot) async {
-        //   photoNumber == 1
-        //       ? firstPhotoUrl.text = shot ?? ''
-        //       : secondPhotoUrl.text = shot ?? '';
-        //   photoNumber == 1
-        //       ? uploadingFirstImage = false
-        //       : uploadingSecondImage = false;
-        //   setState(() {});
+        final File file = File(image!.path);
+        Future<String?> upload = UploadDownload.uploadImage(file);
+        upload.then((String? shot) async {
+          photoNumber == 1
+              ? firstPhotoUrl.text = shot ?? ''
+              : secondPhotoUrl.text = shot ?? '';
+          photoNumber == 1
+              ? uploadingFirstImage = false
+              : uploadingSecondImage = false;
+          setState(() {});
         }).catchError((err) {});
       } else {
         photoNumber == 1

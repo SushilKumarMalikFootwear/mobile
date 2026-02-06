@@ -705,7 +705,6 @@ class _SalesChartScreenState extends State<SalesChartScreen> {
                                 LineChartData(
                                   lineTouchData: LineTouchData(
                                     touchTooltipData: LineTouchTooltipData(
-                                      tooltipBgColor: Colors.blue.shade700,
                                       getTooltipItems:
                                           (List<LineBarSpot> touchedBarSpots) {
                                         return touchedBarSpots.map((barSpot) {

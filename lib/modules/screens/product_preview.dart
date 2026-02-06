@@ -22,7 +22,6 @@ class ProductPreview extends StatefulWidget {
 }
 
 class _ProductPreviewState extends State<ProductPreview> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,24 +60,27 @@ class _ProductPreviewState extends State<ProductPreview> {
                 if (itemSelected == null) return;
 
                 if (itemSelected == Constants.edit) {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Scaffold(
-                        appBar: AppBar(title: const Text('Manage Product')),
-                        body: AddProduct(
-                          () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            widget.refreshParent();
-                          },
-                          () {},
-                          Constants.edit,
-                          widget.product,
-                        ),
-                      );
-                    },
-                  ));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Scaffold(
+                          appBar: AppBar(title: const Text('Manage Product')),
+                          body: AddProduct(
+                            () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                              widget.refreshParent();
+                            },
+                            () {},
+                            Constants.edit,
+                            widget.product,
+                          ),
+                        );
+                      },
+                    ),
+                  );
                 }
               });
             },
@@ -92,7 +94,7 @@ class _ProductPreviewState extends State<ProductPreview> {
           children: [
             //
             Image.network(widget.product.URL1!, fit: BoxFit.contain),
-            if (widget.product.URL2 != null)
+            if (widget.product.URL2 != null && widget.product.URL2!.isNotEmpty)
               Image.network(widget.product.URL2!, fit: BoxFit.contain),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -103,37 +105,43 @@ class _ProductPreviewState extends State<ProductPreview> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        widget.product.sizeDescription='S';
+                        widget.product.sizeDescription = 'S';
                         setState(() {});
                       },
                       child: Chip(
                         label: Text('S'),
                         backgroundColor:
-                            widget.product.sizeDescription=='S' ? Colors.blue[400] : Colors.white,
+                            widget.product.sizeDescription == 'S'
+                                ? Colors.blue[400]
+                                : Colors.white,
                       ),
                     ),
                     GestureDetector(
                       onTap: () {
-                        widget.product.sizeDescription='M' ;
+                        widget.product.sizeDescription = 'M';
                         setState(() {});
                       },
                       child: Chip(
                         label: Text('M'),
                         backgroundColor:
-                            widget.product.sizeDescription=='M'  ? Colors.blue[400] : Colors.white,
+                            widget.product.sizeDescription == 'M'
+                                ? Colors.blue[400]
+                                : Colors.white,
                       ),
                     ),
                     GestureDetector(
                       onTap: () {
-                        widget.product.sizeDescription='L';
+                        widget.product.sizeDescription = 'L';
                         setState(() {});
                       },
                       child: Chip(
                         label: Text('L'),
                         backgroundColor:
-                            widget.product.sizeDescription=='L'  ? Colors.blue[400] : Colors.white,
+                            widget.product.sizeDescription == 'L'
+                                ? Colors.blue[400]
+                                : Colors.white,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
@@ -168,10 +176,14 @@ class _ProductPreviewState extends State<ProductPreview> {
                   const SizedBox(height: 8),
 
                   // Brand & Category
-                  Text("Brand: ${widget.product.brandName}",
-                      style: const TextStyle(fontSize: 16)),
-                  Text("Category: ${widget.product.category}",
-                      style: const TextStyle(fontSize: 16)),
+                  Text(
+                    "Brand: ${widget.product.brandName}",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    "Category: ${widget.product.category}",
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 8),
 
                   // Price section
@@ -199,44 +211,62 @@ class _ProductPreviewState extends State<ProductPreview> {
                   const SizedBox(height: 8),
 
                   // Color & Size Range
-                  Text("Color: ${widget.product.color}",
-                      style: const TextStyle(fontSize: 16)),
-                  Text("Size Range: ${widget.product.sizeRange}",
-                      style: const TextStyle(fontSize: 16)),
+                  Text(
+                    "Color: ${widget.product.color}",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    "Size Range: ${widget.product.sizeRange}",
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 10),
 
                   // Shop sizes
                   if (widget.sizeAtShope.isNotEmpty) ...[
-                    const Text("Available at Shop:",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text(
+                      "Available at Shop:",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Wrap(
                       spacing: 2,
-                      children: widget.sizeAtShope
-                          .split(',')
-                          .map((s) => Chip(
-                                label: Text(s),
-                                backgroundColor: Colors.blue[50],
-                              ))
-                          .toList(),
+                      children:
+                          widget.sizeAtShope
+                              .split(',')
+                              .map(
+                                (s) => Chip(
+                                  label: Text(s),
+                                  backgroundColor: Colors.blue[50],
+                                ),
+                              )
+                              .toList(),
                     ),
                     const SizedBox(height: 5),
                   ],
 
                   // Home sizes
                   if (widget.sizeAtHome.isNotEmpty) ...[
-                    const Text("Available at Home:",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text(
+                      "Available at Home:",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Wrap(
                       spacing: 2,
-                      children: widget.sizeAtHome
-                          .split(',')
-                          .map((s) => Chip(
-                                label: Text(s),
-                                backgroundColor: Colors.green[50],
-                              ))
-                          .toList(),
+                      children:
+                          widget.sizeAtHome
+                              .split(',')
+                              .map(
+                                (s) => Chip(
+                                  label: Text(s),
+                                  backgroundColor: Colors.green[50],
+                                ),
+                              )
+                              .toList(),
                     ),
                   ],
                 ],

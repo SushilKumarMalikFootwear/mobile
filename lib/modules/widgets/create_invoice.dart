@@ -15,12 +15,13 @@ class CreateInvoice extends StatefulWidget {
   final String todo;
   final Function refreshChild;
   final Function switchChild;
-  const CreateInvoice(
-      {super.key,
-      required this.invoice,
-      required this.refreshChild,
-      required this.switchChild,
-      required this.todo});
+  const CreateInvoice({
+    super.key,
+    required this.invoice,
+    required this.refreshChild,
+    required this.switchChild,
+    required this.todo,
+  });
 
   @override
   State<CreateInvoice> createState() => _CreateInvoiceState();
@@ -112,37 +113,41 @@ class _CreateInvoiceState extends State<CreateInvoice> {
         child: SingleChildScrollView(
           child: Form(
             key: _form,
-            child: Column(children: [
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Text(
-                        invoice.invoiceDate.toString().split(' ')[0],
-                        style: const TextStyle(fontSize: 18),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          invoice.invoiceDate.toString().split(' ')[0],
+                          style: const TextStyle(fontSize: 18),
+                        ),
                       ),
-                    ),
-                    IconButton(
+                      IconButton(
                         padding: const EdgeInsets.only(right: 20),
                         onPressed: () async {
-                          invoice.invoiceDate =
-                              await selectDate(context, invoice.invoiceDate);
+                          invoice.invoiceDate = await selectDate(
+                            context,
+                            invoice.invoiceDate,
+                          );
                           setState(() {});
                         },
                         icon: const Icon(
                           Icons.calendar_month_outlined,
                           color: Colors.blue,
                           size: 30,
-                        ))
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: SearchableDropdown(
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: SearchableDropdown(
                     onSelect: (val) {
                       showProductError = false;
                       product = Constants.articleWithColorToProduct[val];
@@ -152,9 +157,10 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                         invoice.vendor = product!.vendor;
                         sellingPriceCtrl.text = product!.sellingPrice;
                         costPriceCtrl.text = product!.costPrice;
-                        profitCtrl.text = (double.parse(product!.sellingPrice) -
-                                double.parse(product!.costPrice))
-                            .toString();
+                        profitCtrl.text =
+                            (double.parse(product!.sellingPrice) -
+                                    double.parse(product!.costPrice))
+                                .toString();
                         mrpCtrl.text = product!.mrp;
                         invoice.productId = product!.footwear_id;
                         availableSizes.clear();
@@ -167,11 +173,13 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       setState(() {});
                     },
                     controller: articleCtrl,
-                    onChange: (String val) {
+                    onChange: (String val) async{
                       List<String> articleList = [];
-                      for (int i = 0;
-                          i < Constants.articleWithColorList.length;
-                          i++) {
+                      for (
+                        int i = 0;
+                        i < Constants.articleWithColorList.length;
+                        i++
+                      ) {
                         if (Constants.articleWithColorList[i]
                             .toUpperCase()
                             .contains(val.toUpperCase())) {
@@ -186,19 +194,24 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       }
                       return articleList;
                     },
-                    hintText: 'Select Product'),
-              ),
-              if (showProductError)
-                const Row(
-                  children: [
-                    Text('     Please Select Product',
-                        style: TextStyle(color: Colors.red)),
-                  ],
+                    hintText: 'Select Product',
+                  ),
                 ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: CustomDropDown(
+                if (showProductError)
+                  const Row(
+                    children: [
+                      Text(
+                        '     Please Select Product',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: CustomDropDown(
                     value: invoice.vendor.isEmpty ? null : invoice.vendor,
                     hint: 'Select a Vendor',
                     onChange: (value) {
@@ -206,20 +219,25 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       showVendorError = false;
                       setState(() {});
                     },
-                    items: Constants.vendorList),
-              ),
-              if (showVendorError)
-                const Row(
-                  children: [
-                    Text('     Please Select Vendor',
-                        style: TextStyle(color: Colors.red)),
-                  ],
+                    items: Constants.vendorList,
+                  ),
                 ),
-              const SizedBox(height: 5),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: CustomDropDown(
+                if (showVendorError)
+                  const Row(
+                    children: [
+                      Text(
+                        '     Please Select Vendor',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 5),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: CustomDropDown(
                     value: invoice.size.isEmpty ? null : invoice.size,
                     hint: 'Select Size',
                     onChange: (val) {
@@ -227,59 +245,75 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       showSizeError = false;
                       setState(() {});
                     },
-                    items: availableSizes),
-              ),
-              if (showSizeError)
-                const Row(
-                  children: [
-                    Text('     Please Select Size',
-                        style: TextStyle(color: Colors.red)),
-                  ],
+                    items: availableSizes,
+                  ),
                 ),
-              const SizedBox(height: 5),
-              CustomText(label: 'MRP', tc: mrpCtrl),
-              const SizedBox(height: 5),
-              CustomText(
+                if (showSizeError)
+                  const Row(
+                    children: [
+                      Text(
+                        '     Please Select Size',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 5),
+                CustomText(label: 'MRP', tc: mrpCtrl),
+                const SizedBox(height: 5),
+                CustomText(
                   label: 'Selling Price',
                   onChange: calculateProfit,
                   tc: sellingPriceCtrl,
-                  required: true),
-              const SizedBox(height: 5),
-              CustomText(
+                  required: true,
+                ),
+                const SizedBox(height: 5),
+                CustomText(
                   label: 'Cost Price',
                   onChange: calculateProfit,
                   tc: costPriceCtrl,
-                  required: true),
-              const SizedBox(height: 5),
-              CustomText(label: 'Profit', tc: profitCtrl, required: true),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: CustomDropDown(
+                  required: true,
+                ),
+                const SizedBox(height: 5),
+                CustomText(label: 'Profit', tc: profitCtrl, required: true),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: CustomDropDown(
                     value: invoice.soldAt,
                     hint: 'Sold At',
                     onChange: (val) {
                       invoice.soldAt = val;
                     },
-                    items: [Constants.shop, Constants.home]),
-              ),
-              CustomText(
-                  label: 'Description', tc: descriptionCtrl, isMultiLine: true),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: CustomDropDown(
+                    items: [Constants.shop, Constants.home],
+                  ),
+                ),
+                CustomText(
+                  label: 'Description',
+                  tc: descriptionCtrl,
+                  isMultiLine: true,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: CustomDropDown(
                     value: invoice.paymentMode,
                     hint: 'Payment Mode',
                     onChange: (val) {
                       invoice.paymentMode = val;
                     },
-                    items: [Constants.cash, Constants.upi]),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: CustomDropDown(
+                    items: [Constants.cash, Constants.upi],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: CustomDropDown(
                     value: invoice.paymentStatus,
                     hint: 'Payment Status',
                     onChange: (val) {
@@ -291,30 +325,37 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       }
                       setState(() {});
                     },
-                    items: [Constants.paid, Constants.pending]),
-              ),
-              const SizedBox(height: 5),
-              if (invoice.paymentStatus == 'PENDING')
-                CustomText(
-                    label: 'Pending Payment Amount', tc: pendingPaymentCtrl),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: CustomDropDown(
+                    items: [Constants.paid, Constants.pending],
+                  ),
+                ),
+                const SizedBox(height: 5),
+                if (invoice.paymentStatus == 'PENDING')
+                  CustomText(
+                    label: 'Pending Payment Amount',
+                    tc: pendingPaymentCtrl,
+                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: CustomDropDown(
                     value: invoice.invoiceStatus,
                     hint: 'Invoice Status',
                     onChange: (val) {
                       invoice.invoiceStatus = val;
                     },
-                    items: [Constants.completed, Constants.returned]),
-              ),
-              CustomCheckBox(
+                    items: [Constants.completed, Constants.returned],
+                  ),
+                ),
+                CustomCheckBox(
                   isSelected: invoice.addInTotalCost,
                   onClicked: (val) {
                     invoice.addInTotalCost = val;
                   },
-                  label: 'Add in Total Cost'),
-              ElevatedButton(
+                  label: 'Add in Total Cost',
+                ),
+                ElevatedButton(
                   onPressed: () {
                     if (articleCtrl.text.isEmpty) {
                       showProductError = true;
@@ -335,20 +376,23 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                       if (widget.todo == Constants.create) {
                         Constants.soldAt = invoice.soldAt;
                         DateTime invoiceDate = DateTime(
-                            invoice.invoiceDate.year,
-                            invoice.invoiceDate.month,
-                            invoice.invoiceDate.day,
-                            DateTime.now().hour,
-                            DateTime.now().minute,
-                            DateTime.now().second);
+                          invoice.invoiceDate.year,
+                          invoice.invoiceDate.month,
+                          invoice.invoiceDate.day,
+                          DateTime.now().hour,
+                          DateTime.now().minute,
+                          DateTime.now().second,
+                        );
 
                         Constants.invoiceDate = invoiceDate;
                       }
                       saveInvoice();
                     }
                   },
-                  child: const Text('Save'))
-            ]),
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

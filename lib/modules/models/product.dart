@@ -20,7 +20,7 @@ class Product {
   String sizeDescription = 'M';
   Product();
   Product.fromJSON(Map product) {
-    sizeDescription = product['size_description']??'M';
+    sizeDescription = product['size_description'] ?? 'M';
     rating = product['rating'].toString();
     vendor = product['vendor'] ?? '';
     footwear_id = product['footwear_id'];
@@ -30,15 +30,15 @@ class Product {
     sellingPrice = product['selling_price'].toString();
     costPrice = product['cost_price'].toString();
     category = product['category'];
-    URL1 = product['images'][0];
-    URL2 = product['images'].length == 2 ? product['images'][1] : '';
+    URL1 = product['newImages'][0];
+    URL2 = product['newImages'].length == 2 ? product['newImages'][1] : '';
     color = product['color'];
     sizeRange = product['size_range'];
     pairs_in_stock = product['pairs_in_stock'];
     description = product['description'];
     outOfStock = product['out_of_stock'];
-    updated = product['updated']??false;
-    List temp = product['label']??[];
+    updated = product['updated'] ?? false;
+    List temp = product['label'] ?? [];
     label = temp.map((e) => e.toString()).toList();
   }
 
@@ -56,12 +56,13 @@ class Product {
       "size_range": sizeRange,
       "description": description,
       "images": [URL1, URL2],
+      "newImages": [URL1, URL2],
       'footwear_id': footwear_id,
       'out_of_stock': outOfStock,
       'label': label,
       'rating': rating,
-      'updated':updated,
-      'size_description':sizeDescription
+      'updated': updated,
+      'size_description': sizeDescription,
     };
   }
 }

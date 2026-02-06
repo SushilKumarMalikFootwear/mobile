@@ -8,8 +8,11 @@ import '../repository/product_repo.dart';
 class ProductsFilter extends StatefulWidget {
   final Function applyFilter;
   Map<String, String> filterOptions;
-  ProductsFilter(
-      {super.key, required this.applyFilter, required this.filterOptions});
+  ProductsFilter({
+    super.key,
+    required this.applyFilter,
+    required this.filterOptions,
+  });
 
   @override
   State<ProductsFilter> createState() => _ProductsFilterState();
@@ -84,55 +87,57 @@ class _ProductsFilterState extends State<ProductsFilter> {
                 controller: brandNameCtrl,
                 decoration: const InputDecoration(labelText: 'Brand Name'),
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               SearchableDropdown(
-                  onSelect: (String val) {},
-                  controller: articleCtrl,
-                  onChange: (String val) {
-                    List<String> articleList = [];
-                    for (int i = 0; i < Constants.articleList.length; i++) {
-                      if (Constants.articleList[i]
-                          .toUpperCase()
-                          .contains(val.toUpperCase())) {
-                        articleList.add(Constants.articleList[i]);
-                      }
+                onSelect: (String val) {},
+                controller: articleCtrl,
+                onChange: (String val) async {
+                  print("abc");
+                  List<String> articleList = [];
+                  for (int i = 0; i < Constants.articleList.length; i++) {
+                    if (Constants.articleList[i].toUpperCase().contains(
+                      val.toUpperCase(),
+                    )) {
+                      articleList.add(Constants.articleList[i]);
                     }
-                    return articleList;
-                  },
-                  hintText: "Enter Article"),
-              const SizedBox(
-                height: 10,
+                  }
+                  setState(() {});
+                  return articleList;
+                },
+                hintText: "Enter Article",
               ),
+              const SizedBox(height: 10),
               CustomDropDown(
-                  value: selectedCategory.isEmpty ? null : selectedCategory,
-                  hint: 'Select a Categoy',
-                  onChange: (value) {
-                    selectedCategory = value;
-                  },
-                  items: Constants.categoryList),
-              const SizedBox(
-                height: 10,
+                value: selectedCategory.isEmpty ? null : selectedCategory,
+                hint: 'Select a Categoy',
+                onChange: (value) {
+                  selectedCategory = value;
+                },
+                items: Constants.categoryList,
               ),
+              const SizedBox(height: 10),
               CustomDropDown(
-                  value: selectedVendor.isEmpty ? null : selectedVendor,
-                  hint: 'Select a Vendor',
-                  onChange: (value) {
-                    selectedVendor = value;
-                  },
-                  items: Constants.vendorList),
+                value: selectedVendor.isEmpty ? null : selectedVendor,
+                hint: 'Select a Vendor',
+                onChange: (value) {
+                  selectedVendor = value;
+                },
+                items: Constants.vendorList,
+              ),
               TextField(
                 controller: colorCtrl,
                 decoration: const InputDecoration(labelText: 'Color'),
               ),
+              SizedBox(height: 10),
               SearchableDropdown(
                 onSelect: (String val) {},
                 controller: labelCtrl,
                 onChange: (String val) async {
                   return labelList
-                      .where((label) =>
-                          label.toUpperCase().contains(val.toUpperCase()))
+                      .where(
+                        (label) =>
+                            label.toUpperCase().contains(val.toUpperCase()),
+                      )
                       .toList();
                 },
                 hintText: "Enter Label",
@@ -140,75 +145,79 @@ class _ProductsFilterState extends State<ProductsFilter> {
               TextField(
                 controller: ratingMoreThanCtrl,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Rating More Than'),
+                decoration: const InputDecoration(
+                  labelText: 'Rating More Than',
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: ratingLessThanCtrl,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Rating Less Than'),
+                decoration: const InputDecoration(
+                  labelText: 'Rating Less Than',
+                ),
               ),
               const SizedBox(height: 10),
               CustomCheckBox(
-                  isSelected: outOfStock,
-                  onClicked: (value) {
-                    outOfStock = value;
-                  },
-                  label: "Out of Stock"),
-              const SizedBox(
-                height: 10,
+                isSelected: outOfStock,
+                onClicked: (value) {
+                  outOfStock = value;
+                },
+                label: "Out of Stock",
               ),
+              const SizedBox(height: 10),
               CustomCheckBox(
-                  isSelected: notUpdated,
-                  onClicked: (value) {
-                    notUpdated = value;
-                  },
-                  label: "Not Updated"),
-              const SizedBox(
-                height: 10,
+                isSelected: notUpdated,
+                onClicked: (value) {
+                  notUpdated = value;
+                },
+                label: "Not Updated",
               ),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                      onPressed: () {
-                        filterMap = {
-                          'brand': brandNameCtrl.text,
-                          'category': selectedCategory,
-                          'article': articleCtrl.text,
-                          'color': colorCtrl.text,
-                          'vendor': selectedVendor,
-                          'out_of_stock': outOfStock.toString(),
-                          'notUpdated': notUpdated.toString(),
-                          'label':labelCtrl.text,
-                          if (ratingMoreThanCtrl.text.isNotEmpty)
-                            'rating_more_than': ratingMoreThanCtrl.text,
-                          if (ratingLessThanCtrl.text.isNotEmpty)
-                            'rating_less_than': ratingLessThanCtrl.text,
-                        };
-                        widget.applyFilter(filterMap);
-                        Navigator.pop(context);
-                        setState(() {});
-                      },
-                      child: const Text('Apply')),
+                    onPressed: () {
+                      filterMap = {
+                        'brand': brandNameCtrl.text,
+                        'category': selectedCategory,
+                        'article': articleCtrl.text,
+                        'color': colorCtrl.text,
+                        'vendor': selectedVendor,
+                        'out_of_stock': outOfStock.toString(),
+                        'notUpdated': notUpdated.toString(),
+                        'label': labelCtrl.text,
+                        if (ratingMoreThanCtrl.text.isNotEmpty)
+                          'rating_more_than': ratingMoreThanCtrl.text,
+                        if (ratingLessThanCtrl.text.isNotEmpty)
+                          'rating_less_than': ratingLessThanCtrl.text,
+                      };
+                      widget.applyFilter(filterMap);
+                      Navigator.pop(context);
+                      setState(() {});
+                    },
+                    child: const Text('Apply'),
+                  ),
                   ElevatedButton(
-                      onPressed: () {
+                    onPressed: () {
+                      filterMap.clear();
+                      setState(() {
                         filterMap.clear();
-                        setState(() {
-                          filterMap.clear();
-                          brandNameCtrl.clear();
-                          articleCtrl.clear();
-                          colorCtrl.clear();
-                          selectedCategory = '';
-                          selectedVendor = '';
-                          outOfStock = false;
-                          ratingMoreThanCtrl.clear();
-                          ratingLessThanCtrl.clear();
-                        });
-                      },
-                      child: const Text("Reset")),
+                        brandNameCtrl.clear();
+                        articleCtrl.clear();
+                        colorCtrl.clear();
+                        selectedCategory = '';
+                        selectedVendor = '';
+                        outOfStock = false;
+                        ratingMoreThanCtrl.clear();
+                        ratingLessThanCtrl.clear();
+                      });
+                    },
+                    child: const Text("Reset"),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),

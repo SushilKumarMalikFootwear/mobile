@@ -101,7 +101,7 @@ class _InvoicesFilterState extends State<InvoicesFilter> {
             SearchableDropdown(
                 onSelect: (String val) {},
                 controller: articleCtrl,
-                onChange: (String val) {
+                onChange: (String val) async{
                   List<String> articleList = [];
                   for (int i = 0; i < Constants.articleList.length; i++) {
                     if (Constants.articleList[i]
