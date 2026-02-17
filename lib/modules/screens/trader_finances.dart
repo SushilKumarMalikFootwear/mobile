@@ -8,7 +8,7 @@ import '../models/drawer_option.dart';
 import '../models/trader_finances.dart';
 
 class TraderFinanceScreen extends StatelessWidget {
-  DrawerOptionList list = DrawerOptionList();
+  final DrawerOptionList list = DrawerOptionList();
   final TraderFinancesRepository traderFinancesRepository =
       TraderFinancesRepository();
 

@@ -32,6 +32,7 @@ class CustomText extends StatelessWidget {
           if (required && value.toString().trim().isEmpty) {
             return 'Please fill this field';
           }
+          return null;
         },
         maxLines: isMultiLine ? 4 : 1,
         decoration: InputDecoration(

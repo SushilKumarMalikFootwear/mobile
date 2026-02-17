@@ -27,8 +27,10 @@ void main() async {
       Product product = Product.fromJSON(e);
       String articleWithColor = "${product.article} : ${product.color}";
       Constants.articleWithColorList.add(articleWithColor);
-      Constants.articleWithColorToProduct
-          .putIfAbsent(articleWithColor, () => product);
+      Constants.articleWithColorToProduct.putIfAbsent(
+        articleWithColor,
+        () => product,
+      );
     }).toList();
   });
   runApp(MyApp());
@@ -45,7 +47,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            textStyle: MaterialStateProperty.all<TextStyle>(TextStyle(color: Colors.white)),
+            textStyle: MaterialStateProperty.all<TextStyle>(
+              TextStyle(color: Colors.white),
+            ),
             backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
           ),

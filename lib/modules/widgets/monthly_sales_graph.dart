@@ -136,8 +136,8 @@ class _SalesChartScreenState extends State<SalesChartScreen> {
         '${DateTime.now().month >= 4 ? DateTime.now().year : DateTime.now().year - 1}-${(DateTime.now().month >= 4 ? DateTime.now().year + 1 : DateTime.now().year).toString().substring(2)}';
     currentData = processedData[financialYear]!;
     // Create a set of months already present in the input data
-    final Set<String> presentMonths =
-        currentData.map((e) => e['month'] as String).toSet();
+    // final Set<String> presentMonths =
+    //     currentData.map((e) => e['month'] as String).toSet();
 
     // List of all months in financial year order
     final List<String> financialMonths = [

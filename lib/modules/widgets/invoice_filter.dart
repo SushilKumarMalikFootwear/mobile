@@ -6,8 +6,8 @@ import '../../utils/widgets/custom_checkbox.dart';
 
 class InvoicesFilter extends StatefulWidget {
   final Function applyFilter;
-  Map<String, dynamic> flterOptions;
-  InvoicesFilter(
+  final Map<String, dynamic> flterOptions;
+  const InvoicesFilter(
       {super.key, required this.applyFilter, required this.flterOptions});
 
   @override

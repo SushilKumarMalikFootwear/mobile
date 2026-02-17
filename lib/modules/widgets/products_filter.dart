@@ -7,8 +7,8 @@ import '../repository/product_repo.dart';
 
 class ProductsFilter extends StatefulWidget {
   final Function applyFilter;
-  Map<String, String> filterOptions;
-  ProductsFilter({
+  final Map<String, String> filterOptions;
+  const ProductsFilter({
     super.key,
     required this.applyFilter,
     required this.filterOptions,
@@ -142,20 +142,33 @@ class _ProductsFilterState extends State<ProductsFilter> {
                 },
                 hintText: "Enter Label",
               ),
-              TextField(
-                controller: ratingMoreThanCtrl,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Rating More Than',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: ratingLessThanCtrl,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Rating Less Than',
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: ratingMoreThanCtrl,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Rating More Than',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: ratingLessThanCtrl,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Rating Less Than',
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               CustomCheckBox(

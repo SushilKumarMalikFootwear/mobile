@@ -52,9 +52,9 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
       onSelected: (suggestion) {
         widget.controller.text = suggestion;
         widget.onSelect(suggestion.trim());
-        setState(() {
-          
-        });
+        FocusScope.of(context).unfocus();
+
+        // setState(() {});
       },
 
       builder: (context, typeAheadController, focusNode) {
@@ -71,7 +71,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
           decoration: InputDecoration(
             hintText: widget.hintText,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            border: const OutlineInputBorder(),
+            border: const UnderlineInputBorder(),
           ),
         );
       },

@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:footwear/utils/services/api_client.dart';
 import '../../config/constants/app_constants.dart';
@@ -20,7 +18,6 @@ class ProductRepository {
     return configLists;
   }
 
-  FirebaseFirestore db = FirebaseFirestore.instance;
   add(Map<String, dynamic> product) async {
     var response = await ApiClient.post(ApiUrls.addFootwear, product);
     return response;

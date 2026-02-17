@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:footwear/modules/widgets/select_label.dart';
 import 'package:image_picker/image_picker.dart';
@@ -57,8 +55,6 @@ class _AddProductState extends State<AddProduct> {
   bool showVendorError = false;
   bool showCategoryError = false;
 
-  File? _pickedImage;
-
   @override
   initState() {
     setConfigList();
@@ -92,15 +88,6 @@ class _AddProductState extends State<AddProduct> {
       setState(() {});
     } else {
       rating.text = '7';
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _pickedImage = File(pickedFile.path);
-      });
     }
   }
 
