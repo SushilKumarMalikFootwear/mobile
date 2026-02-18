@@ -225,6 +225,7 @@ class _ProductsFilterState extends State<ProductsFilter> {
                         outOfStock = false;
                         ratingMoreThanCtrl.clear();
                         ratingLessThanCtrl.clear();
+                        labelCtrl.clear();
                       });
                     },
                     child: const Text("Reset"),

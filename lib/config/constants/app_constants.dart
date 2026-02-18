@@ -19,7 +19,7 @@ abstract class Constants {
     'Access-Control-Request-Headers': '*',
     'api-key':
         'qNt2VxYXcnCBIL2txrJq1aTPoXlzCKG4kFCOBCdOvODzQxV0W106vBQNlf5trY3i',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
   };
   static List<String> articleList = [];
   static List<String> vendorList = [];
@@ -71,7 +71,7 @@ abstract class Constants {
     '42',
     '43',
     '44',
-    '45'
+    '45',
   ];
   static String soldAt = 'HOME';
   static DateTime invoiceDate = DateTime.now();
@@ -79,7 +79,7 @@ abstract class Constants {
 
 abstract class ApiUrls {
   static String baseUrl =
-      'https://sushil-kumar-malik-footwear-backend.vercel.app';
+      'https://0504-2409-40d0-13a2-d67f-fcb6-bc64-cd72-3c36.ngrok-free.app';
   static String getConfigList = '$baseUrl/get_config_lists';
   static String addFootwear = '$baseUrl/add_footwear';
   static String updateFootwear = '$baseUrl/update_product';

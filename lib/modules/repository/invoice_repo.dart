@@ -10,8 +10,10 @@ class InvoiceRepository {
   }
 
   updateInvoice(Invoice invoice) async {
-    var response =
-        await ApiClient.post(ApiUrls.updateInvoice, invoice.toJson());
+    var response = await ApiClient.post(
+      ApiUrls.updateInvoice,
+      invoice.toJson(),
+    );
     return response;
   }
 
@@ -26,11 +28,14 @@ class InvoiceRepository {
   }
 
   Future<Map<String, DailyInvoices>> filterInvoices(
-      Map<String, dynamic> filterMap) async {
+    Map<String, dynamic> filterMap,
+  ) async {
     Map<String, dynamic> clone = {...filterMap};
     clone.updateAll((key, value) => value.toString());
-    var response =
-        await ApiClient.post("${ApiUrls.baseUrl}/fetchInvoices", clone);
+    var response = await ApiClient.post(
+      "${ApiUrls.baseUrl}/fetchInvoices",
+      clone,
+    );
     List list = response['doc'];
     Map<String, DailyInvoices> dailyInvoicesMap = {};
     for (Map invoiceMap in list) {
@@ -46,12 +51,13 @@ class InvoiceRepository {
         }
       } else {
         DailyInvoices dailyInvoices = DailyInvoices(
-            profit: invoice.invoiceStatus != "RETURNED" ? invoice.profit : 0,
-            date: invoiceMap['invoice_date'].toString().split("T")[0],
-            invoices: [invoice],
-            sellingPrice:
-                invoice.invoiceStatus != "RETURNED" ? invoice.sellingPrice : 0,
-            soldAt: invoice.soldAt);
+          profit: invoice.invoiceStatus != "RETURNED" ? invoice.profit : 0,
+          date: invoiceMap['invoice_date'].toString().split("T")[0],
+          invoices: [invoice],
+          sellingPrice:
+              invoice.invoiceStatus != "RETURNED" ? invoice.sellingPrice : 0,
+          soldAt: invoice.soldAt,
+        );
         dailyInvoicesMap[key] = dailyInvoices;
       }
     }
@@ -80,8 +86,9 @@ class InvoiceRepository {
 
       if (response != null && response.isNotEmpty) {
         Map<String, dynamic> res = Map<String, dynamic>.from(response);
-        Map<String, dynamic> reportData =
-            Map<String, dynamic>.from(res['report']);
+        Map<String, dynamic> reportData = Map<String, dynamic>.from(
+          res['report'],
+        );
 
         Map<String, Map> smallMap = {};
         Map<String, Map> otherMap = {};
@@ -155,9 +162,7 @@ class InvoiceRepository {
     try {
       final url = "${ApiUrls.baseUrl}/monthlySalesReport";
 
-      final response = await ApiClient.get(
-        url,
-      );
+      final response = await ApiClient.get(url);
 
       if (response['message'] != null && response['message'] == 'successful') {
         final data = response['doc'];
@@ -172,6 +177,37 @@ class InvoiceRepository {
       }
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getRolling12MonthComparison() async {
+    try {
+      final response = await ApiClient.get(
+        "${ApiUrls.baseUrl}/rolling-12-month-comparison",
+      );
+
+        return Map<String, dynamic>.from(response);
+
+    } catch (e) {
+      print("Error in getRolling12MonthComparison: $e");
+      rethrow;
+    }
+  }
+
+    Future<Map<String, dynamic>> getCurrentMonthMTDComparison() async {
+    try {
+      final response = await ApiClient.get(
+        "${ApiUrls.baseUrl}/current-month-mtd-comparison",
+      );
+
+      if (response != null) {
+        return Map<String, dynamic>.from(response);
+      }
+
+      return Future.value({});
+    } catch (e) {
+      print("Error fetching MTD comparison: $e");
+      return Future.value({});
     }
   }
 }

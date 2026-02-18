@@ -124,6 +124,7 @@ class _MonthlySalesScreenState extends State<MonthlySalesScreen> {
       drawer: Drawer(child: MyDrawer('Sushil', drawerOptionList)),
       body: showCard
           ? MonthlySalesCard(
+            key: GlobalKey(),
               salesData: salesData,
             )
           : SalesChartScreen(salesData: salesData,),

@@ -7,7 +7,7 @@ import '/config/routes/routes.dart';
 import 'modules/models/product.dart';
 import 'modules/repository/product_repo.dart';
 
-void main() async {
+void main() async { 
   await dotenv.load(fileName: ".env");
   Dio dio = Dio();
   dio.get(ApiUrls.getConfigList).then((value) {
