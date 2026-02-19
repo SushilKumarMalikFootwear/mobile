@@ -79,7 +79,7 @@ abstract class Constants {
 
 abstract class ApiUrls {
   static String baseUrl =
-      'https://0504-2409-40d0-13a2-d67f-fcb6-bc64-cd72-3c36.ngrok-free.app';
+      'https://sushil-kumar-malik-footwear-backend-three.vercel.app';
   static String getConfigList = '$baseUrl/get_config_lists';
   static String addFootwear = '$baseUrl/add_footwear';
   static String updateFootwear = '$baseUrl/update_product';
