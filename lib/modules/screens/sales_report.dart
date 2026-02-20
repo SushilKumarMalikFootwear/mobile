@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footwear/config/constants/app_constants.dart';
+import 'package:footwear/modules/repository/product_repo.dart';
 import 'package:footwear/modules/widgets/sales_report_filter.dart';
 import 'package:footwear/utils/widgets/custom_bottom_sheet.dart';
 import '../../config/constants/drawer_options_list.dart';
@@ -18,6 +19,7 @@ class SalesReport extends StatefulWidget {
 class _SalesReportState extends State<SalesReport> {
   DrawerOptionList list = DrawerOptionList();
   InvoiceRepository invoiceRepo = InvoiceRepository();
+  ProductRepository productRepo = ProductRepository();
 
   // multiple filter instances
   List<Map<String, dynamic>> filterList = [];
@@ -33,7 +35,11 @@ class _SalesReportState extends State<SalesReport> {
     var future;
     if (type == 'Sizes') {
       future = invoiceRepo.fetchInvoicesForSizesSalesReport(
-          article, startDate, endDate, label);
+        article,
+        startDate,
+        endDate,
+        label,
+      );
     } else if (type == 'Daily Sales') {
     } else if (type == 'Label Only') {
     } else if (type == 'All labels') {}
@@ -50,26 +56,73 @@ class _SalesReportState extends State<SalesReport> {
     setState(() {});
   }
 
+  void generateAllLabelAndArticleReports() async {
+    DateTime startDate = DateTime(2000, 1, 1);
+    DateTime endDate = DateTime.now();
+
+    List<String> labels = await productRepo.getAllLables();
+    List<String> articles = await productRepo.getAllArticles();
+
+    // 1️⃣ Generate Label-only reports
+    for (int i=0; i<labels.length; i++) {
+      String label = labels[i];
+      applyFilter({
+        'label': label,
+        'article': '', // no article
+        'startDate': startDate,
+        'endDate': endDate,
+        'dateRange': 'All',
+        'type': 'Sizes',
+      });
+    }
+
+    // 2️⃣ Generate Article-only reports
+    // for (String article in articles) {
+    //   applyFilter({
+    //     'label': '', // no label
+    //     'article': article,
+    //     'startDate': startDate,
+    //     'endDate': endDate,
+    //     'dateRange': 'All',
+    //     'type': 'Sizes', // or create separate 'Article Only' type
+    //   });
+    // }
+  }
+
   void deleteFilter(int index) {
     filterList.removeAt(index);
     futureList.removeAt(index);
     setState(() {});
   }
 
+  addCardFunction() {
+    customBottomSheet(
+      context,
+      SalesReportFilter(
+        applyFilter: (filters) => applyFilter(filters),
+        filterOptions: {},
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<DrawerOption> drawerOptionList = list.drawerOptions;
-    drawerOptionList = drawerOptionList.map((drawerOption) {
-      drawerOption.isActive =
-          drawerOption.name == AppBarTitle.salesReport ? true : false;
-      return drawerOption;
-    }).toList();
+    drawerOptionList =
+        drawerOptionList.map((drawerOption) {
+          drawerOption.isActive =
+              drawerOption.name == AppBarTitle.salesReport ? true : false;
+          return drawerOption;
+        }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppBarTitle.salesReport),
-      ),
+      appBar: AppBar(title: Text(AppBarTitle.salesReport)),
       drawer: Drawer(child: MyDrawer('Sushil', drawerOptionList)),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: generateAllLabelAndArticleReports,
+      //   child: Icon(Icons.auto_graph),
+      // ),
+
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: filterList.length + 1, // +1 for add card
@@ -77,15 +130,7 @@ class _SalesReportState extends State<SalesReport> {
           if (index == filterList.length) {
             // Add card
             return GestureDetector(
-              onTap: () {
-                customBottomSheet(
-                  context,
-                  SalesReportFilter(
-                    applyFilter: (filters) => applyFilter(filters),
-                    filterOptions: {},
-                  ),
-                );
-              },
+              onTap: addCardFunction,
               child: Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -94,11 +139,7 @@ class _SalesReportState extends State<SalesReport> {
                 child: SizedBox(
                   height: 120,
                   child: Center(
-                    child: Icon(
-                      Icons.add,
-                      size: 40,
-                      color: Colors.blue[600],
-                    ),
+                    child: Icon(Icons.add, size: 40, color: Colors.blue[600]),
                   ),
                 ),
               ),
@@ -113,9 +154,7 @@ class _SalesReportState extends State<SalesReport> {
             future: salesReportFuture,
             builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
               if (snapshot.hasError) {
-                return const Center(
-                  child: Text('Some Error has Occurred'),
-                );
+                return const Center(child: Text('Some Error has Occurred'));
               } else if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                   child: Padding(
@@ -167,8 +206,11 @@ class _SalesReportState extends State<SalesReport> {
                                     customBottomSheet(
                                       context,
                                       SalesReportFilter(
-                                        applyFilter: (filters) =>
-                                            applyFilter(filters, index: index),
+                                        applyFilter:
+                                            (filters) => applyFilter(
+                                              filters,
+                                              index: index,
+                                            ),
                                         filterOptions: filterMap,
                                       ),
                                     );
@@ -193,21 +235,28 @@ class _SalesReportState extends State<SalesReport> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             _buildStatTile(
-                                "Total", dataMap['total_count'].toString()),
+                              "Total",
+                              dataMap['total_count'].toString(),
+                            ),
                             _buildStatTile(
-                                "S.P.",
-                                double.parse(
-                                        dataMap['selling_price'].toString())
-                                    .toStringAsFixed(2)),
+                              "S.P.",
+                              double.parse(
+                                dataMap['selling_price'].toString(),
+                              ).toStringAsFixed(2),
+                            ),
                             _buildStatTile(
-                                "C.P.",
-                                double.parse(dataMap['cost_price'].toString())
-                                    .toStringAsFixed(2)),
+                              "C.P.",
+                              double.parse(
+                                dataMap['cost_price'].toString(),
+                              ).toStringAsFixed(2),
+                            ),
                             _buildStatTile(
-                                "Profit",
-                                double.parse(dataMap['profit'].toString())
-                                    .toStringAsFixed(2),
-                                isProfit: true),
+                              "Profit",
+                              double.parse(
+                                dataMap['profit'].toString(),
+                              ).toStringAsFixed(2),
+                              isProfit: true,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -223,18 +272,19 @@ class _SalesReportState extends State<SalesReport> {
                               showDomainLabel: true,
                               listData:
                                   (dataMap['report'] as List).map((entry) {
-                                final String label = entry.keys.first;
-                                final num value = entry.values.first;
+                                    final String label = entry.keys.first;
+                                    final num value = entry.values.first;
 
-                                return DChartBarDataCustom(
-                                  valueStyle:
-                                      const TextStyle(color: Colors.white),
-                                  color: Colors.teal[300],
-                                  value: value.toDouble(),
-                                  label: label,
-                                  showValue: true,
-                                );
-                              }).toList(),
+                                    return DChartBarDataCustom(
+                                      valueStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      color: Colors.teal[300],
+                                      value: value.toDouble(),
+                                      label: label,
+                                      showValue: true,
+                                    );
+                                  }).toList(),
                             ),
                           ),
                         ),
@@ -262,13 +312,7 @@ class _SalesReportState extends State<SalesReport> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
+          Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
           const SizedBox(height: 4),
           Text(
             value,
